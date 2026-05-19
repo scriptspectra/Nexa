@@ -13,12 +13,36 @@ import {
 } from "@workspace/ui/components/card";
 import { useSubscription } from "../../hooks/use-subscription";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export const PricingTable = () => {
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const { isPro, isLoading } = useSubscription();
 
   const checkoutBaseUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL || "";
+
+  useEffect(() => {
+    // Load Lemon Squeezy JS library dynamically
+    if (typeof window !== "undefined") {
+      const scriptId = "lemonsqueezy-js";
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = "https://assets.lemonsqueezy.com/lemon.js";
+        script.defer = true;
+        script.onload = () => {
+          if ((window as any).LemonSqueezy) {
+            (window as any).LemonSqueezy.Setup();
+          }
+        };
+        document.body.appendChild(script);
+      } else {
+        if ((window as any).LemonSqueezy) {
+          (window as any).LemonSqueezy.Setup();
+        }
+      }
+    }
+  }, []);
 
   const handleUpgrade = () => {
     if (!isOrgLoaded) return;
@@ -37,8 +61,12 @@ export const PricingTable = () => {
     const checkoutUrl = new URL(checkoutBaseUrl);
     checkoutUrl.searchParams.append("checkout[custom][organizationId]", organization.id);
     
-    // Redirect to Lemon Squeezy secure checkout in a new tab
-    window.open(checkoutUrl.toString(), "_blank");
+    // Open in Lemon Squeezy secure overlay modal if loaded, else fallback to new tab
+    if ((window as any).LemonSqueezy) {
+      (window as any).LemonSqueezy.Url.Open(checkoutUrl.toString());
+    } else {
+      window.open(checkoutUrl.toString(), "_blank");
+    }
   };
 
   const starterFeatures = [
