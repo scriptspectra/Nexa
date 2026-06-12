@@ -56,15 +56,14 @@ export const WidgetChatScreen = () => {
   };
 
   const suggestions = useMemo(() => {
-    if (!widgetSettings) {
+    if (!widgetSettings?.defaultSuggestions) {
       return [];
     }
 
-    return Object.keys(widgetSettings.defaultSuggestions).map((key) => {
-      return widgetSettings.defaultSuggestions[
-        key as keyof typeof widgetSettings.defaultSuggestions
-      ];
-    });
+    return Object.values(widgetSettings.defaultSuggestions).filter(
+      (suggestion): suggestion is string =>
+        typeof suggestion === "string" && suggestion.trim().length > 0,
+    );
   }, [widgetSettings]);
 
   const conversation = useQuery(
@@ -167,26 +166,20 @@ export const WidgetChatScreen = () => {
       </AIConversation>
       {toUIMessages(messages.results ?? [])?.length === 1 && (
         <AISuggestions className="flex w-full flex-col items-end p-2">
-          {suggestions.map((suggestion) => {
-            if (!suggestion) {
-              return null;
-            }
-
-            return (
-              <AISuggestion
-                key={suggestion}
-                onClick={() => {
-                  form.setValue("message", suggestion, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                    shouldTouch: true,
-                  });
-                  form.handleSubmit(onSubmit)();
-                }}
-                suggestion={suggestion}
-              />
-            )
-          })}
+          {suggestions.map((suggestion) => (
+            <AISuggestion
+              key={suggestion}
+              onClick={() => {
+                form.setValue("message", suggestion, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch: true,
+                });
+                form.handleSubmit(onSubmit)();
+              }}
+              suggestion={suggestion}
+            />
+          ))}
         </AISuggestions>
       )}
       <Form {...form}>

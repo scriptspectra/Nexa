@@ -10,35 +10,29 @@ import { chatBubbleIcon, closeIcon } from './icons';
   // Get configuration from script tag
   let organizationId: string | null = null;
   let position: 'bottom-right' | 'bottom-left' = EMBED_CONFIG.DEFAULT_POSITION;
-  let widgetUrl = EMBED_CONFIG.WIDGET_URL;
-  
-  // Try to get the current script
+  // widgetUrl is the base URL of the widget Next.js app (e.g. localhost:3001).
+  // It MUST always come from EMBED_CONFIG.WIDGET_URL and must NOT be derived
+  // from the embed script's own <script src>, which may be on a different port
+  // (e.g. the Vite dev server at localhost:3002). Overwriting it was the root
+  // cause of the ghost widget — the iframe was loading the wrong server.
+  const widgetUrl = EMBED_CONFIG.WIDGET_URL;
+  const widgetOrigin = new URL(EMBED_CONFIG.WIDGET_URL).origin;
+
+  // Try to get the current script (only for org ID and position config)
   const currentScript = document.currentScript as HTMLScriptElement;
   if (currentScript) {
     organizationId = currentScript.getAttribute('data-organization-id');
     position = (currentScript.getAttribute('data-position') as 'bottom-right' | 'bottom-left') || EMBED_CONFIG.DEFAULT_POSITION;
-    if (currentScript.src) {
-      try {
-        widgetUrl = new URL(currentScript.src).origin;
-      } catch (e) {
-        console.error('Echo Widget: failed to parse script src', e);
-      }
-    }
   } else {
-    // Fallback: find script tag by src
+    // Fallback: find script tag by src (only for org ID and position config)
     const scripts = document.querySelectorAll('script[src*="widget"], script[src*="embed"]');
-    const embedScript = Array.from(scripts).find(script => 
+    const embedScript = Array.from(scripts).find(script =>
       script.hasAttribute('data-organization-id')
     ) as HTMLScriptElement;
-    
+
     if (embedScript) {
       organizationId = embedScript.getAttribute('data-organization-id');
       position = (embedScript.getAttribute('data-position') as 'bottom-right' | 'bottom-left') || EMBED_CONFIG.DEFAULT_POSITION;
-      if (embedScript.src) {
-        try {
-          widgetUrl = new URL(embedScript.src).origin;
-        } catch (e) {}
-      }
     }
   }
   
@@ -136,7 +130,7 @@ import { chatBubbleIcon, closeIcon } from './icons';
   }
   
   function handleMessage(event: MessageEvent) {
-    if (event.origin !== new URL(widgetUrl).origin) return;
+    if (event.origin !== widgetOrigin) return;
     
     const { type, payload } = event.data;
     

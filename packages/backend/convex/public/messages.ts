@@ -62,23 +62,28 @@ export const create = action({
       },
     );
 
-    const shouldTriggerAgent =
-      conversation.status === "unresolved" && subscription?.status === "active"
+    const hasActiveSubscription = subscription?.status === "active";
 
-    if (shouldTriggerAgent) {
+    if (conversation.status === "unresolved") {
+      // Always run the agent for unresolved conversations.
+      // Premium tools (escalation, resolution, search) are only available
+      // when the organization has an active subscription.
       await supportAgent.generateText(
         ctx,
         { threadId: args.threadId },
         {
           prompt: args.prompt,
-          tools: {
-            escalateConversationTool: escalateConversation,
-            resolveConversationTool: resolveConversation,
-            searchTool: search,
-          }
+          tools: hasActiveSubscription
+            ? {
+                escalateConversationTool: escalateConversation,
+                resolveConversationTool: resolveConversation,
+                searchTool: search,
+              }
+            : {},
         },
-      )
+      );
     } else {
+      // Conversation is escalated — just save the human message, no AI reply.
       await saveMessage(ctx, components.agent, {
         threadId: args.threadId,
         prompt: args.prompt,
