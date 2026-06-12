@@ -37,8 +37,8 @@ export async function upsertSecret(
         SecretString: JSON.stringify(secretValue),
       }),
     );
-  } catch (error) {
-    if (error instanceof ResourceExistsException) {
+  } catch (error: any) {
+    if (error.name === "ResourceExistsException" || error.name === "ResourceExistsException") {
       await client.send(
         new PutSecretValueCommand({
           SecretId: secretName,
