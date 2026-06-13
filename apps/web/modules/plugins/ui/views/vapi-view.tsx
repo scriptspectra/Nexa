@@ -170,14 +170,17 @@ const VapiPluginRemoveForm = ({
 
   const onSubmit = async () => {
     try {
+      console.log("Removing Vapi plugin...");
       await removePlugin({
         service: "vapi",
       });
       setOpen(false);
       toast.success("Vapi plugin removed");
+      console.log("Vapi plugin removed successfully");
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
+      console.error("Error removing Vapi plugin:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to disconnect: ${errorMessage}`);
     }
   };
 
