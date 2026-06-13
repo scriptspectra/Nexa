@@ -220,14 +220,18 @@ export const VapiView = () => {
       <VapiPluginRemoveForm open={removeOpen} setOpen={setRemoveOpen} />
       <div className="flex min-h-screen flex-col bg-black p-6 md:p-12 overflow-y-auto">
         <div className="mx-auto w-full max-w-2xl space-y-8">
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
               <WorkflowIcon className="size-3 text-primary animate-pulse" />
               Voice Integrations
             </div>
-            <div className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Vapi Plugin</h1>
-              <p className="text-base text-zinc-400 max-w-xl leading-relaxed">
+
+            <div className="space-y-1">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
+                Vapi Plugin
+              </h1>
+
+              <p className="text-base text-zinc-400 max-w-3xl leading-relaxed">
                 Connect Vapi to enable real-time AI voice agents, purchase dedicated phone numbers, and configure automated outbound phone calls.
               </p>
             </div>
