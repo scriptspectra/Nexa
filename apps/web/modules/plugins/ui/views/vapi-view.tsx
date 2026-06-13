@@ -98,73 +98,77 @@ const VapiPluginForm = ({
   };
 
   return (
-    <Dialog open={open}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Enable Vapi</DialogTitle>
-        </DialogHeader>
-        <DialogDescription>
-          Your API keys are safely encrypted and stored using AWS Secrets
-          Manager.
-        </DialogDescription>
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-y-4"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <FormField
-              control={form.control}
-              name="publicApiKey"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Public API key</Label>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Your public API key"
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="privateApiKey"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Private API key</Label>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Your private API key"
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button
-                disabled={form.formState.isSubmitting}
-                type="submit"
+    <>
+      {open && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enable Vapi</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+              Your API keys are safely encrypted and stored using AWS Secrets
+              Manager.
+            </DialogDescription>
+            <Form {...form}>
+              <form
+                className="flex flex-col gap-y-4"
+                onSubmit={form.handleSubmit(onSubmit)}
               >
-                {form.formState.isSubmitting ? "Connecting..." : "Connect"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                <FormField
+                  control={form.control}
+                  name="publicApiKey"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Public API key</Label>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Your public API key"
+                          type="password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="privateApiKey"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Private API key</Label>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Your private API key"
+                          type="password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button
+                    disabled={form.formState.isSubmitting}
+                    type="submit"
+                  >
+                    {form.formState.isSubmitting ? "Connecting..." : "Connect"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   )
 };
 
@@ -194,21 +198,32 @@ const VapiPluginRemoveForm = ({
   };
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Disconnect Vapi</DialogTitle>
-        </DialogHeader>
-        <DialogDescription>
-          Are you sure you want to disconnect the Vapi plugin?
-        </DialogDescription>
-        <DialogFooter>
-          <Button onClick={onSubmit} variant="destructive">
-            Disconnect
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      {open && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Disconnect Vapi</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+              Are you sure you want to disconnect the Vapi plugin?
+            </DialogDescription>
+            <DialogFooter>
+              <Button onClick={onSubmit} variant="destructive">
+                Disconnect
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 
