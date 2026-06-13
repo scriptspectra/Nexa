@@ -98,73 +98,74 @@ const VapiPluginForm = ({
   };
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Enable Vapi</DialogTitle>
-        </DialogHeader>
-        <DialogDescription>
-          Your API keys are safely encrypted and stored using AWS Secrets
-          Manager.
-        </DialogDescription>
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-y-4"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <FormField
-              control={form.control}
-              name="publicApiKey"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Public API key</Label>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Your public API key"
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="privateApiKey"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>Private API key</Label>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Your private API key"
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
+    <>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-zinc-950 border border-white/10 rounded-lg p-6 max-w-lg w-full mx-4 shadow-2xl">
+            <h2 className="text-lg font-semibold text-white mb-2">Enable Vapi</h2>
+            <p className="text-sm text-zinc-400 mb-4">
+              Your API keys are safely encrypted and stored using AWS Secrets Manager.
+            </p>
+            <Form {...form}>
+              <form
+                className="flex flex-col gap-y-4"
+                onSubmit={form.handleSubmit(onSubmit)}
               >
-                Cancel
-              </Button>
-              <Button
-                disabled={form.formState.isSubmitting}
-                type="submit"
-              >
-                {form.formState.isSubmitting ? "Connecting..." : "Connect"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                <FormField
+                  control={form.control}
+                  name="publicApiKey"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Public API key</Label>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Your public API key"
+                          type="password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="privateApiKey"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label>Private API key</Label>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Your private API key"
+                          type="password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex gap-2 justify-end mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    disabled={form.formState.isSubmitting}
+                    type="submit"
+                  >
+                    {form.formState.isSubmitting ? "Connecting..." : "Connect"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </div>
+      )}
+    </>
   )
 };
 
