@@ -100,10 +100,16 @@ const VapiPluginForm = ({
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-zinc-950 border border-white/10 rounded-lg p-6 max-w-lg w-full mx-4 shadow-2xl">
-            <h2 className="text-lg font-semibold text-white mb-2">Enable Vapi</h2>
-            <p className="text-sm text-zinc-400 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-zinc-950 border border-white/10 rounded-xl p-6 max-w-lg w-full shadow-2xl relative">
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-semibold text-white mb-2">Enable Vapi</h2>
+            <p className="text-sm text-zinc-400 mb-6">
               Your API keys are safely encrypted and stored using AWS Secrets Manager.
             </p>
             <Form {...form}>
@@ -145,17 +151,19 @@ const VapiPluginForm = ({
                     </FormItem>
                   )}
                 />
-                <div className="flex gap-2 justify-end mt-4">
+                <div className="flex gap-3 justify-end mt-6">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setOpen(false)}
+                    className="border-white/10 text-white hover:bg-white/5"
                   >
                     Cancel
                   </Button>
                   <Button
                     disabled={form.formState.isSubmitting}
                     type="submit"
+                    className="bg-white text-black hover:bg-zinc-200"
                   >
                     {form.formState.isSubmitting ? "Connecting..." : "Connect"}
                   </Button>
