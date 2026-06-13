@@ -1,6 +1,6 @@
 # Implementation Plan - Lemon Squeezy Payments via Clerk Billing
 
-Your Nexa repository is already 99% fully integrated with Clerk Billing, which natively connects with Lemon Squeezy. This plan outlines the exact configuration steps needed on your side (Clerk & Lemon Squeezy dashboards) and what we need to finalize the connection.
+Your Zephyra repository is already 99% fully integrated with Clerk Billing, which natively connects with Lemon Squeezy. This plan outlines the exact configuration steps needed on your side (Clerk & Lemon Squeezy dashboards) and what we need to finalize the connection.
 
 ---
 
@@ -33,10 +33,10 @@ sequenceDiagram
 ### Step 1: Configure Lemon Squeezy
 1. Go to your [Lemon Squeezy Dashboard](https://app.lemonsqueezy.com/).
 2. Navigate to **Store Settings** -> **API keys** and create a new API key.
-3. Set up your subscription products/plans in Lemon Squeezy (e.g., *Nexa Pro Plan*).
+3. Set up your subscription products/plans in Lemon Squeezy (e.g., *Zephyra Pro Plan*).
 
 ### Step 2: Enable Clerk Billing
-1. Open your [Clerk Dashboard](https://dashboard.clerk.com/) and select your Nexa project.
+1. Open your [Clerk Dashboard](https://dashboard.clerk.com/) and select your Zephyra project.
 2. Go to **Billing** in the sidebar.
 3. Choose **Lemon Squeezy** as your billing provider.
 4. Input your Lemon Squeezy API Key to link your store.

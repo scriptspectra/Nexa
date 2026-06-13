@@ -174,9 +174,10 @@ export const ContactPanel = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-background text-foreground">
-      <div className="flex flex-col gap-y-4 p-4">
-        <div className="flex items-center gap-x-2">
+    <div className="flex h-full w-full flex-col bg-surface-container-lowest text-foreground overflow-y-auto custom-scrollbar">
+      {/* Profile Section */}
+      <div className="p-lg text-center border-b border-outline-variant">
+        <div className="w-20 h-20 rounded-full bg-surface-container-high border border-outline-variant mx-auto mb-sm overflow-hidden">
           <DicebearAvatar
             badgeImageUrl={
               countryInfo?.code
@@ -184,56 +185,48 @@ export const ContactPanel = () => {
                 : undefined
             }
             seed={contactSession._id}
-            size={42}
+            size={80}
           />
-          <div className="flex-1 overflow-hidden">
-            <div className="flex items-center gap-x-2">
-              <h4 className="line-clamp-1">
-                {contactSession.name}
-              </h4>
-            </div>
-            <p className="line-clamp-1 text-muted-foreground text-sm">
-              {contactSession.email}
-            </p>
-          </div>
         </div>
-        <Button asChild className="w-full" size="lg">
+        <h3 className="text-body-lg font-bold text-primary">{contactSession.name}</h3>
+        <p className="text-label-sm font-label-sm text-on-surface-variant mb-4">{contactSession.email}</p>
+        <Button asChild className="w-full border border-outline-variant bg-background py-2 text-label-sm font-label-sm font-bold uppercase tracking-widest hover:border-primary transition-colors flex items-center justify-center gap-2 rounded-none" variant="outline" size="lg">
           <Link href={`mailto:${contactSession.email}`}>
-            <MailIcon />
+            <MailIcon className="size-4" />
             <span>Send Email</span>
           </Link>
         </Button>
       </div>
 
-      <div>
+      <div className="flex-1">
         {contactSession.metadata && (
           <Accordion
-            className="w-full rounded-none border-y"
+            className="w-full rounded-none"
             collapsible
             type="single"
           >
             {accordionSections.map((section) => (
               <AccordionItem
-                className="rounded-none outline-none has-focus-visible:z-10 has-focus-visible:border-ring has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50"
+                className="rounded-none border-b border-outline-variant"
                 key={section.id}
                 value={section.id}
               >
                 <AccordionTrigger
-                  className="flex w-full flex-1 items-start justify-between gap-4 rounded-none bg-accent px-5 py-4 text-left font-medium text-sm outline-none transition-all hover:no-underline disabled:pointer-events-none disabled:opacity-50"
+                  className="flex w-full flex-1 items-start justify-between gap-4 rounded-none bg-surface-container px-sm py-sm text-left text-label-md font-label-md uppercase tracking-wider text-primary outline-none transition-all hover:no-underline hover:bg-surface-container-low"
                 >
                   <div className="flex items-center gap-4">
                     <section.icon className="size-4 shrink-0" />
                     <span>{section.title}</span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-5 py-4">
-                  <div className="space-y-2 text-sm">
+                <AccordionContent className="px-sm py-sm">
+                  <div className="space-y-3">
                     {section.items.map((item) => (
                       <div className="flex justify-between" key={`${section.id}-${item.label}`}>
-                        <span className="text-muted-foreground">
-                          {item.label}:
+                        <span className="text-label-sm font-label-sm text-on-surface-variant">
+                          {item.label}
                         </span>
-                        <span className={item.className}>{item.value}</span>
+                        <span className={`text-label-sm font-label-sm text-primary ${item.className ?? ""}`}>{item.value}</span>
                       </div>
                     ))}
                   </div>

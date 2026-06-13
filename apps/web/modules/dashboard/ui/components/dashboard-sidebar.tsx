@@ -1,207 +1,107 @@
 "use client";
 
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
-import {
-  CreditCardIcon,
-  InboxIcon,
-  LayoutDashboardIcon,
-  LibraryBigIcon,
-  Mic,
-  PaletteIcon,
-} from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-} from "@workspace/ui/components/sidebar";
-import { cn } from "@workspace/ui/lib/utils";
-import { ThemeToggle } from "@/components/theme-toggle";
-
-const customerSupportItems = [
-  {
-    title: "Conversations",
-    url: "/conversations",
-    icon: InboxIcon,
-  },
-  {
-    title: "Knowledge Base",
-    url: "/files",
-    icon: LibraryBigIcon,
-  },
-];
-
-const configurationItems = [
-  {
-    title: "Widget Customization",
-    url: "/customization",
-    icon: PaletteIcon,
-  },
-  {
-    title: "Integrations",
-    url: "/integrations",
-    icon: LayoutDashboardIcon,
-  },
-  {
-    title: "Voice Assistant",
-    url: "/plugins/vapi",
-    icon: Mic,
-  },
-];
-
-const accountItems = [
-  {
-    title: "Plans & Billing",
-    url: "/billing",
-    icon: CreditCardIcon,
-  },
-];
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 
 export const DashboardSidebar = () => {
   const pathname = usePathname();
 
-  const isActive = (url: string) => {
-    if (url === "/") {
-      return pathname === "/";
-    }
-
-    return pathname.startsWith(url);
-  };
-
   return (
-    <Sidebar className="group" collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg">
-              <OrganizationSwitcher 
-                hidePersonal 
-                skipInvitationScreen
-                appearance={{
-                  elements: {
-                    rootBox: "w-full! h-8!",
-                    avatarBox: "size-4! rounded-sm!",
-                    organizationSwitcherTrigger: "w-full! justify-start! group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!",
-                    organizationPreview: "group-data-[collapsible=icon]:justify-center! gap-2!",
-                    organizationPreviewTextContainer: "group-data-[collapsible=icon]:hidden! text-xs! font-medium! text-sidebar-foreground!",
-                    organizationSwitcherTriggerIcon: "group-data-[collapsible=icon]:hidden! ml-auto! text-sidebar-foreground!"
-                  }
-                }}
-              />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+    <aside className="flex flex-col h-full py-md px-sm bg-background border-r border-outline-variant w-64 shrink-0">
+      <div className="mb-lg px-xs">
+        <h1 className="text-label-md font-label-md font-bold text-primary tracking-widest uppercase mb-1">Zephyra</h1>
+        <p className="text-[10px] font-label-sm text-on-surface-variant uppercase tracking-tighter">Active: version 2</p>
+      </div>
 
-      <SidebarContent>
-        {/* Customer Support */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Customer Support</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {customerSupportItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      isActive(item.url) && "bg-gradient-to-b from-sidebar-primary to-[#0b63f3]! text-sidebar-primary-foreground! hover:to-[#0b63f3]/90!"
-                    )}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <nav className="flex-1 space-y-1">
+        <Link href="/conversations">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/conversations') || pathname === '/' ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+            <span className="text-label-md font-label-md">Dashboard</span>
+          </div>
+        </Link>
 
-        {/* Configuration */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Configuration</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {configurationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      isActive(item.url) && "bg-gradient-to-b from-sidebar-primary to-[#0b63f3]! text-sidebar-primary-foreground! hover:to-[#0b63f3]/90!"
-                    )}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Link href="/conversations">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/conversations') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+            <span className="text-label-md font-label-md">Conversations</span>
+          </div>
+        </Link>
 
-        {/* Account */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {accountItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      isActive(item.url) && "bg-gradient-to-b from-sidebar-primary to-[#0b63f3]! text-sidebar-primary-foreground! hover:to-[#0b63f3]/90!"
-                    )}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2 px-2 py-2">
-            <ThemeToggle />
-            <UserButton
-              showName
-              appearance={{
-                elements: {
-                  rootBox: "w-full! h-8!",
-                  userButtonTrigger: "w-full! p-2! hover:bg-sidebar-accent! hover:text-sidebar-accent-foreground! group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!",
-                  userButtonBox: "w-full! flex-row-reverse! justify-end! gap-2! group-data-[collapsible=icon]:justify-center! text-sidebar-foreground!",
-                  userButtonOuterIdentifier: "pl-0! group-data-[collapsible=icon]:hidden!",
-                  avatarBox: "size-4!"
-                }
-              }}
-            />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+        <Link href="/analytics">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/analytics') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+            <span className="text-label-md font-label-md">Analytics</span>
+          </div>
+        </Link>
+
+        <Link href="/customers">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/customers') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="group">group</span>
+            <span className="text-label-md font-label-md">Customers</span>
+          </div>
+        </Link>
+
+        <Link href="/customization">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/customization') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="settings">settings</span>
+            <span className="text-label-md font-label-md">Widget Customization</span>
+          </div>
+        </Link>
+
+        <Link href="/billing">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/billing') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+            <span className="text-label-md font-label-md">Billing</span>
+          </div>
+        </Link>
+
+        <Link href="/files">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/files') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="folder">folder</span>
+            <span className="text-label-md font-label-md">Files</span>
+          </div>
+        </Link>
+
+        <Link href="/integrations">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/integrations') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="extension">extension</span>
+            <span className="text-label-md font-label-md">Integrations</span>
+          </div>
+        </Link>
+
+        <Link href="/plugins/vapi">
+          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/plugins') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
+            <span className="material-symbols-outlined" data-icon="settings_applications">settings_applications</span>
+            <span className="text-label-md font-label-md">Plugins</span>
+          </div>
+        </Link>
+      </nav>
+
+      <div className="mt-auto space-y-4">
+        <button className="w-full py-sm text-label-md font-label-md font-bold uppercase tracking-widest hover:bg-on-background transition-colors active:scale-[0.98] bg-surface-container-highest text-primary">
+          New Case
+        </button>
+
+        <div className="pt-sm border-t border-outline-variant space-y-2">
+          <div className="flex items-center gap-3 px-sm py-1 text-on-surface-variant hover:text-primary cursor-pointer text-label-sm font-label-sm">
+            <span className="material-symbols-outlined text-[16px]" data-icon="help">help</span>
+            <span>Help Center</span>
+          </div>
+          <div className="flex items-center gap-3 px-sm py-1 text-on-surface-variant hover:text-primary cursor-pointer text-label-sm font-label-sm">
+            <span className="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span>
+            <span>System Status</span>
+          </div>
+        </div>
+
+        <div className="pt-sm border-t border-outline-variant">
+          <OrganizationSwitcher hidePersonal appearance={{ elements: { rootBox: "w-full" } }} />
+          <div className="mt-2 flex justify-center">
+            <UserButton />
+          </div>
+        </div>
+      </div>
+    </aside>
   );
 };

@@ -11,6 +11,7 @@ import {
 } from "@workspace/ui/components/ai/message";
 import { useVapi } from "@/modules/widget/hooks/use-vapi";
 import { WidgetHeader } from "@/modules/widget/ui/components/widget-header";
+import { VoiceWaveform } from "@/modules/widget/ui/components/waveform";
 import { useSetAtom } from "jotai";
 import { screenAtom } from "../../atoms/widget-atoms";
 import { cn } from "@workspace/ui/lib/utils";
@@ -66,10 +67,7 @@ export const WidgetVoiceScreen = () => {
         <div className="flex flex-col items-center gap-y-4">
           {isConnected && (
             <div className="flex items-center gap-x-2">
-              <div className={cn(
-                "size-4 rounded-full",
-                isSpeaking ? "animate-pulse bg-red-500" : "bg-green-500"
-              )} />
+              <VoiceWaveform isSpeaking={isSpeaking} />
               <span className="text-muted-foreground text-sm">
                 {isSpeaking ? "Assistant Speaking..." : "Listening..."}
               </span>

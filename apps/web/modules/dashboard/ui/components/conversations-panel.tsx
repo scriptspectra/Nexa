@@ -23,6 +23,7 @@ import { ConversationStatusIcon } from "@workspace/ui/components/conversation-st
 import { useAtomValue, useSetAtom } from "jotai/react";
 import { statusFilterAtom } from "../../atoms";
 import { Skeleton } from "@workspace/ui/components/skeleton";
+import { useState } from "react";
 
 export const ConversationsPanel = () => {
   const pathname = usePathname();
@@ -43,6 +44,8 @@ export const ConversationsPanel = () => {
     },
   );
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const {
     topElementRef,
     handleLoadMore,
@@ -55,55 +58,75 @@ export const ConversationsPanel = () => {
     loadSize: 10,
   });
 
+  const filteredResults = (conversations.results || []).filter(conv => {
+    if (!searchQuery) return true;
+    const lowerQuery = searchQuery.toLowerCase();
+    const nameMatch = conv.contactSession.name?.toLowerCase().includes(lowerQuery);
+    const msgMatch = conv.lastMessage?.text?.toLowerCase().includes(lowerQuery);
+    return nameMatch || msgMatch;
+  });
+
   return (
-    <div className="flex h-full w-full flex-col bg-background text-sidebar-foreground">
-      <div className="flex flex-col gap-3.5 border-b p-2">
-        <Select
-          defaultValue="all"
-          onValueChange={(value) => setStatusFilter(
-            value as "unresolved" | "escalated" | "resolved" | "all"
-          )}
-          value={statusFilter}
-        >
-          <SelectTrigger
-            className="h-8 border-none px-1.5 shadow-none ring-0 hover:bg-accent hover:text-accent-foreground focus-visible:ring-0"
+    <div className="flex h-full w-full flex-col bg-background text-foreground overflow-hidden">
+      <div className="flex flex-col gap-2 p-sm border-b border-outline-variant">
+        <div className="relative w-full">
+          <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+          <input 
+            className="w-full bg-background border border-outline-variant py-1.5 pl-9 pr-3 text-label-sm font-label-sm focus:outline-none focus:border-primary rounded-none text-on-surface" 
+            placeholder="Search chats..." 
+            type="text" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="relative w-full">
+          <Select
+            defaultValue="all"
+            onValueChange={(value) => setStatusFilter(
+              value as "unresolved" | "escalated" | "resolved" | "all"
+            )}
+            value={statusFilter}
           >
-            <SelectValue placeholder="Filter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">
-              <div className="flex items-center gap-2">
-                <ListIcon className="size-4" />
-                <span>All</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="unresolved">
-              <div className="flex items-center gap-2">
-                <ArrowRightIcon className="size-4" />
-                <span>Unresolved</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="escalated">
-              <div className="flex items-center gap-2">
-                <ArrowUpIcon className="size-4" />
-                <span>Escalated</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="resolved">
-              <div className="flex items-center gap-2">
-                <CheckIcon className="size-4" />
-                <span>Resolved</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+            <SelectTrigger
+              className="w-full bg-background border border-outline-variant text-label-sm font-label-sm h-9 focus:border-primary focus:ring-0 rounded-none text-on-surface"
+            >
+              <SelectValue placeholder="Filter conversations" />
+            </SelectTrigger>
+            <SelectContent className="bg-surface-container-high border border-outline-variant text-on-surface z-50">
+              <SelectItem value="all" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
+                <div className="flex items-center gap-2">
+                  <ListIcon className="size-4" />
+                  <span>All Conversations</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="unresolved" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
+                <div className="flex items-center gap-2">
+                  <ArrowRightIcon className="size-4" />
+                  <span>Unresolved</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="escalated" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
+                <div className="flex items-center gap-2">
+                  <ArrowUpIcon className="size-4" />
+                  <span>Escalated</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="resolved" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="size-4" />
+                  <span>Resolved</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       {isLoadingFirstPage ? (
         <SkeletonConversations />
       ) : (
-        <ScrollArea className="max-h-[calc(100vh-53px)]">
-          <div className="flex w-full flex-1 flex-col text-sm">
-            {conversations.results.map((conversation) => {
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex w-full flex-col">
+            {filteredResults.map((conversation) => {
               const isLastMessageFromOperator =
                 conversation.lastMessage?.message?.role !== "user";
 
@@ -115,46 +138,47 @@ export const ConversationsPanel = () => {
                 ? getCountryFlagUrl(country.code)
                 : undefined;
 
+              const isActive = pathname === `/conversations/${conversation._id}`;
+
               return (
                 <Link
                   key={conversation._id}
                   className={cn(
-                    "relative flex cursor-pointer items-start gap-3 border-b p-4 py-5 text-sm leading-tight hover:bg-accent hover:text-accent-foreground",
-                    pathname === `/conversations/${conversation._id}` &&
-                      "bg-accent text-accent-foreground"
+                    "relative flex cursor-pointer items-start gap-3 border-b border-outline-variant p-sm py-sm text-sm leading-tight transition-colors",
+                    isActive
+                      ? "bg-surface-container-high text-primary"
+                      : "text-on-surface hover:bg-surface-container-low hover:text-primary"
                   )}
                   href={`/conversations/${conversation._id}`}
                 >
-                  <div className={cn(
-                    "-translate-y-1/2 absolute top-1/2 left-0 h-[64%] w-1 rounded-r-full bg-neutral-300 opacity-0 transition-opacity",
-                    pathname === `/conversations/${conversation._id}` &&
-                      "opacity-100"
-                  )} />
+                  {isActive && (
+                    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary" />
+                  )}
 
                   <DicebearAvatar
                     seed={conversation.contactSession._id}
                     badgeImageUrl={countryFlagUrl}
-                    size={40}
+                    size={36}
                     className="shrink-0"
                   />
-                  <div className="flex-1">
-                    <div className="flex w-full items-center gap-2">
-                      <span className="truncate font-bold">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex w-full items-center justify-between gap-2 mb-1">
+                      <span className="truncate text-label-md font-label-md font-bold text-primary">
                         {conversation.contactSession.name}
                       </span>
-                      <span className="ml-auto shrink-0 text-muted-foreground text-xs">
+                      <span className="shrink-0 text-label-sm font-label-sm text-on-surface-variant">
                         {formatDistanceToNow(conversation._creationTime)}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex w-0 grow items-center gap-1">
                         {isLastMessageFromOperator && (
-                          <CornerUpLeftIcon className="size-3 shrink-0 text-muted-foreground" />
+                          <CornerUpLeftIcon className="size-3 shrink-0 text-on-surface-variant" />
                         )}
                         <span
                           className={cn(
-                            "line-clamp-1 text-muted-foreground text-xs",
-                            !isLastMessageFromOperator && "font-bold text-black"
+                            "line-clamp-1 text-body-sm font-body-sm text-on-surface-variant",
+                            !isLastMessageFromOperator && "font-bold text-on-surface"
                           )}
                         >
                           {conversation.lastMessage?.text}
@@ -166,6 +190,11 @@ export const ConversationsPanel = () => {
                 </Link>
               )
             })}
+            {filteredResults.length === 0 && (
+              <div className="p-4 text-center text-on-surface-variant text-label-sm">
+                No conversations found.
+              </div>
+            )}
             <InfiniteScrollTrigger
               canLoadMore={canLoadMore}
               isLoadingMore={isLoadingMore}
@@ -173,7 +202,7 @@ export const ConversationsPanel = () => {
               ref={topElementRef}
             />
           </div>
-        </ScrollArea>
+        </div>
       )}
     </div>
   )

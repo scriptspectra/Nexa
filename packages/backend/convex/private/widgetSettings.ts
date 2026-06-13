@@ -4,6 +4,9 @@ import { mutation, query } from "../_generated/server";
 export const upsert = mutation({
   args: {
     greetMessage: v.string(),
+    primaryColor: v.optional(v.string()),
+    gradientEndColor: v.optional(v.string()),
+    backgroundColor: v.optional(v.string()),
     defaultSuggestions: v.object({
       suggestion1: v.optional(v.string()),
       suggestion2: v.optional(v.string()),
@@ -41,6 +44,9 @@ export const upsert = mutation({
     if (existingWidgetSettings) {
       await ctx.db.patch(existingWidgetSettings._id, {
         greetMessage: args.greetMessage,
+        primaryColor: args.primaryColor,
+        gradientEndColor: args.gradientEndColor,
+        backgroundColor: args.backgroundColor,
         defaultSuggestions: args.defaultSuggestions,
         vapiSettings: args.vapiSettings,
       });
@@ -48,6 +54,9 @@ export const upsert = mutation({
       await ctx.db.insert("widgetSettings", {
         organizationId: orgId,
         greetMessage: args.greetMessage,
+        primaryColor: args.primaryColor,
+        gradientEndColor: args.gradientEndColor,
+        backgroundColor: args.backgroundColor,
         defaultSuggestions: args.defaultSuggestions,
         vapiSettings: args.vapiSettings,
       });

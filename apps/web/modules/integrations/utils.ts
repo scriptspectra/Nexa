@@ -20,7 +20,7 @@ export const getDynamicWidgetUrl = () => {
 
   // Vercel deployment default URL
   if (hostname.endsWith(".vercel.app")) {
-    return process.env.NEXT_PUBLIC_WIDGET_URL || "https://nexa-widget.vercel.app";
+    return process.env.NEXT_PUBLIC_WIDGET_URL || "https://Zephyra-widget.vercel.app";
   }
 
   // Custom domain (e.g. app.zephyrapp.it.com or zephyrapp.it.com)

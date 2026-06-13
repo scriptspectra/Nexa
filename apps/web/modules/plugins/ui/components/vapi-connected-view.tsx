@@ -29,82 +29,109 @@ export const VapiConnectedView = ({ onDisconnect }: VapiConnectedViewProps) => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+      {/* Vapi Connection Status Card */}
+      <Card className="border border-white/5 bg-zinc-950/40 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden relative">
+        <div className="absolute right-0 top-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+        <CardHeader className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Image
-                alt="Vapi"
-                className="rounded-lg object-contain"
-                height={48}
-                width={48}
-                src="/vapi.jpg"
-              />
-              <div>
-                <CardTitle>Vapi Integration</CardTitle>
-                <CardDescription>
-                  Manage your phone numbers and AI assistants
+              <div className="flex size-14 items-center justify-center bg-white/[0.02] border border-white/5 rounded-xl">
+                <Image
+                  alt="Vapi"
+                  className="rounded-lg object-contain"
+                  height={40}
+                  width={40}
+                  src="/vapi.jpg"
+                />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-lg font-bold text-white tracking-tight">Vapi Integration</CardTitle>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Connected
+                  </span>
+                </div>
+                <CardDescription className="text-zinc-400 text-xs">
+                  Manage your active phone lines and custom LLM voices
                 </CardDescription>
               </div>
             </div>
 
-            <Button onClick={onDisconnect} size="sm" variant="destructive">
-              <UnplugIcon />
+            <Button 
+              onClick={onDisconnect} 
+              size="sm" 
+              className="bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 border border-rose-500/20 h-9 px-4 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] gap-1.5"
+            >
+              <UnplugIcon className="size-3.5" />
               Disconnect
             </Button>
           </div>
         </CardHeader>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+      {/* Widget Configuration Shortcut */}
+      <Card className="border border-white/5 bg-zinc-950/40 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden">
+        <CardHeader className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex size-12 items-center justify-center rounded-lg border bg-muted">
-                <SettingsIcon className="size-6 text-muted-foreground" />
+              <div className="flex size-12 items-center justify-center rounded-xl bg-white/[0.02] border border-white/5 text-zinc-300">
+                <SettingsIcon className="size-5" />
               </div>
-              <div>
-                <CardTitle>Widget Configuration</CardTitle>
-                <CardDescription>
-                  Set up voice calls for your chat widget
+              <div className="space-y-0.5">
+                <CardTitle className="text-base font-bold text-white tracking-tight">Widget Configuration</CardTitle>
+                <CardDescription className="text-zinc-400 text-xs">
+                  Enable voice agents inside the live customer chatbox widget
                 </CardDescription>
               </div>
             </div>
-            <Button asChild>
+            <Button 
+              asChild 
+              className="bg-white hover:bg-zinc-200 text-black border border-white/10 h-9 px-4 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] gap-1.5"
+            >
               <Link href="/customization">
-                <SettingsIcon />
-                Configure
+                <SettingsIcon className="size-3.5" />
+                Configure Widget
               </Link>
             </Button>
           </div>
         </CardHeader>
       </Card>
 
-      <div className="overflow-hidden rounded-lg border bg-background">
+      {/* Tabs Layout */}
+      <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-950/20 backdrop-blur-xl shadow-2xl p-1">
         <Tabs
           className="gap-0"
           defaultValue="phone-numbers"
           onValueChange={setActiveTab}
           value={activeTab}
         >
-          <TabsList className="grid h-12 w-full grid-cols-2 p-0">
-            <TabsTrigger className="h-full rounded-none" value="phone-numbers">
-              <PhoneIcon />
+          <TabsList className="grid h-12 w-full grid-cols-2 p-1.5 bg-zinc-900/40 border border-white/5 rounded-xl">
+            <TabsTrigger 
+              className="h-full rounded-lg text-xs font-semibold uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-black text-zinc-400 transition-all cursor-pointer gap-1.5" 
+              value="phone-numbers"
+            >
+              <PhoneIcon className="size-3.5" />
               Phone Numbers
             </TabsTrigger>
-            <TabsTrigger className="h-full rounded-none" value="assistants">
-              <BotIcon />
+            <TabsTrigger 
+              className="h-full rounded-lg text-xs font-semibold uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-black text-zinc-400 transition-all cursor-pointer gap-1.5" 
+              value="assistants"
+            >
+              <BotIcon className="size-3.5" />
               AI Assistants
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="phone-numbers">
-            <VapiPhoneNumbersTab />
-          </TabsContent>
-          <TabsContent value="assistants">
-            <VapiAssistantsTab />
-          </TabsContent>
+          <div className="p-4">
+            <TabsContent value="phone-numbers" className="mt-0 outline-none">
+              <VapiPhoneNumbersTab />
+            </TabsContent>
+            <TabsContent value="assistants" className="mt-0 outline-none">
+              <VapiAssistantsTab />
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>
   );
 };
+

@@ -11,7 +11,7 @@ export default function LandingPage() {
       {/* TopNavBar */}
       <nav className="fixed top-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-border shadow-sm duration-300 ease-in-out">
         <div className="flex justify-between items-center h-20 px-6 md:px-10 max-w-[1440px] mx-auto">
-          <div className="text-2xl font-bold text-foreground tracking-tight">Nexa</div>
+          <div className="text-2xl font-bold text-foreground tracking-tight">Zephyra</div>
           <div className="hidden md:flex items-center space-x-12">
             <a className="text-amber-500 font-semibold active-nav-indicator text-base hover:opacity-80 transition-opacity" href="#">Platform</a>
             <a className="text-muted-foreground hover:text-foreground transition-colors text-base" href="#">Solutions</a>
@@ -64,10 +64,10 @@ export default function LandingPage() {
             </div>
             <div className="relative lg:h-[600px] flex items-center justify-center mt-12 lg:mt-0">
               <div className="bg-background/50 backdrop-blur-xl border border-border w-full h-[480px] rounded-xl overflow-hidden shadow-2xl relative">
-                <img 
-                  alt="Nexa Dashboard" 
-                  className="w-full h-full object-cover opacity-80" 
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2070" 
+                <img
+                  alt="Zephyra Dashboard"
+                  className="w-full h-full object-cover opacity-80"
+                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2070"
                 />
                 {/* Overlay interface elements */}
                 <div className="absolute top-4 left-4 right-4 h-12 bg-background/80 backdrop-blur-md rounded-lg flex items-center px-6 border border-border">
@@ -77,7 +77,7 @@ export default function LandingPage() {
                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                   </div>
                   <div className="mx-auto text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-                    nexa-ai-agent-v2-production
+                    Zephyra-ai-agent-v2-production
                   </div>
                 </div>
               </div>
@@ -106,7 +106,7 @@ export default function LandingPage() {
                 Explore documentation <ArrowRight className="w-4 h-4" />
               </div>
             </div>
-            
+
             <div className="bg-background/50 backdrop-blur-xl border border-border p-12 rounded-xl group hover:border-amber-500/50 transition-all cursor-pointer">
               <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Mic className="text-amber-500 w-6 h-6" />
@@ -119,7 +119,7 @@ export default function LandingPage() {
                 Listen to samples <ArrowRight className="w-4 h-4" />
               </div>
             </div>
-            
+
             <div className="bg-background/50 backdrop-blur-xl border border-border p-12 rounded-xl group hover:border-amber-500/50 transition-all cursor-pointer">
               <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Activity className="text-amber-500 w-6 h-6" />
@@ -143,7 +143,7 @@ export default function LandingPage() {
               <p className="text-lg text-muted-foreground">Plans that evolve alongside your customer base.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 items-end mt-12">
-              
+
               <div className="bg-background/50 backdrop-blur-xl border border-border p-12 rounded-xl flex flex-col h-full mt-8 md:mt-0">
                 <div className="mb-12">
                   <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">FOR SMALL TEAMS</div>
@@ -168,7 +168,7 @@ export default function LandingPage() {
                   Get Started
                 </Link>
               </div>
-              
+
               <div className="bg-background p-12 rounded-xl border border-amber-500/50 relative transform md:scale-105 shadow-[0_0_40px_rgba(245,158,11,0.15)] flex flex-col h-full z-10">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 px-6 py-1.5 rounded-full text-amber-950 text-xs font-semibold tracking-widest uppercase shadow-lg whitespace-nowrap">
                   MOST POPULAR
@@ -199,7 +199,7 @@ export default function LandingPage() {
                   Try 14 Days Free
                 </Link>
               </div>
-              
+
               <div className="bg-background/50 backdrop-blur-xl border border-border p-12 rounded-xl flex flex-col h-full mt-8 md:mt-0">
                 <div className="mb-12">
                   <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">FOR SCALE</div>
@@ -247,7 +247,7 @@ export default function LandingPage() {
       <footer className="w-full border-t border-border bg-muted/20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 px-6 md:px-10 py-20 max-w-[1440px] mx-auto">
           <div className="col-span-2 md:col-span-1">
-            <div className="text-2xl font-bold text-foreground mb-6">Nexa</div>
+            <div className="text-2xl font-bold text-foreground mb-6">Zephyra</div>
             <p className="text-muted-foreground text-base max-w-xs">
               Building the future of human-AI collaboration in customer experience. Precision in every interaction.
             </p>
@@ -280,7 +280,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="max-w-[1440px] mx-auto px-6 md:px-10 py-6 border-t border-border text-center md:text-left text-muted-foreground text-sm">
-          © 2026 Nexa AI. All rights reserved. Precision in support.
+          © 2026 Zephyra AI. All rights reserved. Precision in support.
         </div>
       </footer>
     </div>

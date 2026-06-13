@@ -10,7 +10,7 @@ export const createTestOrg = action({
   handler: async () => {
     try {
       const org = await clerkClient.organizations.createOrganization({
-        name: "Nexa Test Org",
+        name: "Zephyra Test Org",
       });
       return { success: true, orgId: org.id };
     } catch (error: any) {
@@ -33,7 +33,7 @@ export const activatePlan = mutation({
     for (const orgId of orgs) {
       const existingSubscription = await ctx.db
         .query("subscriptions")
-        .withIndex("by_organization_id", (q) => 
+        .withIndex("by_organization_id", (q) =>
           q.eq("organizationId", orgId),
         )
         .unique();

@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { WidgetAuthScreen } from "@/modules/widget/ui/screens/widget-auth-screen";
-import { screenAtom } from "@/modules/widget/atoms/widget-atoms";
+import { screenAtom, widgetSettingsAtom } from "@/modules/widget/atoms/widget-atoms";
 import { WidgetErrorScreen } from "@/modules/widget/ui/screens/widget-error-screen";
 import { WidgetLoadingScreen } from "@/modules/widget/ui/screens/widget-loading-screen";
 import { WidgetSelectionScreen } from "@/modules/widget/ui/screens/widget-selection-screen";
@@ -17,6 +18,12 @@ interface Props {
 
 export const WidgetView = ({ organizationId }: Props) => {
   const screen = useAtomValue(screenAtom);
+  const widgetSettings = useAtomValue(widgetSettingsAtom);
+
+  useEffect(() => {
+    // Notify parent window that the widget React app has mounted
+    window.parent.postMessage({ type: "ready" }, "*");
+  }, []);
 
   const screenComponents = {
     loading: <WidgetLoadingScreen organizationId={organizationId} />,
@@ -30,7 +37,13 @@ export const WidgetView = ({ organizationId }: Props) => {
   }
 
   return (
-    <main className="flex h-full w-full flex-col overflow-hidden rounded-xl border bg-muted">
+    <main 
+      className="flex h-full w-full flex-col overflow-hidden rounded-xl border bg-muted"
+      style={{
+        ...(widgetSettings?.primaryColor ? { '--primary': widgetSettings.primaryColor } : {}),
+        ...(widgetSettings?.backgroundColor ? { backgroundColor: widgetSettings.backgroundColor } : {}),
+      } as React.CSSProperties}
+    >
       {screenComponents[screen]}
     </main>
   );

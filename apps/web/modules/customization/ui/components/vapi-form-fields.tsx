@@ -1,20 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
 import { useVapiAssistants, useVapiPhoneNumbers } from "@/modules/plugins/hooks/use-vapi-data";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@workspace/ui/components/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select";
 import { FormSchema } from "../../types";
 
 interface VapiFormFieldsProps {
@@ -31,84 +16,37 @@ export const VapiFormFields = ({
 
   return (
     <>
-      <FormField
-        control={form.control}
-        name="vapiSettings.assistantId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Voice Assistant</FormLabel>
-            <Select
-              disabled={assistantsLoading || disabled}
-              onValueChange={field.onChange}
-              value={field.value}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      assistantsLoading
-                        ? "Loading assistants..."
-                        : "Select an assistant"
-                    }
-                  />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {assistants.map((assistant) => (
-                  <SelectItem key={assistant.id} value={assistant.id}>
-                    {assistant.name || "Unnamed Assistant"} -{" "}
-                    {assistant.model?.model || "Unknown model"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormDescription>
-              The Vapi assistant to use for voice calls
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="vapiSettings.phoneNumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Display Phone Number</FormLabel>
-            <Select
-              disabled={phoneNumbersLoading || disabled}
-              onValueChange={field.onChange}
-              value={field.value}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      assistantsLoading
-                        ? "Loading phone numbers..."
-                        : "Select a phone number"
-                    }
-                  />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {phoneNumbers.map((phone) => (
-                  <SelectItem key={phone.id} value={phone.number || phone.id}>
-                    {phone.number || "Unknown"} -{" "}
-                    {phone.name || "Unnamed"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormDescription>
-              Phone number to display in the widget
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div>
+        <label className="block text-label-sm font-label-sm text-on-surface-variant mb-base">Assistant Profile</label>
+        <select 
+          className="w-full bg-black border border-outline-variant p-sm text-body-sm font-label-md rounded appearance-none focus:border-primary transition-colors focus:outline-none disabled:opacity-50"
+          disabled={assistantsLoading || disabled}
+          {...form.register("vapiSettings.assistantId")}
+        >
+          <option value="none">{assistantsLoading ? "Loading..." : "Select an assistant"}</option>
+          {assistants?.map((assistant) => (
+            <option key={assistant.id} value={assistant.id}>
+              {assistant.name || "Unnamed Assistant"} - {assistant.model?.model || "Unknown model"}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-label-sm font-label-sm text-on-surface-variant mb-base">Display Phone Number</label>
+        <select 
+          className="w-full bg-black border border-outline-variant p-sm text-body-sm font-label-md rounded appearance-none focus:border-primary transition-colors focus:outline-none disabled:opacity-50"
+          disabled={phoneNumbersLoading || disabled}
+          {...form.register("vapiSettings.phoneNumber")}
+        >
+          <option value="none">{phoneNumbersLoading ? "Loading..." : "Select a phone number"}</option>
+          {phoneNumbers?.map((phone) => (
+            <option key={phone.id} value={phone.number || phone.id}>
+              {phone.number || "Unknown"} - {phone.name || "Unnamed"}
+            </option>
+          ))}
+        </select>
+      </div>
     </>
   )
 };

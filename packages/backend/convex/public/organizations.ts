@@ -40,7 +40,7 @@ export const createTestOrg = action({
   handler: async () => {
     try {
       const org = await clerkClient.organizations.createOrganization({
-        name: "Nexa Test Org",
+        name: "Zephyra Test Org",
       });
       return { success: true, orgId: org.id };
     } catch (error: any) {

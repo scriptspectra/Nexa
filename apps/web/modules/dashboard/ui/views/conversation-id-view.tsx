@@ -143,23 +143,30 @@ export const ConversationIdView = ({
   }
 
   return (
-    <div className="flex h-full flex-col bg-muted">
-      <header className="flex items-center justify-between border-b bg-background p-2.5">
-        <Button
-          size="sm"
-          variant="ghost"
-        >
-          <MoreHorizontalIcon />
-        </Button>
-        {!!conversation && (
-          <ConversationStatusButton
-            onClick={handleToggleStatus}
-            status={conversation.status}
-            disabled={isUpdatingStatus}
-          />
-        )}
+    <div className="flex h-full flex-col bg-background">
+      <header className="h-16 flex items-center justify-between px-lg border-b border-outline-variant">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary font-bold text-label-sm">
+            <span className="text-[11px] font-bold">{conversation?.contactSession?.name?.[0]?.toUpperCase() ?? "?"}</span>
+          </div>
+          <div>
+            <h2 className="text-body-md font-bold text-primary">{conversation?.contactSession?.name ?? "Loading..."}</h2>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          {!!conversation && (
+            <ConversationStatusButton
+              onClick={handleToggleStatus}
+              status={conversation.status}
+              disabled={isUpdatingStatus}
+            />
+          )}
+          <Button size="sm" variant="ghost" className="text-on-surface-variant hover:text-primary">
+            <MoreHorizontalIcon />
+          </Button>
+        </div>
       </header>
-      <AIConversation className="max-h-[calc(100vh-180px)]">
+      <AIConversation className="flex-1 overflow-hidden">
         <AIConversationContent>
           <InfiniteScrollTrigger
             canLoadMore={canLoadMore}
@@ -190,7 +197,7 @@ export const ConversationIdView = ({
         <AIConversationScrollButton />
       </AIConversation>
       
-      <div className="p-2">
+      <div className="p-lg border-t border-outline-variant bg-surface-dim">
         <Form {...form}>
           <AIInput onSubmit={form.handleSubmit(onSubmit)}>
             <FormField

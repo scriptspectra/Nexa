@@ -153,7 +153,7 @@ Enhanced: "Thank you for your patience. I've identified the issue - your account
 
 ## Critical Rules
 * Never add information not in the original
-* Keep the same level of detail
+* Keep the same version of detail
 * Don't over-formalize casual brands
 * Preserve any specific promises or commitments
 * Return ONLY the enhanced message, nothing else

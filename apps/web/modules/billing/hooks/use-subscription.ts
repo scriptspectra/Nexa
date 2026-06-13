@@ -11,7 +11,7 @@ export const useSubscription = () => {
   );
 
   return {
-    isPro: subscription?.status === "active",
+    isPro: subscription?.status === "active" || subscription?.status === "on_trial",
     isLoading: !isOrgLoaded || subscription === undefined,
   };
 };

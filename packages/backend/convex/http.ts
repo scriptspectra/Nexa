@@ -4,6 +4,10 @@ import type { WebhookEvent } from "@clerk/backend";
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import {
+  parseInvoiceDetails,
+  parseSubscriptionDetails,
+} from "./lib/lemonsqueezy";
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY || "",
@@ -80,17 +84,15 @@ http.route({
     const eventName = payload.meta?.event_name;
     console.log(`LEMON_SQUEEZY_WEBHOOK: Received event "${eventName}"`);
 
-    // Handle subscription lifecycle events
     if (
       eventName === "subscription_created" ||
       eventName === "subscription_updated" ||
       eventName === "subscription_cancelled" ||
-      eventName === "subscription_expired"
+      eventName === "subscription_expired" ||
+      eventName === "subscription_resumed"
     ) {
-      const status = payload.data?.attributes?.status;
-      // Get the custom parameter passed during checkout
-      const organizationId = 
-        payload.meta?.custom_data?.organizationId || 
+      const organizationId =
+        payload.meta?.custom_data?.organizationId ||
         payload.data?.attributes?.custom_data?.organizationId ||
         payload.meta?.custom_data?.organization_id ||
         payload.data?.attributes?.custom_data?.organization_id;
@@ -100,17 +102,18 @@ http.route({
         return new Response("Missing custom organizationId", { status: 400 });
       }
 
-      console.log(`LEMON_SQUEEZY_WEBHOOK: Organization "${organizationId}" status is "${status}"`);
-
-      // Translate active states to "active", others to status string
-      const dbStatus = (status === "active" || status === "on_trial") ? "active" : status;
-      await ctx.runMutation(internal.system.subscriptions.upsert, {
+      const subscriptionDetails = parseSubscriptionDetails(
         organizationId,
-        status: dbStatus,
-      });
+        payload.data,
+      );
 
-      // Update Clerk organization limits (Premium gets 5 seats, Free gets 1)
-      const newMaxAllowedMemberships = dbStatus === "active" ? 5 : 1;
+      console.log(
+        `LEMON_SQUEEZY_WEBHOOK: Organization "${organizationId}" status is "${subscriptionDetails.status}"`,
+      );
+
+      await ctx.runMutation(internal.system.subscriptions.upsert, subscriptionDetails);
+
+      const newMaxAllowedMemberships = subscriptionDetails.status === "active" ? 5 : 1;
       try {
         await clerkClient.organizations.updateOrganization(organizationId, {
           maxAllowedMemberships: newMaxAllowedMemberships,
@@ -119,6 +122,33 @@ http.route({
       } catch (clerkErr) {
         console.error("LEMON_SQUEEZY_WEBHOOK_CLERK_UPDATE_ERROR:", clerkErr);
       }
+    }
+
+    if (eventName === "subscription_payment_success") {
+      let organizationId =
+        payload.meta?.custom_data?.organizationId ||
+        payload.data?.attributes?.custom_data?.organizationId ||
+        payload.meta?.custom_data?.organization_id ||
+        payload.data?.attributes?.custom_data?.organization_id;
+
+      if (!organizationId) {
+        const subscriptionId = payload.data?.attributes?.subscription_id;
+        if (subscriptionId) {
+          const subscription = await ctx.runQuery(
+            internal.system.subscriptions.getByLemonSubscriptionId,
+            { lemonSqueezySubscriptionId: String(subscriptionId) },
+          );
+          organizationId = subscription?.organizationId;
+        }
+      }
+
+      if (!organizationId) {
+        console.error("LEMON_SQUEEZY_WEBHOOK_ERROR: Missing organizationId on invoice event.");
+        return new Response("Missing organizationId", { status: 400 });
+      }
+
+      const invoiceDetails = parseInvoiceDetails(organizationId, payload.data);
+      await ctx.runMutation(internal.system.billingInvoices.upsert, invoiceDetails);
     }
 
     return new Response(null, { status: 200 });
