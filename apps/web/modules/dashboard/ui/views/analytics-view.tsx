@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useOrganization } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
 
 const AnalyticsChart = dynamic(
@@ -18,13 +19,13 @@ const AnalyticsChart = dynamic(
 );
 
 export const AnalyticsView = () => {
-  const { isLoading: isAuthLoading, isAuthenticated } = useConvexAuth();
+  const { organization, isLoaded } = useOrganization();
   const metrics = useQuery(
     api.private.analytics.getMetrics,
-    isAuthenticated ? {} : "skip",
+    organization?.id ? { organizationId: organization.id } : "skip",
   );
 
-  if (isAuthLoading || (isAuthenticated && metrics === undefined)) {
+  if (!isLoaded || (organization?.id && metrics === undefined)) {
     return (
       <div className="flex-1 flex items-center justify-center p-xl bg-background">
         <p className="text-on-surface-variant text-label-md font-label-md">
@@ -34,11 +35,11 @@ export const AnalyticsView = () => {
     );
   }
 
-  if (!isAuthenticated || !metrics) {
+  if (!organization?.id || !metrics) {
     return (
       <div className="flex-1 flex items-center justify-center p-xl bg-background">
         <p className="text-on-surface-variant text-label-md font-label-md">
-          Sign in to view analytics.
+          Select an organization to view analytics.
         </p>
       </div>
     );

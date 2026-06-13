@@ -13,6 +13,7 @@ import type * as debug from "../debug.js";
 import type * as http from "../http.js";
 import type * as lib_extractTextContent from "../lib/extractTextContent.js";
 import type * as lib_lemonsqueezy from "../lib/lemonsqueezy.js";
+import type * as lib_orgAuth from "../lib/orgAuth.js";
 import type * as lib_secrets from "../lib/secrets.js";
 import type * as playground from "../playground.js";
 import type * as private_analytics from "../private/analytics.js";
@@ -67,6 +68,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/extractTextContent": typeof lib_extractTextContent;
   "lib/lemonsqueezy": typeof lib_lemonsqueezy;
+  "lib/orgAuth": typeof lib_orgAuth;
   "lib/secrets": typeof lib_secrets;
   playground: typeof playground;
   "private/analytics": typeof private_analytics;

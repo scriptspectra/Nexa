@@ -6,11 +6,15 @@ import { ConvexProviderWithClerk } from 'convex/react-clerk'
 import { useAuth } from '@clerk/nextjs'
 import { ThemeProvider } from "next-themes";
 
-if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
-  throw new Error('Missing NEXT_PUBLIC_CONVEX_URL in your .env file')
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+if (!convexUrl) {
+  throw new Error(
+    "Missing NEXT_PUBLIC_CONVEX_URL. Set it in Vercel to the same Convex deployment URL used locally."
+  );
 }
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL || "");
+const convex = new ConvexReactClient(convexUrl);
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

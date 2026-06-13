@@ -6,27 +6,48 @@ import {
   REACT_SCRIPT,
 } from "./constants";
 
+const LOCAL_WIDGET_URL = "http://localhost:3001";
+
 export const getDynamicWidgetUrl = () => {
+  if (process.env.NEXT_PUBLIC_WIDGET_URL) {
+    return process.env.NEXT_PUBLIC_WIDGET_URL;
+  }
+
   if (typeof window === "undefined") {
-    return process.env.NEXT_PUBLIC_WIDGET_URL || "http://localhost:3001";
+    return LOCAL_WIDGET_URL;
   }
 
   const hostname = window.location.hostname;
 
-  // Local development
   if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return "http://localhost:3001";
+    return LOCAL_WIDGET_URL;
   }
 
-  // Vercel deployment default URL
+  // Handle zephyrapp.it.com and its subdomains
+  if (hostname === "zephyrapp.it.com" || hostname.endsWith(".zephyrapp.it.com")) {
+    return "https://Zephyra-widget.vercel.app";
+  }
+
+  // Handle Vercel deployments
   if (hostname.endsWith(".vercel.app")) {
-    return process.env.NEXT_PUBLIC_WIDGET_URL || "https://Zephyra-widget.vercel.app";
+    return "https://Zephyra-widget.vercel.app";
   }
 
-  // Custom domain (e.g. app.zephyrapp.it.com or zephyrapp.it.com)
-  // Strips "app." if present and prefixes with "widget."
   const cleanDomain = hostname.replace(/^app\./, "");
   return `https://widget.${cleanDomain}`;
+};
+
+export const getConvexDeploymentUrl = () => {
+  return process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
+};
+
+export const isProductionHost = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const hostname = window.location.hostname;
+  return hostname !== "localhost" && hostname !== "127.0.0.1";
 };
 
 export const createScript = (
@@ -34,15 +55,14 @@ export const createScript = (
   organizationId: string,
 ) => {
   const dynamicUrl = getDynamicWidgetUrl();
-  const buildTimeWidgetUrl = process.env.NEXT_PUBLIC_WIDGET_URL || "http://localhost:3001";
+  const buildTimeWidgetUrl = process.env.NEXT_PUBLIC_WIDGET_URL || LOCAL_WIDGET_URL;
 
   const replaceUrl = (scriptText: string) => {
-    let res = scriptText.replace(/{{ORGANIZATION_ID}}/g, organizationId);
-    // Replace build-time fallback URL with dynamic host
-    res = res.replaceAll(buildTimeWidgetUrl, dynamicUrl);
-    // Normalize any double slashes (e.g., //widget.js -> /widget.js)
-    res = res.replace(/([^:]\/)\/+/g, "$1");
-    return res;
+    let result = scriptText.replace(/{{ORGANIZATION_ID}}/g, organizationId);
+    result = result.replaceAll(buildTimeWidgetUrl, dynamicUrl);
+    result = result.replaceAll(LOCAL_WIDGET_URL, dynamicUrl);
+    result = result.replace(/([^:]\/)\/+/g, "$1");
+    return result;
   };
 
   if (integrationId === "html") {

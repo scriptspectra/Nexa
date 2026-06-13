@@ -23,21 +23,25 @@
     var position = DEFAULTS.DEFAULT_POSITION;
     var widgetUrl = DEFAULTS.WIDGET_URL;
 
+    function resolveWidgetUrl(script) {
+      if (!script || !script.src) {
+        return DEFAULTS.WIDGET_URL;
+      }
+
+      try {
+        return new URL(script.src).origin;
+      } catch (e) {
+        console.error("Zephyra Widget: failed to parse script src", e);
+        return DEFAULTS.WIDGET_URL;
+      }
+    }
+
     var currentScript = document.currentScript;
     if (currentScript) {
       organizationId = currentScript.getAttribute("data-organization-id");
       position =
         currentScript.getAttribute("data-position") || DEFAULTS.DEFAULT_POSITION;
-      if (currentScript.src) {
-        try {
-          var origin = new URL(currentScript.src).origin;
-          if (origin.indexOf("3002") === -1) {
-            widgetUrl = origin;
-          }
-        } catch (e) {
-          console.error("Zephyra Widget: failed to parse script src", e);
-        }
-      }
+      widgetUrl = resolveWidgetUrl(currentScript);
     } else {
       var scripts = document.querySelectorAll(
         'script[src*="widget"], script[src*="embed"]'
@@ -49,14 +53,7 @@
         organizationId = embedScript.getAttribute("data-organization-id");
         position =
           embedScript.getAttribute("data-position") || DEFAULTS.DEFAULT_POSITION;
-        if (embedScript.src) {
-          try {
-            var origin = new URL(embedScript.src).origin;
-            if (origin.indexOf("3002") === -1) {
-              widgetUrl = origin;
-            }
-          } catch (e) { }
-        }
+        widgetUrl = resolveWidgetUrl(embedScript);
       }
     }
 

@@ -14,13 +14,16 @@ import {
   DialogTitle,
 } from "@workspace/ui/components/dialog";
 import { useState } from "react";
-import { createScript } from "../../utils";
+import { createScript, getConvexDeploymentUrl, getDynamicWidgetUrl, isProductionHost } from "../../utils";
 
 export const IntegrationsView = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState("");
   const { organization } = useOrganization();
   const [copiedId, setCopiedId] = useState(false);
+  const widgetUrl = getDynamicWidgetUrl();
+  const convexUrl = getConvexDeploymentUrl();
+  const onProductionHost = isProductionHost();
 
   const handleIntegrationClick = (integrationId: IntegrationId) => {
     if (!organization) {
@@ -69,6 +72,31 @@ export const IntegrationsView = () => {
               Connect your applications and website to the Zephyra AI chatbox widget. Copy your credentials below or select a platform to get started.
             </p>
           </header>
+
+          {onProductionHost && (
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 space-y-3">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-300">
+                Production setup checklist
+              </h3>
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                Copy the embed snippet from this page while you are on your live domain.
+                Do not reuse a snippet copied from localhost — it points chats to the wrong backend.
+              </p>
+              <div className="grid gap-2 text-xs font-mono text-zinc-300">
+                <p>
+                  <span className="text-zinc-500">Widget URL:</span> {widgetUrl}
+                </p>
+                <p>
+                  <span className="text-zinc-500">Convex URL:</span>{" "}
+                  {convexUrl || "Missing NEXT_PUBLIC_CONVEX_URL in Vercel"}
+                </p>
+                <p>
+                  <span className="text-zinc-500">Organization ID:</span>{" "}
+                  {organization?.id ?? "No organization selected"}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Organization ID Section */}
           <div className="relative overflow-hidden bg-zinc-950/40 border border-white/5 shadow-2xl rounded-2xl p-8 backdrop-blur-xl">
@@ -235,9 +263,9 @@ export const IntegrationsDialog = ({
           <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4 space-y-2.5">
             <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-300">Quick Guide</h5>
             <p className="text-zinc-400 text-xs leading-relaxed">
-              1. Copy the HTML snippet. <br />
+              1. Copy the HTML snippet from your live dashboard domain, not localhost. <br />
               2. Paste it just before the closing <code className="font-mono text-amber-500/80">&lt;/head&gt;</code> tag on your website or dashboard layout file. <br />
-              3. The chat widget will appear automatically on the bottom-right corner of your site.
+              3. Make sure your widget deployment uses the same <code className="font-mono text-amber-500/80">NEXT_PUBLIC_CONVEX_URL</code> as the dashboard.
             </p>
           </div>
         </div>

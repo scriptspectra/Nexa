@@ -1,10 +1,23 @@
+import { v } from "convex/values";
 import { query } from "../_generated/server";
-import { ConvexError } from "convex/values";
+import { getOrgIdFromIdentity } from "../lib/orgAuth";
 
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
+
+const EMPTY_METRICS = {
+  totalConversations: 0,
+  resolutionRate: 0,
+  csatScore: "N/A",
+  avgResponseTime: "N/A",
+  chartData: [] as Array<{
+    date: string;
+    aiHandled: number;
+    operatorHandled: number;
+  }>,
+};
 
 function toDateKey(timestamp: number): string {
   const date = new Date(timestamp);
@@ -22,43 +35,31 @@ function toDateLabel(timestamp: number): string {
 }
 
 export const getMetrics = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    organizationId: v.string(),
+  },
+  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
+    const orgId = getOrgIdFromIdentity(identity);
 
-    if (!identity) {
-      throw new ConvexError("Unauthorized");
+    if (!orgId || orgId !== args.organizationId) {
+      return EMPTY_METRICS;
     }
 
-    const orgId = (identity.orgId || (identity as any).org_id) as string;
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
-    if (!orgId) {
-      return {
-        totalConversations: 0,
-        resolutionRate: 0,
-        csatScore: "N/A",
-        avgResponseTime: "N/A",
-        chartData: [],
-      };
-    }
-
-    // ✅ REAL last 30 days filter
-    const THIRTY_DAYS = Date.now() - 30 * 24 * 60 * 60 * 1000;
-
-    const conversations = await ctx.db
+    const allConversations = await ctx.db
       .query("conversations")
-      .withIndex("by_organization_id", (q) =>
-        q.eq("organizationId", orgId)
-      )
-      .filter((q) =>
-        q.gte(q.field("_creationTime"), THIRTY_DAYS)
-      )
+      .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
       .collect();
 
-    const totalConversations = conversations.length;
+    const conversations = allConversations.filter(
+      (conversation) => conversation._creationTime >= thirtyDaysAgo,
+    );
 
+    const totalConversations = conversations.length;
     const resolvedConversations = conversations.filter(
-      (c) => c.status === "resolved"
+      (conversation) => conversation.status === "resolved",
     ).length;
 
     const resolutionRate =
@@ -66,12 +67,19 @@ export const getMetrics = query({
         ? 0
         : Math.round((resolvedConversations / totalConversations) * 100);
 
-    // ✅ SAFE grouping (no MMM dd bug)
-    const daily: Record<string, any> = {};
+    const daily: Record<
+      string,
+      {
+        sortKey: string;
+        date: string;
+        aiHandled: number;
+        operatorHandled: number;
+      }
+    > = {};
 
-    conversations.forEach((conv) => {
-      const dateKey = toDateKey(conv._creationTime);
-      const label = toDateLabel(conv._creationTime);
+    conversations.forEach((conversation) => {
+      const dateKey = toDateKey(conversation._creationTime);
+      const label = toDateLabel(conversation._creationTime);
 
       if (!daily[dateKey]) {
         daily[dateKey] = {
@@ -82,7 +90,7 @@ export const getMetrics = query({
         };
       }
 
-      if (conv.status === "escalated") {
+      if (conversation.status === "escalated") {
         daily[dateKey].operatorHandled++;
       } else {
         daily[dateKey].aiHandled++;
@@ -90,10 +98,11 @@ export const getMetrics = query({
     });
 
     const chartData = Object.values(daily)
-      .sort((a, b) =>
-        new Date(a.sortKey).getTime() - new Date(b.sortKey).getTime()
+      .sort(
+        (left, right) =>
+          new Date(left.sortKey).getTime() - new Date(right.sortKey).getTime(),
       )
-      .map(({ sortKey, ...rest }) => rest);
+      .map(({ sortKey: _sortKey, ...rest }) => rest);
 
     return {
       totalConversations,
