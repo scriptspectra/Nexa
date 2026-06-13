@@ -9,7 +9,7 @@ import {
 import { type Feature, PluginCard } from "../components/plugin-card";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -219,6 +219,14 @@ export const VapiView = () => {
       setConnectOpen(true);
     }
   };
+
+  useEffect(() => {
+    console.log("connectOpen state changed:", connectOpen);
+  }, [connectOpen]);
+
+  useEffect(() => {
+    console.log("removeOpen state changed:", removeOpen);
+  }, [removeOpen]);
 
   return (
     <>
