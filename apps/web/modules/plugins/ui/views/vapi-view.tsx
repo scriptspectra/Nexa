@@ -93,23 +93,56 @@ const VapiPluginForm = ({
   return (
     <>
       {open && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4">
-          <div className="bg-zinc-950 border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          padding: '16px'
+        }}>
+          <div style={{
+            backgroundColor: '#09090b',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '512px',
+            width: '100%',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            position: 'relative'
+          }}>
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors text-xl font-bold z-10"
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                color: 'rgba(255, 255, 255, 0.5)',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                zIndex: 10
+              }}
+              onMouseOver={(e) => e.currentTarget.style.color = 'white'}
+              onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)'}
             >
               ✕
             </button>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-3">Enable Vapi</h2>
-              <p className="text-sm text-zinc-400 leading-relaxed">
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', marginBottom: '12px' }}>
+                Enable Vapi
+              </h2>
+              <p style={{ color: '#a1a1aa', fontSize: '14px', lineHeight: '1.5' }}>
                 Your API keys are safely encrypted and stored using AWS Secrets Manager.
               </p>
             </div>
             <Form {...form}>
               <form
-                className="flex flex-col gap-5"
+                style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
                 onSubmit={form.handleSubmit(onSubmit)}
               >
                 <FormField
@@ -117,13 +150,23 @@ const VapiPluginForm = ({
                   name="publicApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="text-white text-sm font-medium mb-2 block">Public API key</Label>
+                      <Label style={{ color: 'white', fontSize: '14px', fontWeight: 500, display: 'block', marginBottom: '8px' }}>
+                        Public API key
+                      </Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your public API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 h-11"
+                          style={{
+                            backgroundColor: '#18181b',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'white',
+                            height: '44px',
+                            width: '100%',
+                            borderRadius: '8px',
+                            padding: '0 12px'
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -135,32 +178,52 @@ const VapiPluginForm = ({
                   name="privateApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="text-white text-sm font-medium mb-2 block">Private API key</Label>
+                      <Label style={{ color: 'white', fontSize: '14px', fontWeight: 500, display: 'block', marginBottom: '8px' }}>
+                        Private API key
+                      </Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your private API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 h-11"
+                          style={{
+                            backgroundColor: '#18181b',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'white',
+                            height: '44px',
+                            width: '100%',
+                            borderRadius: '8px',
+                            padding: '0 12px'
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <div className="flex gap-3 justify-end pt-2">
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setOpen(false)}
-                    className="border-white/10 text-white hover:bg-white/5 h-10"
+                    style={{
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      height: '40px',
+                      padding: '0 16px'
+                    }}
                   >
                     Cancel
                   </Button>
                   <Button
                     disabled={form.formState.isSubmitting}
                     type="submit"
-                    className="bg-white text-black hover:bg-zinc-200 h-10"
+                    style={{
+                      backgroundColor: 'white',
+                      color: 'black',
+                      height: '40px',
+                      padding: '0 16px'
+                    }}
                   >
                     {form.formState.isSubmitting ? "Connecting..." : "Connect"}
                   </Button>
