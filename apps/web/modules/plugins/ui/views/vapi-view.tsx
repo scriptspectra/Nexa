@@ -89,6 +89,8 @@ const VapiPluginForm = ({
       });
       setOpen(false);
       toast.success("Vapi secret created");
+      // Reload page to refresh the plugin state
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
@@ -99,22 +101,22 @@ const VapiPluginForm = ({
     <>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-zinc-950 border border-white/10 rounded-xl p-6 max-w-lg w-full shadow-2xl relative">
+          <div className="bg-zinc-950 border border-white/10 rounded-xl p-8 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10"
+              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10 text-xl"
             >
               ✕
             </button>
-            <div className="pr-8">
+            <div className="mb-6">
               <h2 className="text-xl font-semibold text-white mb-2">Enable Vapi</h2>
-              <p className="text-sm text-zinc-400 mb-6">
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 Your API keys are safely encrypted and stored using AWS Secrets Manager.
               </p>
             </div>
             <Form {...form}>
               <form
-                className="flex flex-col gap-y-4"
+                className="flex flex-col gap-4"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
                 <FormField
@@ -122,13 +124,13 @@ const VapiPluginForm = ({
                   name="publicApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="text-white">Public API key</Label>
+                      <Label className="text-white text-sm font-medium">Public API key</Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your public API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white"
+                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500"
                         />
                       </FormControl>
                       <FormMessage />
@@ -140,20 +142,20 @@ const VapiPluginForm = ({
                   name="privateApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="text-white">Private API key</Label>
+                      <Label className="text-white text-sm font-medium">Private API key</Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your private API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white"
+                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <div className="flex gap-3 justify-end mt-6">
+                <div className="flex gap-3 justify-end mt-2">
                   <Button
                     type="button"
                     variant="outline"
