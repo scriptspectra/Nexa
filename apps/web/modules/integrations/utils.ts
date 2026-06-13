@@ -25,12 +25,12 @@ export const getDynamicWidgetUrl = () => {
 
   // Handle zephyrapp.it.com and its subdomains
   if (hostname === "zephyrapp.it.com" || hostname.endsWith(".zephyrapp.it.com")) {
-    return "https://Zephyra-widget.vercel.app";
+    return "https://nexa-widget.vercel.app";
   }
 
   // Handle Vercel deployments
   if (hostname.endsWith(".vercel.app")) {
-    return "https://Zephyra-widget.vercel.app";
+    return "https://nexa-widget.vercel.app";
   }
 
   const cleanDomain = hostname.replace(/^app\./, "");
