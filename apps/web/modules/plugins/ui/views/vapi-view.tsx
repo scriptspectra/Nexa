@@ -100,23 +100,23 @@ const VapiPluginForm = ({
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-zinc-950 border border-white/10 rounded-xl p-8 max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4">
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10 text-xl"
+              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors text-xl font-bold"
             >
               ✕
             </button>
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-2">Enable Vapi</h2>
+              <h2 className="text-2xl font-bold text-white mb-3">Enable Vapi</h2>
               <p className="text-sm text-zinc-400 leading-relaxed">
                 Your API keys are safely encrypted and stored using AWS Secrets Manager.
               </p>
             </div>
             <Form {...form}>
               <form
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-5"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
                 <FormField
@@ -124,13 +124,13 @@ const VapiPluginForm = ({
                   name="publicApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="text-white text-sm font-medium">Public API key</Label>
+                      <Label className="text-white text-sm font-medium mb-2 block">Public API key</Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your public API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500"
+                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 h-11"
                         />
                       </FormControl>
                       <FormMessage />
@@ -142,32 +142,32 @@ const VapiPluginForm = ({
                   name="privateApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="text-white text-sm font-medium">Private API key</Label>
+                      <Label className="text-white text-sm font-medium mb-2 block">Private API key</Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your private API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500"
+                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 h-11"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <div className="flex gap-3 justify-end mt-2">
+                <div className="flex gap-3 justify-end pt-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setOpen(false)}
-                    className="border-white/10 text-white hover:bg-white/5"
+                    className="border-white/10 text-white hover:bg-white/5 h-10"
                   >
                     Cancel
                   </Button>
                   <Button
                     disabled={form.formState.isSubmitting}
                     type="submit"
-                    className="bg-white text-black hover:bg-zinc-200"
+                    className="bg-white text-black hover:bg-zinc-200 h-10"
                   >
                     {form.formState.isSubmitting ? "Connecting..." : "Connect"}
                   </Button>
