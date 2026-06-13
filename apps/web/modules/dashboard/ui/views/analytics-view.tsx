@@ -1,24 +1,30 @@
 "use client";
 
-import React from "react";
-import { useQuery } from "convex/react";
+import dynamic from "next/dynamic";
+import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend
-} from "recharts";
+
+const AnalyticsChart = dynamic(
+  () =>
+    import("../components/analytics-chart").then((module) => module.AnalyticsChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center text-gray-400">
+        Loading chart...
+      </div>
+    ),
+  },
+);
 
 export const AnalyticsView = () => {
-  // ✅ FIXED: proper typed query call
-  const metrics = useQuery(api.private.analytics.getMetrics);
+  const { isLoading: isAuthLoading, isAuthenticated } = useConvexAuth();
+  const metrics = useQuery(
+    api.private.analytics.getMetrics,
+    isAuthenticated ? {} : "skip",
+  );
 
-  if (metrics === undefined) {
+  if (isAuthLoading || (isAuthenticated && metrics === undefined)) {
     return (
       <div className="flex-1 flex items-center justify-center p-xl bg-background">
         <p className="text-on-surface-variant text-label-md font-label-md">
@@ -28,11 +34,19 @@ export const AnalyticsView = () => {
     );
   }
 
+  if (!isAuthenticated || !metrics) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-xl bg-background">
+        <p className="text-on-surface-variant text-label-md font-label-md">
+          Sign in to view analytics.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
       <div className="max-w-6xl mx-auto space-y-md">
-
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
           <div>
             <h1 className="text-headline-lg font-bold text-white mb-xs">
@@ -62,7 +76,6 @@ export const AnalyticsView = () => {
           </div>
         </div>
 
-        {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">
           <div className="bg-[#111111] border border-outline-variant p-md flex flex-col justify-between h-[120px]">
             <h3 className="text-[10px] font-label-sm uppercase tracking-widest text-on-surface-variant">
@@ -130,7 +143,6 @@ export const AnalyticsView = () => {
           </div>
         </div>
 
-        {/* Chart Area */}
         <div className="bg-[#111111] border border-outline-variant p-md">
           <div className="flex items-center justify-between mb-xl">
             <div>
@@ -143,27 +155,10 @@ export const AnalyticsView = () => {
             </div>
           </div>
 
-          <div className="h-[400px] w-full">
-            {metrics.chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={metrics.chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="date" stroke="#888" />
-                  <YAxis stroke="#888" />
-                  <Tooltip />
-                  <Legend />
-                  <Line dataKey="aiHandled" stroke="#fff" />
-                  <Line dataKey="operatorHandled" stroke="#666" />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                Not enough data to display charts.
-              </div>
-            )}
+          <div className="h-[400px] w-full min-h-[400px]">
+            <AnalyticsChart chartData={metrics.chartData} />
           </div>
         </div>
-
       </div>
     </div>
   );

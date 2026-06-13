@@ -1,5 +1,5 @@
 import { useOrganization } from "@clerk/nextjs";
-import { useAction } from "convex/react";
+import { useAction, useConvexAuth } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
 import { useEffect, useState } from "react";
 
@@ -32,20 +32,41 @@ export type BillingDetails = {
   }>;
 };
 
+const defaultBillingDetails = (): BillingDetails => ({
+  isPro: false,
+  canPurchase: true,
+  planName: "Starter",
+  planPrice: "$0",
+  status: "inactive",
+  statusFormatted: "Inactive",
+  renewsAtLabel: null,
+  paymentMethod: null,
+  updatePaymentMethodUrl: null,
+  customerPortalUrl: null,
+  invoices: [],
+});
+
 export const useBillingDetails = () => {
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isAuthenticated, isLoading: isConvexAuthLoading } = useConvexAuth();
   const syncAndGetDetails = useAction(api.private.billing.syncAndGetDetails);
   const [details, setDetails] = useState<BillingDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOrgLoaded) {
+    if (!isOrgLoaded || isConvexAuthLoading) {
       return;
     }
 
     if (!organization?.id) {
-      setDetails(null);
+      setDetails(defaultBillingDetails());
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setDetails(defaultBillingDetails());
       setIsLoading(false);
       return;
     }
@@ -65,7 +86,7 @@ export const useBillingDetails = () => {
         console.error(loadError);
         if (!cancelled) {
           setError("Failed to load billing details");
-          setDetails(null);
+          setDetails(defaultBillingDetails());
         }
       } finally {
         if (!cancelled) {
@@ -79,11 +100,11 @@ export const useBillingDetails = () => {
     return () => {
       cancelled = true;
     };
-  }, [isOrgLoaded, organization?.id, syncAndGetDetails]);
+  }, [isOrgLoaded, isConvexAuthLoading, isAuthenticated, organization?.id, syncAndGetDetails]);
 
   return {
     details,
-    isLoading: !isOrgLoaded || isLoading,
+    isLoading: !isOrgLoaded || isConvexAuthLoading || isLoading,
     error,
   };
 };

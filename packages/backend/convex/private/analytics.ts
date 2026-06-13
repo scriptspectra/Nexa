@@ -33,7 +33,13 @@ export const getMetrics = query({
     const orgId = (identity.orgId || (identity as any).org_id) as string;
 
     if (!orgId) {
-      throw new ConvexError("Organization not found");
+      return {
+        totalConversations: 0,
+        resolutionRate: 0,
+        csatScore: "N/A",
+        avgResponseTime: "N/A",
+        chartData: [],
+      };
     }
 
     // ✅ REAL last 30 days filter

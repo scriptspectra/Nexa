@@ -58,7 +58,23 @@ export const syncAndGetDetails = action({
 
     const orgId = (identity.orgId || (identity as { org_id?: string }).org_id) as string;
 
-    if (!orgId || orgId !== args.organizationId) {
+    if (!orgId) {
+      return {
+        isPro: false,
+        canPurchase: true,
+        planName: "Starter",
+        planPrice: "$0",
+        status: "inactive",
+        statusFormatted: "Inactive",
+        renewsAtLabel: null,
+        paymentMethod: null,
+        updatePaymentMethodUrl: null,
+        customerPortalUrl: null,
+        invoices: [],
+      };
+    }
+
+    if (orgId !== args.organizationId) {
       throw new ConvexError("Organization not found");
     }
 

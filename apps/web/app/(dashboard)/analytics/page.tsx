@@ -1,7 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import { AnalyticsView } from "@/modules/dashboard/ui/views/analytics-view";
 
 const Page = () => {
-  return <AnalyticsView />
+  return <AnalyticsView />;
 };
- 
+
 export default Page;

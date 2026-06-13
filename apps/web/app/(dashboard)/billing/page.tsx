@@ -1,7 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import { BillingView } from "@/modules/billing/ui/views/billing-view";
 
 const Page = () => {
-  return <BillingView />
-}
- 
+  return <BillingView />;
+};
+
 export default Page;
