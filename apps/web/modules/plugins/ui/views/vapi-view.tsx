@@ -12,14 +12,6 @@ import { api } from "@workspace/backend/_generated/api";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@workspace/ui/components/dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -100,22 +92,12 @@ const VapiPluginForm = ({
 
   return (
     <>
-      {open && (
-        <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-          style={{ 
-            backgroundColor: 'rgba(0, 0, 0, 0.95)',
-            backdropFilter: 'blur(4px)'
-          }}
-        >
-          <div 
-            className="bg-zinc-950 border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl relative"
-            style={{ maxHeight: '90vh', overflowY: 'auto' }}
-          >
+      {open && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4">
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setOpen(false)}
               className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors text-xl font-bold z-10"
-              style={{ cursor: 'pointer' }}
             >
               ✕
             </button>
@@ -141,8 +123,7 @@ const VapiPluginForm = ({
                           {...field}
                           placeholder="Your public API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500"
-                          style={{ height: '44px' }}
+                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 h-11"
                         />
                       </FormControl>
                       <FormMessage />
@@ -160,8 +141,7 @@ const VapiPluginForm = ({
                           {...field}
                           placeholder="Your private API key"
                           type="password"
-                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500"
-                          style={{ height: '44px' }}
+                          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 h-11"
                         />
                       </FormControl>
                       <FormMessage />
@@ -173,16 +153,14 @@ const VapiPluginForm = ({
                     type="button"
                     variant="outline"
                     onClick={() => setOpen(false)}
-                    className="border-white/10 text-white hover:bg-white/5"
-                    style={{ height: '40px' }}
+                    className="border-white/10 text-white hover:bg-white/5 h-10"
                   >
                     Cancel
                   </Button>
                   <Button
                     disabled={form.formState.isSubmitting}
                     type="submit"
-                    className="bg-white text-black hover:bg-zinc-200"
-                    style={{ height: '40px' }}
+                    className="bg-white text-black hover:bg-zinc-200 h-10"
                   >
                     {form.formState.isSubmitting ? "Connecting..." : "Connect"}
                   </Button>
@@ -190,7 +168,8 @@ const VapiPluginForm = ({
               </form>
             </Form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
