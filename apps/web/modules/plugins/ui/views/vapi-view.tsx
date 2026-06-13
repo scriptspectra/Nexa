@@ -82,8 +82,8 @@ const VapiPluginForm = ({
       });
       setOpen(false);
       toast.success("Vapi secret created");
-      // Reload page immediately to refresh the plugin state
-      window.location.reload();
+      // Wait for toast to show and mutation to complete, then reload
+      setTimeout(() => window.location.reload(), 2000);
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
