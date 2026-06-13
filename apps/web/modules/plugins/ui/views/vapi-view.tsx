@@ -102,14 +102,16 @@ const VapiPluginForm = ({
           <div className="bg-zinc-950 border border-white/10 rounded-xl p-6 max-w-lg w-full shadow-2xl relative">
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10"
             >
               ✕
             </button>
-            <h2 className="text-xl font-semibold text-white mb-2">Enable Vapi</h2>
-            <p className="text-sm text-zinc-400 mb-6">
-              Your API keys are safely encrypted and stored using AWS Secrets Manager.
-            </p>
+            <div className="pr-8">
+              <h2 className="text-xl font-semibold text-white mb-2">Enable Vapi</h2>
+              <p className="text-sm text-zinc-400 mb-6">
+                Your API keys are safely encrypted and stored using AWS Secrets Manager.
+              </p>
+            </div>
             <Form {...form}>
               <form
                 className="flex flex-col gap-y-4"
@@ -120,12 +122,13 @@ const VapiPluginForm = ({
                   name="publicApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label>Public API key</Label>
+                      <Label className="text-white">Public API key</Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your public API key"
                           type="password"
+                          className="bg-zinc-900 border-white/10 text-white"
                         />
                       </FormControl>
                       <FormMessage />
@@ -137,12 +140,13 @@ const VapiPluginForm = ({
                   name="privateApiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <Label>Private API key</Label>
+                      <Label className="text-white">Private API key</Label>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="Your private API key"
                           type="password"
+                          className="bg-zinc-900 border-white/10 text-white"
                         />
                       </FormControl>
                       <FormMessage />
