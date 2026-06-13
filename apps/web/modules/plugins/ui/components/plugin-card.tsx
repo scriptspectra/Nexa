@@ -88,7 +88,10 @@ export const PluginCard = ({
         <Button
           className="w-full bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl h-11 transition-all duration-300 shadow-md shadow-white/5 active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
           disabled={isDisabled}
-          onClick={onSubmit}
+          onClick={() => {
+            console.log("PluginCard button clicked, isDisabled:", isDisabled);
+            onSubmit();
+          }}
           variant="default"
         >
           <PlugIcon className="size-4" />

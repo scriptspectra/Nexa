@@ -57,9 +57,12 @@ export const VapiConnectedView = ({ onDisconnect }: VapiConnectedViewProps) => {
               </div>
             </div>
 
-            <Button 
-              onClick={onDisconnect} 
-              size="sm" 
+            <Button
+              onClick={() => {
+                console.log("Disconnect button clicked");
+                onDisconnect();
+              }}
+              size="sm"
               className="bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 border border-rose-500/20 h-9 px-4 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] gap-1.5"
             >
               <UnplugIcon className="size-3.5" />

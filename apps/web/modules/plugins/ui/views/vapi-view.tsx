@@ -210,9 +210,12 @@ export const VapiView = () => {
   const [removeOpen, setRemoveOpen] = useState(false);
 
   const toggleConnection = () => {
+    console.log("toggleConnection called, vapiPlugin:", vapiPlugin);
     if (vapiPlugin) {
+      console.log("Opening remove dialog");
       setRemoveOpen(true);
     } else {
+      console.log("Opening connect dialog");
       setConnectOpen(true);
     }
   };
@@ -248,7 +251,7 @@ export const VapiView = () => {
                 serviceImage="/vapi.jpg"
                 serviceName="Vapi"
                 features={vapiFeatures}
-                isDisabled={vapiPlugin === undefined}
+                isDisabled={false}
                 onSubmit={toggleConnection}
               />
             )}
