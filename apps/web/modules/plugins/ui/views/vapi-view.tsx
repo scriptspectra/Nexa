@@ -69,8 +69,6 @@ const VapiPluginForm = ({
   open: boolean;
   setOpen: (value: boolean) => void;
 }) => {
-  console.log("VapiPluginForm rendered, open prop:", open);
-
   const upsertSecret = useMutation(api.private.secrets.upsert);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -188,43 +186,53 @@ const VapiPluginRemoveForm = ({
 
   const onSubmit = async () => {
     try {
-      console.log("Removing Vapi plugin...");
       await removePlugin({
         service: "vapi",
       });
       setOpen(false);
       toast.success("Vapi plugin removed");
-      console.log("Vapi plugin removed successfully");
     } catch (error) {
-      console.error("Error removing Vapi plugin:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      toast.error(`Failed to disconnect: ${errorMessage}`);
+      console.error(error);
+      toast.error("Failed to disconnect");
     }
   };
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Disconnect Vapi</DialogTitle>
-        </DialogHeader>
-        <DialogDescription>
-          Are you sure you want to disconnect the Vapi plugin?
-        </DialogDescription>
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button onClick={onSubmit} variant="destructive">
-            Disconnect
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-zinc-950 border border-white/10 rounded-xl p-6 max-w-md w-full shadow-2xl relative">
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-semibold text-white mb-2">Disconnect Vapi</h2>
+            <p className="text-sm text-zinc-400 mb-6">
+              Are you sure you want to disconnect the Vapi plugin?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="border-white/10 text-white hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={onSubmit}
+                variant="destructive"
+                className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20"
+              >
+                Disconnect
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -235,23 +243,12 @@ export const VapiView = () => {
   const [removeOpen, setRemoveOpen] = useState(false);
 
   const toggleConnection = () => {
-    console.log("toggleConnection called, vapiPlugin:", vapiPlugin);
     if (vapiPlugin) {
-      console.log("Opening remove dialog");
       setRemoveOpen(true);
     } else {
-      console.log("Opening connect dialog");
       setConnectOpen(true);
     }
   };
-
-  useEffect(() => {
-    console.log("connectOpen state changed:", connectOpen);
-  }, [connectOpen]);
-
-  useEffect(() => {
-    console.log("removeOpen state changed:", removeOpen);
-  }, [removeOpen]);
 
   return (
     <>
@@ -284,7 +281,7 @@ export const VapiView = () => {
                 serviceImage="/vapi.jpg"
                 serviceName="Vapi"
                 features={vapiFeatures}
-                isDisabled={false}
+                isDisabled={vapiPlugin === undefined}
                 onSubmit={toggleConnection}
               />
             )}
