@@ -36,13 +36,6 @@ export const DashboardSidebar = () => {
           </div>
         </Link>
 
-        <Link href="/customers">
-          <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/customers') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
-            <span className="material-symbols-outlined" data-icon="group">group</span>
-            <span className="text-label-md font-label-md">Customers</span>
-          </div>
-        </Link>
-
         <Link href="/customization">
           <div className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${pathname?.includes('/customization') ? 'text-primary bg-surface-container-highest border-l-2 border-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}>
             <span className="material-symbols-outlined" data-icon="settings">settings</span>
@@ -80,9 +73,6 @@ export const DashboardSidebar = () => {
       </nav>
 
       <div className="mt-auto space-y-4">
-        <button className="w-full py-sm text-label-md font-label-md font-bold uppercase tracking-widest hover:bg-on-background transition-colors active:scale-[0.98] bg-surface-container-highest text-primary">
-          New Case
-        </button>
 
         <div className="pt-sm border-t border-outline-variant space-y-2">
           <div className="flex items-center gap-3 px-sm py-1 text-on-surface-variant hover:text-primary cursor-pointer text-label-sm font-label-sm">
