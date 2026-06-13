@@ -73,61 +73,36 @@ export const IntegrationsView = () => {
             </p>
           </header>
 
-          {onProductionHost && (
-            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-300">
-                Production setup checklist
-              </h3>
-              <p className="text-sm text-zinc-300 leading-relaxed">
-                Copy the embed snippet from this page while you are on your live domain.
-                Do not reuse a snippet copied from localhost — it points chats to the wrong backend.
-              </p>
-              <div className="grid gap-2 text-xs font-mono text-zinc-300">
-                <p>
-                  <span className="text-zinc-500">Widget URL:</span> {widgetUrl}
-                </p>
-                <p>
-                  <span className="text-zinc-500">Convex URL:</span>{" "}
-                  {convexUrl || "Missing NEXT_PUBLIC_CONVEX_URL in Vercel"}
-                </p>
-                <p>
-                  <span className="text-zinc-500">Organization ID:</span>{" "}
-                  {organization?.id ?? "No organization selected"}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Organization ID Section */}
-          <div className="relative overflow-hidden bg-zinc-950/40 border border-white/5 shadow-2xl rounded-2xl p-8 backdrop-blur-xl">
-            {/* Soft background glow */}
-            <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-white tracking-tight">Organization Identifier</h3>
-                <p className="text-sm text-zinc-400 max-w-md">Use this unique identifier to configure client requests and authenticate widgets.</p>
-              </div>
-              <div className="flex items-center gap-2 bg-zinc-900/60 p-2.5 rounded-xl border border-white/5 flex-1 md:max-w-md backdrop-blur-md">
-                <code className="text-sm text-zinc-300 overflow-hidden text-ellipsis whitespace-nowrap px-3 flex-1 font-mono tracking-tight">
-                  {organization?.id ?? "No organization selected"}
-                </code>
-                <Button
-                  onClick={handleCopy}
-                  className="gap-2 bg-white/5 text-zinc-200 hover:bg-white/10 transition-all font-semibold uppercase tracking-wider text-[10px] px-3.5 h-8 rounded-lg border border-white/5"
-                  variant="ghost"
-                  disabled={!organization?.id}
-                >
-                  {copiedId ? (
-                    <CheckIcon className="w-3.5 h-3.5 text-emerald-400" />
-                  ) : (
-                    <CopyIcon className="w-3.5 h-3.5" />
-                  )}
-                  {copiedId ? "COPIED" : "COPY"}
-                </Button>
-              </div>
-            </div>
+        {/* Organization ID Section */}
+        <div className="bg-zinc-950/40 border border-white/5 rounded-2xl p-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-white">
+              Organization ID
+            </h3>
+            <p className="text-sm text-zinc-500 mt-1">
+              Use this ID when connecting widgets and integrations.
+            </p>
           </div>
+
+          <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-black/40 p-2">
+            <code className="flex-1 truncate px-3 text-sm font-mono text-zinc-300">
+              {organization?.id ?? "No organization selected"}
+            </code>
+
+            <Button
+              onClick={handleCopy}
+              variant="ghost"
+              disabled={!organization?.id}
+              className="h-9 px-3 border border-white/5 bg-zinc-900 hover:bg-zinc-800"
+            >
+              {copiedId ? (
+                <CheckIcon className="size-4 text-emerald-400" />
+              ) : (
+                <CopyIcon className="size-4" />
+              )}
+            </Button>
+          </div>
+        </div>
 
           {/* Integrations Grid */}
           <div className="space-y-8">

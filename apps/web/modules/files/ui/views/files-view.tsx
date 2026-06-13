@@ -123,23 +123,25 @@ export const FilesView = () => {
       />
       
       <div className="flex min-h-screen flex-col bg-black p-6 md:p-12 overflow-y-auto">
-        <div className="mx-auto w-full max-w-4xl space-y-8">
-          
-          {/* Header */}
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
-              <SparklesIcon className="size-3 text-primary" />
-              AI Search Training
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                Knowledge Base
-              </h1>
-              <p className="text-base text-zinc-400 max-w-xl leading-relaxed">
-                Upload and index documents to train your AI assistant. The agent uses this semantic database to answer customer questions instantly.
-              </p>
-            </div>
-          </div>
+    <div className="w-full space-y-8">
+
+      {/* Header */}
+      <div className="space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20">
+          <SparklesIcon className="size-3 text-primary" />
+          AI Context
+        </div>
+
+        <div className="space-y-1">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
+            Knowledge Base
+          </h1>
+
+          <p className="text-base text-zinc-400 max-w-3xl leading-relaxed">
+            Upload documents, guides, FAQs, and policies that your AI can reference when answering customer questions.
+          </p>
+        </div>
+      </div>
 
           {/* Stats Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
