@@ -69,6 +69,8 @@ const VapiPluginForm = ({
   open: boolean;
   setOpen: (value: boolean) => void;
 }) => {
+  console.log("VapiPluginForm rendered, open prop:", open);
+
   const upsertSecret = useMutation(api.private.secrets.upsert);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -96,7 +98,7 @@ const VapiPluginForm = ({
   };
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
+    <Dialog open={open}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Enable Vapi</DialogTitle>
@@ -150,6 +152,13 @@ const VapiPluginForm = ({
                 type="submit"
               >
                 {form.formState.isSubmitting ? "Connecting..." : "Connect"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
               </Button>
             </DialogFooter>
           </form>
