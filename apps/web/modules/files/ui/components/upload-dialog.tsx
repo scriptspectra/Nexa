@@ -162,7 +162,7 @@ export const UploadDialog = ({
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={uploadedFiles.length === 0 || isUploading || !uploadForm.category}
+            disabled={uploadedFiles.length === 0 || isUploading}
           >
             {isUploading ? "Uploading..." : "Upload"}
           </Button>

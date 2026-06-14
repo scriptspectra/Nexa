@@ -200,10 +200,7 @@ export const FilesView = () => {
                 />
               </div>
               <Button
-                onClick={() => {
-                  alert("Add Document Button Clicked!");
-                  setUploadDialogOpen(true);
-                }}
+                onClick={() => setUploadDialogOpen(true)}
                 className="w-full sm:w-auto bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl h-10 px-4 transition-all duration-300 shadow-md shadow-white/5 active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
               >
                 <PlusIcon className="size-4" />
@@ -252,10 +249,7 @@ export const FilesView = () => {
                             </p>
                             {!searchQuery && (
                               <Button
-                                onClick={() => {
-                                  alert("Button Clicked! State updating...");
-                                  setUploadDialogOpen(true);
-                                }}
+                                onClick={() => setUploadDialogOpen(true)}
                                 className="mt-5 bg-white/5 hover:bg-white/10 text-zinc-200 font-semibold rounded-xl h-9 px-4 border border-white/5 transition-all text-xs"
                               >
                                 Upload First File
