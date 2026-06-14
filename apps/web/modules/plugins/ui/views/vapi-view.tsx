@@ -350,7 +350,7 @@ export const VapiView = () => {
                 serviceImage="/vapi.jpg"
                 serviceName="Vapi"
                 features={vapiFeatures}
-                isDisabled={vapiPlugin === undefined}
+                isDisabled={false}
                 onSubmit={toggleConnection}
               />
             )}

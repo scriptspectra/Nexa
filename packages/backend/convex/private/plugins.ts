@@ -67,14 +67,15 @@ export const getOne = query({
       });
     }
 
-    const result = await ctx.db
-      .query("plugins")
-      .withIndex("by_organization_id_and_service", (q) =>
-        q.eq("organizationId", orgId).eq("service", args.service)
-      )
-      .unique();
+    // Try without index first
+    const allPlugins = await ctx.db.query("plugins").collect();
+    console.log("DEBUG getOne: all plugins =", allPlugins);
+    
+    const result = allPlugins.find(
+      (p) => p.organizationId === orgId && p.service === args.service
+    );
 
-    console.log("DEBUG getOne: query result =", result);
+    console.log("DEBUG getOne: filtered result =", result);
     return result;
   },
 });
