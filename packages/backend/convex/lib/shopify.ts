@@ -37,11 +37,11 @@ export async function fetchAllShopifyProducts(
   const limit = 250; // Shopify max per page
 
   do {
-    const url = pageInfo
+    const url: string = pageInfo
       ? `https://${shopDomain}/admin/api/2024-10/products.json?limit=${limit}&page_info=${pageInfo}&fields=id,title,body_html,vendor,product_type,tags,status,variants,images`
       : `https://${shopDomain}/admin/api/2024-10/products.json?limit=${limit}&fields=id,title,body_html,vendor,product_type,tags,status,variants,images`;
 
-    const response = await fetch(url, {
+    const response: any = await fetch(url, {
       headers: {
         "X-Shopify-Access-Token": adminApiKey,
         "Content-Type": "application/json",
@@ -57,8 +57,8 @@ export async function fetchAllShopifyProducts(
     allProducts.push(...data.products);
 
     // Handle pagination via Link header
-    const linkHeader = response.headers.get("Link") || "";
-    const nextMatch = linkHeader.match(/<[^>]*page_info=([^&>]+)[^>]*>;\s*rel="next"/);
+    const linkHeader: string = response.headers.get("Link") || "";
+    const nextMatch: RegExpMatchArray | null = linkHeader.match(/<[^>]*page_info=([^&>]+)[^>]*>;\s*rel="next"/);
     pageInfo = nextMatch ? nextMatch[1] : null;
   } while (pageInfo);
 
@@ -73,9 +73,9 @@ export async function fetchShopifyProduct(
   adminApiKey: string,
   productId: number
 ): Promise<ShopifyProduct | null> {
-  const url = `https://${shopDomain}/admin/api/2024-10/products/${productId}.json`;
+  const url: string = `https://${shopDomain}/admin/api/2024-10/products/${productId}.json`;
 
-  const response = await fetch(url, {
+  const response: any = await fetch(url, {
     headers: {
       "X-Shopify-Access-Token": adminApiKey,
       "Content-Type": "application/json",
@@ -160,9 +160,9 @@ export async function registerShopifyWebhook(
   topic: string,
   callbackUrl: string
 ): Promise<void> {
-  const url = `https://${shopDomain}/admin/api/2024-10/webhooks.json`;
+  const url: string = `https://${shopDomain}/admin/api/2024-10/webhooks.json`;
 
-  const response = await fetch(url, {
+  const response: any = await fetch(url, {
     method: "POST",
     headers: {
       "X-Shopify-Access-Token": adminApiKey,
@@ -194,9 +194,9 @@ export async function validateShopifyCredentials(
   shopDomain: string,
   adminApiKey: string
 ): Promise<string> {
-  const url = `https://${shopDomain}/admin/api/2024-10/shop.json?fields=name,domain`;
+  const url: string = `https://${shopDomain}/admin/api/2024-10/shop.json?fields=name,domain`;
 
-  const response = await fetch(url, {
+  const response: any = await fetch(url, {
     headers: {
       "X-Shopify-Access-Token": adminApiKey,
     },
