@@ -306,6 +306,7 @@ const VapiPluginRemoveForm = ({
 
 export const VapiView = () => {
   const vapiPlugin = useQuery(api.private.plugins.getOne, { service: "vapi" });
+  console.log("VapiPlugin query result:", vapiPlugin);
 
   const [connectOpen, setConnectOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);

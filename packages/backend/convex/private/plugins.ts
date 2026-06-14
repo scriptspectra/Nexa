@@ -48,7 +48,7 @@ export const getOne = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (identity === null) {
       throw new ConvexError({
         code: "UNAUTHORIZED",
@@ -58,6 +58,8 @@ export const getOne = query({
 
     const orgId = (identity.orgId || (identity as any).org_id) as string;
 
+    console.log("DEBUG getOne: orgId =", orgId, "service =", args.service);
+
     if (!orgId) {
       throw new ConvexError({
         code: "UNAUTHORIZED",
@@ -65,11 +67,14 @@ export const getOne = query({
       });
     }
 
-    return await ctx.db
+    const result = await ctx.db
       .query("plugins")
       .withIndex("by_organization_id_and_service", (q) =>
         q.eq("organizationId", orgId).eq("service", args.service)
       )
       .unique();
+
+    console.log("DEBUG getOne: query result =", result);
+    return result;
   },
 });
