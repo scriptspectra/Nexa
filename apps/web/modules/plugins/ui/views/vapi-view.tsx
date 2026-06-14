@@ -73,6 +73,7 @@ const VapiPluginForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      console.log("Submitting Vapi secrets...");
       await upsertSecret({
         service: "vapi",
         value: {
@@ -80,12 +81,16 @@ const VapiPluginForm = ({
           privateApiKey: values.privateApiKey,
         },
       });
+      console.log("Vapi secrets submitted successfully");
       setOpen(false);
       toast.success("Vapi secret created");
-      // Wait for toast to show and mutation to complete, then reload
-      setTimeout(() => window.location.reload(), 2000);
+      // Wait 2 seconds to allow toast to show and Convex to complete
+      setTimeout(() => {
+        console.log("Reloading page...");
+        window.location.reload();
+      }, 2000);
     } catch (error) {
-      console.error(error);
+      console.error("Error submitting Vapi secrets:", error);
       toast.error("Something went wrong");
     }
   };
