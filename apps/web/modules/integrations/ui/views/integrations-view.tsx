@@ -1,8 +1,10 @@
 "use client";
 
 import { useOrganization } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { api } from "@workspace/backend/_generated/api";
 import { Button } from "@workspace/ui/components/button";
-import { CopyIcon, HelpCircleIcon, ExternalLinkIcon, CheckIcon, TerminalIcon } from "lucide-react";
+import { CopyIcon, HelpCircleIcon, ExternalLinkIcon, CheckIcon, TerminalIcon, ShoppingBagIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { IntegrationId, INTEGRATIONS } from "../../constants";
 import Image from "next/image";
@@ -15,6 +17,8 @@ import {
 } from "@workspace/ui/components/dialog";
 import { useState } from "react";
 import { createScript, getConvexDeploymentUrl, getDynamicWidgetUrl, isProductionHost } from "../../utils";
+import { ShopifyConnectDialog } from "../components/shopify-connect-dialog";
+import { ShopifyStatusCard } from "../components/shopify-status-card";
 
 export const IntegrationsView = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -24,6 +28,11 @@ export const IntegrationsView = () => {
   const widgetUrl = getDynamicWidgetUrl();
   const convexUrl = getConvexDeploymentUrl();
   const onProductionHost = isProductionHost();
+
+  // Shopify integration state
+  const [shopifyDialogOpen, setShopifyDialogOpen] = useState(false);
+  const shopifyStatus = useQuery(api.private.shopify.getShopifyStatus);
+  const isShopifyConnected = shopifyStatus?.connected === true;
 
   const handleIntegrationClick = (integrationId: IntegrationId) => {
     if (!organization) {
@@ -56,6 +65,12 @@ export const IntegrationsView = () => {
         snippet={selectedSnippet}
       />
 
+      <ShopifyConnectDialog
+        open={shopifyDialogOpen}
+        onOpenChange={setShopifyDialogOpen}
+        onSuccess={() => setShopifyDialogOpen(false)}
+      />
+
       <div className="flex min-h-screen flex-col bg-black p-6 md:p-12 overflow-y-auto">
         <div className="mx-auto w-full max-w-4xl space-y-12">
 
@@ -72,6 +87,60 @@ export const IntegrationsView = () => {
               Connect your applications and website to the Zephyra AI chatbox widget. Copy your credentials below or select a platform to get started.
             </p>
           </header>
+
+          {/* ─── DATA INTEGRATIONS (Shopify) ─────────────────────────────── */}
+          <div className="space-y-4">
+            <div className="flex items-end justify-between border-b border-white/5 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-white tracking-tight">Data Integrations</h3>
+                <p className="text-sm text-zinc-400 mt-1">Connect data sources to keep your AI knowledge base up-to-date in real-time.</p>
+              </div>
+            </div>
+
+            {/* Shopify Card */}
+            <div className="rounded-2xl border border-white/5 bg-zinc-950/40 p-6 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center flex-shrink-0">
+                    <ShoppingBagIcon className="size-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-base">Shopify</h4>
+                    <p className="text-zinc-500 text-sm mt-0.5">
+                      Sync your product catalog & inventory to the AI knowledge base.
+                      Updates automatically when products change or orders are placed.
+                    </p>
+                  </div>
+                </div>
+
+                {!isShopifyConnected && (
+                  <Button
+                    onClick={() => setShopifyDialogOpen(true)}
+                    className="flex-shrink-0 h-9 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all"
+                  >
+                    <PlusIcon className="size-3.5 mr-1.5" />
+                    Connect
+                  </Button>
+                )}
+              </div>
+
+              {isShopifyConnected && (
+                <ShopifyStatusCard
+                  onDisconnected={() => {}}
+                />
+              )}
+
+              {!isShopifyConnected && (
+                <div className="flex flex-wrap gap-2">
+                  {["Live product availability", "Price updates", "Inventory tracking", "Order-triggered sync"].map((feature) => (
+                    <span key={feature} className="px-2.5 py-1 rounded-md text-[10px] font-semibold bg-white/[0.03] border border-white/5 text-zinc-500">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
         {/* Organization ID Section */}
         <div className="bg-zinc-950/40 border border-white/5 rounded-2xl p-6">

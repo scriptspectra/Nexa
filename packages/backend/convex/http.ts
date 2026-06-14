@@ -204,4 +204,105 @@ async function validateRequest(req: Request): Promise<WebhookEvent | null> {
   }
 };
 
+// ─── Shopify Webhook ──────────────────────────────────────────────────────────
+// Shopify sends real-time events here when products change or orders are placed.
+// We verify the HMAC signature, then dispatch a background sync for the
+// affected product — we return 200 immediately to satisfy Shopify's 5s limit.
+
+http.route({
+  path: "/shopify-webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const rawBody = await request.text();
+    const hmacHeader = request.headers.get("x-shopify-hmac-sha256") || "";
+    const topic = request.headers.get("x-shopify-topic") || "";
+    const shopDomain = request.headers.get("x-shopify-shop-domain") || "";
+
+    // Look up which organization this shop domain belongs to
+    // We do this by finding the org whose Shopify secret has this domain.
+    // For security we also verify the HMAC using SHOPIFY_WEBHOOK_SECRET.
+    // NOTE: The shared webhook secret is set at the app level (not per-org) when
+    // registering webhooks. Store it as SHOPIFY_WEBHOOK_SECRET in Convex env.
+    const webhookSecret = process.env.SHOPIFY_WEBHOOK_SECRET || "";
+
+    if (webhookSecret) {
+      const isValid = await verifyShopifyHmac(rawBody, hmacHeader, webhookSecret);
+      if (!isValid) {
+        console.warn("SHOPIFY_WEBHOOK: Invalid HMAC signature. Rejecting request.");
+        return new Response("Invalid signature", { status: 401 });
+      }
+    } else {
+      console.warn("SHOPIFY_WEBHOOK: SHOPIFY_WEBHOOK_SECRET not set — skipping HMAC check.");
+    }
+
+    let payload: any;
+    try {
+      payload = JSON.parse(rawBody);
+    } catch {
+      return new Response("Invalid JSON", { status: 400 });
+    }
+
+    console.log(`SHOPIFY_WEBHOOK: Received topic "${topic}" from shop "${shopDomain}"`);
+
+    // Dispatch background work using scheduler so we return 200 immediately
+    // Shopify requires responses in under 5 seconds.
+    if (topic === "products/update" || topic === "products/create") {
+      const productId = payload.id as number | undefined;
+      if (productId && shopDomain) {
+        await ctx.scheduler.runAfter(0, internal.private.shopify.handleProductWebhook, {
+          shopDomain,
+          productId,
+          deleted: false,
+        });
+      }
+    } else if (topic === "products/delete") {
+      const productId = payload.id as number | undefined;
+      if (productId && shopDomain) {
+        await ctx.scheduler.runAfter(0, internal.private.shopify.handleProductWebhook, {
+          shopDomain,
+          productId,
+          deleted: true,
+        });
+      }
+    } else if (topic === "inventory_levels/update") {
+      await ctx.scheduler.runAfter(0, internal.private.shopify.handleInventoryWebhook, {
+        shopDomain,
+        inventoryItemId: payload.inventory_item_id as number,
+      });
+    } else {
+      console.log(`SHOPIFY_WEBHOOK: Ignored unhandled topic "${topic}"`);
+    }
+
+    return new Response(null, { status: 200 });
+  }),
+});
+
+async function verifyShopifyHmac(
+  payload: string,
+  hmacHeader: string,
+  secret: string
+): Promise<boolean> {
+  if (!hmacHeader || !secret) return false;
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const payloadData = encoder.encode(payload);
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, payloadData);
+
+  // Shopify sends base64-encoded HMAC
+  const computedBase64 = btoa(
+    String.fromCharCode(...new Uint8Array(signatureBuffer))
+  );
+
+  return computedBase64 === hmacHeader;
+}
+
 export default http;

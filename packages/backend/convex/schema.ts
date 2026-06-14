@@ -50,11 +50,24 @@ export default defineSchema({
     .index("by_organization_id", ["organizationId"]),
   plugins: defineTable({
     organizationId: v.string(),
-    service: v.union(v.literal("vapi")),
+    service: v.union(v.literal("vapi"), v.literal("shopify")),
     secretName: v.string(),
   })
     .index("by_organization_id", ["organizationId"])
     .index("by_organization_id_and_service", ["organizationId", "service"]),
+  shopifySyncLog: defineTable({
+    organizationId: v.string(),
+    status: v.union(
+      v.literal("running"),
+      v.literal("done"),
+      v.literal("error")
+    ),
+    totalProducts: v.optional(v.number()),
+    syncedProducts: v.optional(v.number()),
+    lastSyncedAt: v.optional(v.number()),
+    errorMessage: v.optional(v.string()),
+  })
+    .index("by_organization_id", ["organizationId"]),
   conversations: defineTable({
     threadId: v.string(),
     organizationId: v.string(),
