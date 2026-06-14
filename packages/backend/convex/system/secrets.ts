@@ -23,12 +23,19 @@ export const upsert = internalAction({
       throw error;
     }
 
+    console.log("DEBUG: Creating plugin record with:", {
+      service: args.service,
+      secretName,
+      organizationId: args.organizationId,
+    });
+
     await ctx.runMutation(internal.system.plugins.upsert, {
       service: args.service,
       secretName,
       organizationId: args.organizationId,
     });
 
+    console.log("DEBUG: Plugin record created successfully");
     return { status: "success" };
   },
 });

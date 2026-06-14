@@ -84,11 +84,11 @@ const VapiPluginForm = ({
       console.log("Vapi secrets submitted successfully, result:", result);
       setOpen(false);
       toast.success("Vapi secret created");
-      // Wait 3 seconds to allow toast to show and Convex to complete
+      // Force reload after toast shows
       setTimeout(() => {
         console.log("Reloading page...");
-        window.location.reload();
-      }, 3000);
+        window.location.href = window.location.href;
+      }, 1500);
     } catch (error) {
       console.error("Error submitting Vapi secrets:", error);
       toast.error("Something went wrong");
