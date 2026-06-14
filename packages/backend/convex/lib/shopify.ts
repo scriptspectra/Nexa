@@ -59,7 +59,7 @@ export async function fetchAllShopifyProducts(
     // Handle pagination via Link header
     const linkHeader: string = response.headers.get("Link") || "";
     const nextMatch: RegExpMatchArray | null = linkHeader.match(/<[^>]*page_info=([^&>]+)[^>]*>;\s*rel="next"/);
-    pageInfo = nextMatch ? nextMatch[1] : null;
+    pageInfo = nextMatch?.[1] ?? null;
   } while (pageInfo);
 
   return allProducts;
