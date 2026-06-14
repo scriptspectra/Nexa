@@ -81,20 +81,18 @@ export const Dropzone = ({
       key={JSON.stringify(src)}
       value={{ src, accept, maxSize, minSize, maxFiles }}
     >
-      <Button
+      <div
         className={cn(
-          "relative h-auto w-full flex-col overflow-hidden p-8",
+          "relative flex h-auto w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border border-input bg-background p-8 shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          disabled && "pointer-events-none opacity-50",
           isDragActive && "outline-none ring-1 ring-ring",
           className
         )}
-        disabled={disabled}
-        type="button"
-        variant="outline"
         {...getRootProps()}
       >
         <input {...getInputProps()} disabled={disabled} />
         {children}
-      </Button>
+      </div>
     </DropzoneContext.Provider>
   );
 };
