@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/api/shopify/callback",
 ]);
 
 const isOrgFreeRoute = createRouteMatcher([

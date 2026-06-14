@@ -5,6 +5,7 @@
 
 import { ConvexError, v } from "convex/values";
 import { action, internalAction, internalMutation, internalQuery, mutation, query } from "../_generated/server";
+import type { ActionCtx } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { getSecretValue, parseSecretString, upsertSecret } from "../lib/secrets";
 import {
@@ -28,87 +29,93 @@ function productRagKey(productId: number): string {
 
 // ─── Public Actions (called from dashboard) ──────────────────────────────────
 
+async function finalizeShopifyConnection(
+  ctx: ActionCtx,
+  organizationId: string,
+  shopDomain: string,
+  accessToken: string,
+) {
+  let shopName: string;
+  try {
+    shopName = await validateShopifyCredentials(shopDomain, accessToken);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Invalid Shopify credentials";
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message,
+    });
+  }
+
+  const secretName = getSecretName(organizationId);
+  await upsertSecret(secretName, {
+    shopDomain,
+    adminApiKey: accessToken,
+    shopName,
+    authMethod: "oauth",
+  });
+
+  await ctx.runMutation(internal.system.plugins.upsert, {
+    organizationId,
+    service: "shopify",
+    secretName,
+  });
+
+  const convexHttpUrl = process.env.CONVEX_SITE_URL || "";
+  const webhookCallbackUrl = `${convexHttpUrl}/shopify-webhook`;
+  const webhookTopics = [
+    "products/update",
+    "products/delete",
+    "inventory_levels/update",
+  ];
+
+  for (const topic of webhookTopics) {
+    try {
+      await registerShopifyWebhook(shopDomain, accessToken, topic, webhookCallbackUrl);
+    } catch (err) {
+      console.warn(`Failed to register webhook for topic "${topic}":`, err);
+    }
+  }
+
+  await ctx.runMutation(internal.private.shopify.upsertSyncLog, {
+    organizationId,
+    status: "running",
+    syncedProducts: 0,
+  });
+  await ctx.scheduler.runAfter(0, internal.private.shopify.runFullProductSync, {
+    organizationId,
+  });
+
+  return { shopName, shopDomain };
+}
+
 /**
- * Validates credentials, saves them, registers webhooks, and starts the
- * initial full product sync. Called when the user connects their Shopify store.
+ * Completes Shopify OAuth after the Next.js callback exchanges the auth code.
+ * Secured with SHOPIFY_OAUTH_SERVER_SECRET — only callable from our API route.
  */
-export const connectShopify = action({
+export const finalizeShopifyOAuth = action({
   args: {
+    organizationId: v.string(),
     shopDomain: v.string(),
-    adminApiKey: v.string(),
+    accessToken: v.string(),
+    serverSecret: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new ConvexError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+    if (args.serverSecret !== process.env.SHOPIFY_OAUTH_SERVER_SECRET) {
+      throw new ConvexError({ code: "UNAUTHORIZED", message: "Unauthorized" });
     }
 
-    const orgId = (identity.orgId || (identity as any).org_id) as string;
-    if (!orgId) {
-      throw new ConvexError({ code: "UNAUTHORIZED", message: "Organization not found" });
-    }
-
-    // Normalize domain — strip https:// if user accidentally includes it
     const shopDomain = args.shopDomain
       .replace(/^https?:\/\//, "")
       .replace(/\/$/, "")
-      .trim();
+      .trim()
+      .toLowerCase();
 
-    // Step 1: Validate credentials against Shopify API
-    let shopName: string;
-    try {
-      shopName = await validateShopifyCredentials(shopDomain, args.adminApiKey);
-    } catch (err: any) {
-      throw new ConvexError({
-        code: "BAD_REQUEST",
-        message: err.message || "Invalid Shopify credentials",
-      });
-    }
-
-    // Step 2: Store credentials securely in AWS Secrets Manager
-    const secretName = getSecretName(orgId);
-    await upsertSecret(secretName, {
+    return await finalizeShopifyConnection(
+      ctx,
+      args.organizationId,
       shopDomain,
-      adminApiKey: args.adminApiKey,
-      shopName,
-    });
-
-    // Step 3: Create/update the plugin record in Convex
-    await ctx.runMutation(internal.system.plugins.upsert, {
-      organizationId: orgId,
-      service: "shopify",
-      secretName,
-    });
-
-    // Step 4: Register Shopify webhooks so we get real-time updates
-    const convexHttpUrl = process.env.CONVEX_SITE_URL || "";
-    const webhookCallbackUrl = `${convexHttpUrl}/shopify-webhook`;
-    const webhookTopics = [
-      "products/update",
-      "products/delete",
-      "inventory_levels/update",
-    ];
-
-    for (const topic of webhookTopics) {
-      try {
-        await registerShopifyWebhook(shopDomain, args.adminApiKey, topic, webhookCallbackUrl);
-      } catch (err) {
-        // Log but don't fail — sync still works even without webhooks
-        console.warn(`Failed to register webhook for topic "${topic}":`, err);
-      }
-    }
-
-    // Step 5: Kick off full product sync in the background
-    await ctx.runMutation(internal.private.shopify.upsertSyncLog, {
-      organizationId: orgId,
-      status: "running",
-      syncedProducts: 0,
-    });
-    await ctx.scheduler.runAfter(0, internal.private.shopify.runFullProductSync, {
-      organizationId: orgId,
-    });
-
-    return { shopName, shopDomain };
+      args.accessToken,
+    );
   },
 });
 

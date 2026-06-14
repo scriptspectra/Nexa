@@ -15,12 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createScript, getConvexDeploymentUrl, getDynamicWidgetUrl, isProductionHost } from "../../utils";
 import { ShopifyConnectDialog } from "../components/shopify-connect-dialog";
 import { ShopifyStatusCard } from "../components/shopify-status-card";
 
 export const IntegrationsView = () => {
+  const searchParams = useSearchParams();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState("");
   const { organization } = useOrganization();
@@ -33,6 +35,33 @@ export const IntegrationsView = () => {
   const [shopifyDialogOpen, setShopifyDialogOpen] = useState(false);
   const shopifyStatus = useQuery(api.private.shopify.getShopifyStatus);
   const isShopifyConnected = shopifyStatus?.connected === true;
+
+  useEffect(() => {
+    const shopifyResult = searchParams.get("shopify");
+    if (!shopifyResult) {
+      return;
+    }
+
+    if (shopifyResult === "connected") {
+      const shopName = searchParams.get("shop");
+      toast.success(
+        shopName
+          ? `Shopify connected to ${shopName}. Product sync has started.`
+          : "Shopify connected. Product sync has started.",
+      );
+    }
+
+    if (shopifyResult === "error") {
+      const message = searchParams.get("message") || "Failed to connect Shopify.";
+      toast.error(message);
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("shopify");
+    url.searchParams.delete("shop");
+    url.searchParams.delete("message");
+    window.history.replaceState({}, "", url.toString());
+  }, [searchParams]);
 
   const handleIntegrationClick = (integrationId: IntegrationId) => {
     if (!organization) {
@@ -68,7 +97,6 @@ export const IntegrationsView = () => {
       <ShopifyConnectDialog
         open={shopifyDialogOpen}
         onOpenChange={setShopifyDialogOpen}
-        onSuccess={() => setShopifyDialogOpen(false)}
       />
 
       <div className="flex min-h-screen flex-col bg-black p-6 md:p-12 overflow-y-auto">
