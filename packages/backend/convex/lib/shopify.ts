@@ -123,9 +123,9 @@ export function productToRagText(product: ShopifyProduct): string {
     product.variants.some((v) => v.inventory_quantity > 0);
   lines.push(`Available: ${isAvailable ? "Yes" : "No"}`);
 
-  if (product.variants.length === 1 && product.variants[0].title === "Default Title") {
+  if (product.variants.length === 1 && product.variants[0]?.title === "Default Title") {
     // Simple product with no variants
-    const v = product.variants[0];
+    const v = product.variants[0]!;
     lines.push(`Price: $${v.price}`);
     lines.push(`In Stock: ${v.inventory_quantity > 0 ? `${v.inventory_quantity} units` : "Out of stock"}`);
     if (v.sku) lines.push(`SKU: ${v.sku}`);
