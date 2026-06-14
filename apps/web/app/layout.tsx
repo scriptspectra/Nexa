@@ -5,6 +5,14 @@ import { Providers } from "@/components/providers";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 
+// Pick the correct Clerk publishable key based on the build environment.
+// NEXT_PUBLIC_ vars are baked in at build time, so both values are embedded
+// in the bundle and the correct one is selected by NODE_ENV at build time.
+const clerkPublishableKey =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_PROD!
+    : process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_DEV!;
+
 const fontSans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -39,6 +47,7 @@ export default function RootLayout({
       </head>
       <body className={`${fontSans.variable} ${fontMono.variable} antialiased`}>
         <ClerkProvider
+          publishableKey={clerkPublishableKey}
           appearance={{
             variables: {
               colorPrimary: "#ffffff"
