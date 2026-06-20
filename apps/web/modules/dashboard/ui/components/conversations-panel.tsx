@@ -2,6 +2,7 @@
 
 import { useInfiniteScroll } from "@workspace/ui/hooks/use-infinite-scroll";
 import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger";
+import { useUser } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
 import { getCountryFlagUrl, getCountryFromTimezone } from "@/lib/country-utils";
 import { api } from "@workspace/backend/_generated/api";
@@ -27,9 +28,11 @@ import { useState } from "react";
 
 export const ConversationsPanel = () => {
   const pathname = usePathname();
+  const { user } = useUser();
 
   const statusFilter = useAtomValue(statusFilterAtom);
   const setStatusFilter = useSetAtom(statusFilterAtom);
+  const [queueFilter, setQueueFilter] = useState<"all" | "me">("all");
 
   const conversations = usePaginatedQuery(
     api.private.conversations.getMany,
@@ -38,6 +41,7 @@ export const ConversationsPanel = () => {
         statusFilter === "all"
           ? undefined
           : statusFilter,
+      assignedToUserId: queueFilter === "me" && user ? user.id : undefined,
     },
     {
       initialNumItems: 10,
@@ -69,6 +73,20 @@ export const ConversationsPanel = () => {
   return (
     <div className="flex h-full w-full flex-col bg-background text-foreground overflow-hidden">
       <div className="flex flex-col gap-2 p-sm border-b border-outline-variant">
+        <div className="flex bg-surface-container-low border border-outline-variant p-1 gap-1">
+          <button 
+            className={`flex-1 text-[11px] font-bold uppercase tracking-wider py-1 ${queueFilter === "all" ? "bg-white text-black" : "text-on-surface-variant hover:text-white"}`}
+            onClick={() => setQueueFilter("all")}
+          >
+            All Tickets
+          </button>
+          <button 
+            className={`flex-1 text-[11px] font-bold uppercase tracking-wider py-1 ${queueFilter === "me" ? "bg-white text-black" : "text-on-surface-variant hover:text-white"}`}
+            onClick={() => setQueueFilter("me")}
+          >
+            My Queue
+          </button>
+        </div>
         <div className="relative w-full">
           <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
           <input 
@@ -170,6 +188,12 @@ export const ConversationsPanel = () => {
                         {formatDistanceToNow(conversation._creationTime)}
                       </span>
                     </div>
+                    {conversation.assignedToName && (
+                      <div className="flex items-center gap-1 mb-1 text-[10px] text-on-surface-variant">
+                        <span className="material-symbols-outlined text-[12px]">person</span>
+                        <span>Assigned to {conversation.assignedToName}</span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex w-0 grow items-center gap-1">
                         {isLastMessageFromOperator && (

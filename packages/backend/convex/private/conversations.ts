@@ -118,6 +118,7 @@ export const getMany = query({
         v.literal("resolved")
       )
     ),
+    assignedToUserId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -140,7 +141,24 @@ export const getMany = query({
 
     let conversations: PaginationResult<Doc<"conversations">>;
 
-    if (args.status) {
+    if (args.assignedToUserId) {
+      conversations = await ctx.db
+        .query("conversations")
+        .withIndex("by_assigned_user", (q) =>
+          q
+            .eq("assignedToUserId", args.assignedToUserId as string)
+            .eq("organizationId", orgId)
+        )
+        // If status filter is also present, we must filter in-memory or by index scan
+        // Convex indexes must be matched exactly from left to right.
+        .filter((q) =>
+          args.status
+            ? q.eq(q.field("status"), args.status)
+            : q.neq(q.field("status"), "never-match-this-status") // dummy if no filter
+        )
+        .order("desc")
+        .paginate(args.paginationOpts);
+    } else if (args.status) {
       conversations = await ctx.db
         .query("conversations")
         .withIndex("by_status_and_organization_id", (q) =>
@@ -196,5 +214,54 @@ export const getMany = query({
       ...conversations,
       page: validConversations,
     };
+  },
+});
+
+export const assign = mutation({
+  args: {
+    conversationId: v.id("conversations"),
+    assignedToUserId: v.optional(v.string()), // undefined means unassign
+    assignedToName: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Identity not found",
+      });
+    }
+
+    const orgId = (identity.orgId || (identity as any).org_id) as string;
+
+    if (!orgId) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Organization not found",
+      });
+    }
+
+    const conversation = await ctx.db.get(args.conversationId);
+
+    if (!conversation) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: "Conversation not found",
+      });
+    }
+
+    if (conversation.organizationId !== orgId) {
+      throw new ConvexError({
+        code: "UNAUTHORZIED",
+        message: "Invalid Organization ID",
+      });
+    }
+
+    await ctx.db.patch(args.conversationId, {
+      assignedToUserId: args.assignedToUserId,
+      assignedToName: args.assignedToName,
+      assignedAt: args.assignedToUserId ? Date.now() : undefined,
+    });
   },
 });

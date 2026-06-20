@@ -3,11 +3,19 @@
 import { useInfiniteScroll } from "@workspace/ui/hooks/use-infinite-scroll";
 import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger";
 import { toUIMessages, useThreadMessages } from "@convex-dev/agent/react";
+import { useOrganization } from "@clerk/nextjs";
 import { api } from "@workspace/backend/_generated/api";
 import { Id } from "@workspace/backend/_generated/dataModel";
 import { Button } from "@workspace/ui/components/button";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { MoreHorizontalIcon, Wand2Icon } from "lucide-react";
+import { MoreHorizontalIcon, Wand2Icon, UserIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select";
 import {
   AIConversation,
   AIConversationContent,
@@ -138,12 +146,47 @@ export const ConversationIdView = ({
     }
   };
 
+  const { memberships } = useOrganization({
+    memberships: {
+      keepPreviousData: true,
+    },
+  });
+
+  const assignConversation = useMutation(api.private.conversations.assign);
+  const handleAssign = async (userId: string) => {
+    if (!conversation) return;
+    
+    let assignedToUserId: string | undefined = userId;
+    let assignedToName: string | undefined = undefined;
+    
+    if (userId === "unassigned") {
+      assignedToUserId = undefined;
+    } else {
+      const member = memberships?.data?.find(m => m.publicUserData.userId === userId);
+      assignedToName = member ? `${member.publicUserData.firstName} ${member.publicUserData.lastName}`.trim() : "Operator";
+    }
+
+    try {
+      await assignConversation({
+        conversationId: conversation._id,
+        assignedToUserId,
+        assignedToName,
+      });
+      toast.success(assignedToUserId ? `Assigned to ${assignedToName}` : "Unassigned");
+    } catch (error) {
+      toast.error("Failed to assign conversation");
+      console.error(error);
+    }
+  };
+
   if (conversation === undefined || messages.status === "LoadingFirstPage") {
     return <ConversationIdViewLoading />
   }
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div className="flex h-full w-full">
+      {/* Central Chat Area */}
+      <section className="flex-1 flex flex-col relative bg-background border-r border-outline-variant">
       <header className="h-16 flex items-center justify-between px-lg border-b border-outline-variant">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary font-bold text-label-sm">
@@ -154,6 +197,29 @@ export const ConversationIdView = ({
           </div>
         </div>
         <div className="flex items-center gap-4">
+          {!!conversation && (
+            <div className="w-48">
+              <Select
+                value={conversation.assignedToUserId ?? "unassigned"}
+                onValueChange={handleAssign}
+              >
+                <SelectTrigger className="h-8 bg-surface-container-low border-outline-variant text-xs">
+                  <SelectValue placeholder="Assign to..." />
+                </SelectTrigger>
+                <SelectContent className="bg-surface-container-high border-outline-variant">
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {memberships?.data?.map((membership) => (
+                    <SelectItem 
+                      key={membership.publicUserData.userId} 
+                      value={membership.publicUserData.userId || ""}
+                    >
+                      {membership.publicUserData.firstName} {membership.publicUserData.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           {!!conversation && (
             <ConversationStatusButton
               onClick={handleToggleStatus}
@@ -255,9 +321,114 @@ export const ConversationIdView = ({
           </AIInput>
         </Form>
       </div>
+      </section>
+
+      {/* Right Detail Pane */}
+      {conversation && (
+        <ContactDetailsPane
+          contactSession={conversation.contactSession}
+          conversation={conversation}
+        />
+      )}
     </div>
   );
 };
+
+function ContactDetailsPane({ contactSession, conversation }: { contactSession: any, conversation: any }) {
+  const meta = contactSession.metadata || {};
+
+  return (
+    <section className="w-80 flex-shrink-0 flex flex-col bg-surface-container-lowest overflow-y-auto custom-scrollbar">
+      {/* Profile Section */}
+      <div className="p-lg text-center border-b border-outline-variant">
+        <div className="mb-sm flex justify-center">
+          <DicebearAvatar seed={contactSession._id} size={80} />
+        </div>
+        <h3 className="text-body-lg font-bold text-primary">{contactSession.name}</h3>
+        <p className="text-label-sm text-on-surface-variant mb-4">{contactSession.email}</p>
+        <button className="w-full border border-outline-variant bg-background py-2 text-label-sm font-label-sm font-bold uppercase tracking-widest hover:border-primary transition-colors flex items-center justify-center gap-2 text-on-surface">
+          <span className="material-symbols-outlined text-[16px]" data-icon="mail">mail</span>
+          Send Email
+        </button>
+      </div>
+
+      {/* Collapsible Sections */}
+      <div className="flex-1">
+        {/* Device Info */}
+        <details className="group border-b border-outline-variant" open>
+          <summary className="flex justify-between items-center p-sm cursor-pointer hover:bg-surface-container-low transition-colors list-none">
+            <span className="text-label-md font-label-md uppercase tracking-wider text-primary">Device Information</span>
+            <span className="material-symbols-outlined transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+          </summary>
+          <div className="px-sm pb-sm space-y-3">
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">OS/Browser</span>
+              <span className="text-label-sm text-primary max-w-[140px] truncate" title={meta.userAgent}>
+                {meta.userAgent ? (meta.userAgent.split(" ")[0] || "Unknown") : "Unknown"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Platform</span>
+              <span className="text-label-sm text-primary">{meta.platform || "Unknown"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Screen</span>
+              <span className="text-label-sm text-primary">{meta.screenResolution || "Unknown"}</span>
+            </div>
+          </div>
+        </details>
+
+        {/* Location & Language */}
+        <details className="group border-b border-outline-variant" open>
+          <summary className="flex justify-between items-center p-sm cursor-pointer hover:bg-surface-container-low transition-colors list-none">
+            <span className="text-label-md font-label-md uppercase tracking-wider text-primary">Location &amp; Language</span>
+            <span className="material-symbols-outlined transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+          </summary>
+          <div className="px-sm pb-sm space-y-3">
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Language</span>
+              <span className="text-label-sm text-primary">{meta.language || "Unknown"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Timezone</span>
+              <span className="text-label-sm text-primary truncate max-w-[140px]" title={meta.timezone}>
+                {meta.timezone || "Unknown"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Offset</span>
+              <span className="text-label-sm text-primary">
+                {meta.timezoneOffset != null ? `UTC ${meta.timezoneOffset > 0 ? "-" : "+"}${Math.abs(meta.timezoneOffset / 60)}h` : "Unknown"}
+              </span>
+            </div>
+          </div>
+        </details>
+
+        {/* Session Details */}
+        <details className="group border-b border-outline-variant" open>
+          <summary className="flex justify-between items-center p-sm cursor-pointer hover:bg-surface-container-low transition-colors list-none">
+            <span className="text-label-md font-label-md uppercase tracking-wider text-primary">Session Details</span>
+            <span className="material-symbols-outlined transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+          </summary>
+          <div className="px-sm pb-sm space-y-3">
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Started At</span>
+              <span className="text-label-sm text-primary">
+                {new Date(conversation._creationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-label-sm text-on-surface-variant">Expires At</span>
+              <span className="text-label-sm text-primary">
+                {new Date(contactSession.expiresAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+  );
+}
 
 export const ConversationIdViewLoading = () => {
   return (

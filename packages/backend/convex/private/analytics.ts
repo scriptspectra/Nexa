@@ -9,14 +9,18 @@ const MONTHS = [
 
 const EMPTY_METRICS = {
   totalConversations: 0,
+  totalConversationsDelta: null as number | null,
   resolutionRate: 0,
-  csatScore: "N/A",
-  avgResponseTime: "N/A",
+  csatScore: null as number | null,
+  csatCount: 0,
+  avgFirstResponseMs: null as number | null,
+  avgFirstResponseLabel: "N/A",
   chartData: [] as Array<{
     date: string;
     aiHandled: number;
     operatorHandled: number;
   }>,
+  hourlyDistribution: [] as Array<{ hour: number; count: number }>,
 };
 
 function toDateKey(timestamp: number): string {
@@ -34,6 +38,14 @@ function toDateLabel(timestamp: number): string {
   return `${month} ${day}`;
 }
 
+function formatDuration(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes === 0) return `${seconds}s`;
+  return `${minutes}m ${seconds}s`;
+}
+
 export const getMetrics = query({
   args: {
     organizationId: v.string(),
@@ -46,20 +58,34 @@ export const getMetrics = query({
       return EMPTY_METRICS;
     }
 
-    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    const sixtyDaysAgo = now - 60 * 24 * 60 * 60 * 1000;
 
+    // ─── Current period conversations ───────────────────────────────────────
     const allConversations = await ctx.db
       .query("conversations")
       .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
       .collect();
 
     const conversations = allConversations.filter(
-      (conversation) => conversation._creationTime >= thirtyDaysAgo,
+      (c) => c._creationTime >= thirtyDaysAgo,
+    );
+
+    const prevConversations = allConversations.filter(
+      (c) => c._creationTime >= sixtyDaysAgo && c._creationTime < thirtyDaysAgo,
     );
 
     const totalConversations = conversations.length;
+    const prevTotal = prevConversations.length;
+    const totalConversationsDelta =
+      prevTotal === 0
+        ? null
+        : Math.round(((totalConversations - prevTotal) / prevTotal) * 100);
+
+    // ─── Resolution rate ─────────────────────────────────────────────────────
     const resolvedConversations = conversations.filter(
-      (conversation) => conversation.status === "resolved",
+      (c) => c.status === "resolved",
     ).length;
 
     const resolutionRate =
@@ -67,30 +93,51 @@ export const getMetrics = query({
         ? 0
         : Math.round((resolvedConversations / totalConversations) * 100);
 
+    // ─── Avg first response time ─────────────────────────────────────────────
+    const responseTimes = conversations
+      .filter((c) => c.firstResponseAt != null)
+      .map((c) => c.firstResponseAt! - c._creationTime);
+
+    const avgFirstResponseMs =
+      responseTimes.length === 0
+        ? null
+        : Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length);
+
+    const avgFirstResponseLabel =
+      avgFirstResponseMs == null ? "N/A" : formatDuration(avgFirstResponseMs);
+
+    // ─── CSAT ratings ────────────────────────────────────────────────────────
+    const csatRatings = await ctx.db
+      .query("csatRatings")
+      .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
+      .collect();
+
+    const recentRatings = csatRatings.filter(
+      (r) => r.submittedAt >= thirtyDaysAgo,
+    );
+
+    const csatScore =
+      recentRatings.length === 0
+        ? null
+        : Math.round(
+            (recentRatings.reduce((sum, r) => sum + r.score, 0) /
+              recentRatings.length) *
+              10,
+          ) / 10;
+
+    // ─── Daily chart data ────────────────────────────────────────────────────
     const daily: Record<
       string,
-      {
-        sortKey: string;
-        date: string;
-        aiHandled: number;
-        operatorHandled: number;
-      }
+      { sortKey: string; date: string; aiHandled: number; operatorHandled: number }
     > = {};
 
-    conversations.forEach((conversation) => {
-      const dateKey = toDateKey(conversation._creationTime);
-      const label = toDateLabel(conversation._creationTime);
-
+    conversations.forEach((c) => {
+      const dateKey = toDateKey(c._creationTime);
+      const label = toDateLabel(c._creationTime);
       if (!daily[dateKey]) {
-        daily[dateKey] = {
-          sortKey: dateKey,
-          date: label,
-          aiHandled: 0,
-          operatorHandled: 0,
-        };
+        daily[dateKey] = { sortKey: dateKey, date: label, aiHandled: 0, operatorHandled: 0 };
       }
-
-      if (conversation.status === "escalated") {
+      if (c.status === "escalated") {
         daily[dateKey].operatorHandled++;
       } else {
         daily[dateKey].aiHandled++;
@@ -98,18 +145,31 @@ export const getMetrics = query({
     });
 
     const chartData = Object.values(daily)
-      .sort(
-        (left, right) =>
-          new Date(left.sortKey).getTime() - new Date(right.sortKey).getTime(),
-      )
+      .sort((a, b) => new Date(a.sortKey).getTime() - new Date(b.sortKey).getTime())
       .map(({ sortKey: _sortKey, ...rest }) => rest);
+
+    // ─── Hourly distribution heatmap ─────────────────────────────────────────
+    const hourlyCounts: Record<number, number> = {};
+    for (let h = 0; h < 24; h++) hourlyCounts[h] = 0;
+    conversations.forEach((c) => {
+      const hour = new Date(c._creationTime).getUTCHours();
+      hourlyCounts[hour] = (hourlyCounts[hour] ?? 0) + 1;
+    });
+    const hourlyDistribution = Object.entries(hourlyCounts).map(([hour, count]) => ({
+      hour: Number(hour),
+      count,
+    }));
 
     return {
       totalConversations,
+      totalConversationsDelta,
       resolutionRate,
-      csatScore: "4.8/5.0",
-      avgResponseTime: "1m 42s",
+      csatScore,
+      csatCount: recentRatings.length,
+      avgFirstResponseMs,
+      avgFirstResponseLabel,
       chartData,
+      hourlyDistribution,
     };
   },
 });
