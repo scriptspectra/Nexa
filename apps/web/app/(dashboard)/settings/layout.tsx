@@ -42,7 +42,7 @@ export default function SettingsLayout({
       </header>
 
       <div className="flex-1 overflow-auto p-6 custom-scrollbar bg-surface-container-lowest">
-        <div className="max-w-4xl">
+        <div className="max-w-4xl mx-auto">
           {children}
         </div>
       </div>

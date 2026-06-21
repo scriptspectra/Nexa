@@ -450,6 +450,8 @@ export const ConversationIdView = ({
       </section>
 
     </div>
+  );
+};
 
 export const ConversationIdViewLoading = () => {
   return (
