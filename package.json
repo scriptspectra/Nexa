@@ -2,6 +2,11 @@
   "name": "shadcn-ui-monorepo",
   "version": "0.0.1",
   "private": true,
+  "dependencies": {
+    "@react-pdf/renderer": "^5.0.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1"
+  },
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",

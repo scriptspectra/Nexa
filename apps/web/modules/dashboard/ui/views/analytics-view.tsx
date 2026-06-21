@@ -1,6 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useRef } from "react";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { useOrganization } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
@@ -100,8 +103,19 @@ export const AnalyticsView = () => {
     );
   }
 
-  return (
-    <div className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPdf = async () => {
+    if (!exportRef.current) return;
+    const canvas = await html2canvas(exportRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('analytics.pdf');
+  };    <div ref={exportRef} className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
       <div className="max-w-6xl mx-auto space-y-md">
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
@@ -125,7 +139,7 @@ export const AnalyticsView = () => {
                 expand_more
               </span>
             </div>
-            <button className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">
+            <button onClick={handleExportPdf} className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">
               Export PDF
             </button>
           </div>
