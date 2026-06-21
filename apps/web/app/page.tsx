@@ -177,7 +177,7 @@ const PLANS = [
   },
   {
     name: "Enterprise",
-    price: "199",
+    price: "$199",
     period: "",
     highlight: false,
     features: [

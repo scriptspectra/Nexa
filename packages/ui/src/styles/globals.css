@@ -2,6 +2,7 @@
 @source "../components";
 @source "../hooks";
 @source "../lib";
+@source "../../../apps/web";
 @custom-variant dark (&:is(.dark *));
 
 :root {
