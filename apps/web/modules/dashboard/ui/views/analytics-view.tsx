@@ -103,9 +103,7 @@ export const AnalyticsView = () => {
     );
   }
 
-  const exportRef = useRef<HTMLDivElement>(null);
-
-  const handleExportPdf = async () => {
+  const exportRef = useRef<HTMLDivElement>(null);  const handleExportPdf = async () => {
     if (!exportRef.current) return;
     const canvas = await html2canvas(exportRef.current, { scale: 2 });
     const imgData = canvas.toDataURL('image/png');
@@ -115,33 +113,26 @@ export const AnalyticsView = () => {
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save('analytics.pdf');
-  };    <div ref={exportRef} className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
+  };
+
+  return (
+    <div ref={exportRef} className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
       <div className="max-w-6xl mx-auto space-y-md">
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
           <div>
-            <h1 className="text-headline-lg font-bold text-white mb-xs">
-              Conversation Analytics
-            </h1>
-            <p className="text-body-sm text-on-surface-variant">
-              Detailed performance metrics for the last 30 days.
-            </p>
+            <h1 className="text-headline-lg font-bold text-white mb-xs">Conversation Analytics</h1>
+            <p className="text-body-sm text-on-surface-variant">Detailed performance metrics for the last 30 days.</p>
           </div>
           <div className="flex items-center gap-md">
             <div className="flex items-center gap-2 border border-outline-variant bg-surface-container-low px-sm py-xs cursor-pointer hover:border-primary transition-colors">
-              <span className="material-symbols-outlined text-[16px] text-white">
-                calendar_today
-              </span>
-              <span className="text-label-sm font-label-sm text-white uppercase tracking-wider">
-                Last 30 Days
-              </span>
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-                expand_more
-              </span>
+              <span className="material-symbols-outlined text-[16px] text-white">calendar_today</span>
+              <span className="text-label-sm font-label-sm text-white uppercase tracking-wider">Last 30 Days</span>
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
             </div>
-            <button onClick={handleExportPdf} className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">
-              Export PDF
-            </button>
+            <button onClick={handleExportPdf} className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">Export PDF</button>
+          </div>
+        </div>
           </div>
         </div>
 
