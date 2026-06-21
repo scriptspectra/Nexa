@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/billing", label: "Billing", icon: "receipt_long" },
   // Admin-only routes — hidden for org:member
   { href: "/macros", label: "Macros", icon: "quick_reference", adminOnly: true },
+  { href: "/settings/sla", label: "Settings", icon: "settings_applications", adminOnly: true },
 ];
 
 export const DashboardSidebar = () => {

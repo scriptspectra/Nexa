@@ -305,4 +305,47 @@ async function verifyShopifyHmac(
   return computedBase64 === hmacHeader;
 }
 
+// ─── Inbound Email Webhook ───────────────────────────────────────────────────
+// Receives inbound parsed emails from a provider like Resend or Sendgrid.
+http.route({
+  path: "/email-webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    // For MVP, expect the target orgId to be passed in the URL: /email-webhook?orgId=xyz
+    const url = new URL(request.url);
+    const orgId = url.searchParams.get("orgId");
+
+    if (!orgId) {
+      return new Response("Missing orgId parameter", { status: 400 });
+    }
+
+    let payload: any;
+    try {
+      payload = await request.json();
+    } catch {
+      return new Response("Invalid JSON payload", { status: 400 });
+    }
+
+    // Adapt this to the exact payload of your email provider.
+    // Example uses generic structure or Resend's inbound webhook structure.
+    const fromEmail = payload.from || payload.sender || "unknown@example.com";
+    const subject = payload.subject || "No Subject";
+    const textBody = payload.text || payload.html || payload.body || "No Content";
+    const messageId = payload.messageId || payload.id || Math.random().toString();
+    const fromName = payload.fromName || fromEmail.split("@")[0];
+
+    // Dispatch background action to append message
+    await ctx.scheduler.runAfter(0, internal.system.inboundEmail.processInboundEmailAction, {
+      orgId,
+      fromEmail,
+      fromName,
+      subject,
+      textBody,
+      messageId,
+    });
+
+    return new Response("OK", { status: 200 });
+  }),
+});
+
 export default http;

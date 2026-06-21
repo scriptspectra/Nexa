@@ -2,8 +2,8 @@ import { createTool } from "@convex-dev/agent";
 import z from "zod";
 import { internal } from "../../../_generated/api";
 import { supportAgent } from "../agents/supportAgent";
-import { getSecretValue, parseSecretString } from "../../lib/secrets";
-import { fetchShopifyOrderByName } from "../../lib/shopify";
+import { getSecretValue, parseSecretString } from "../../../lib/secrets";
+import { fetchShopifyOrderByName } from "../../../lib/shopify";
 
 export const lookupShopifyOrder = createTool({
   description: "Look up a Shopify order by its order number or name (e.g. #1001) to find its status, tracking info, and line items.",

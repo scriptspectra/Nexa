@@ -1,10 +1,10 @@
-import { mutation, query } from "../_generated/server";
+import { action, mutation, query } from "../_generated/server";
 import { ConvexError, v } from "convex/values";
 import { supportAgent } from "../system/ai/agents/supportAgent";
 import { MessageDoc } from "@convex-dev/agent";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { Doc } from "../_generated/dataModel";
-import { sendEscalationEmail } from "../lib/email";
+import { sendEmail, sendEscalationEmail } from "../lib/email";
 
 export const updateStatus = mutation({
   args: {
@@ -50,6 +50,15 @@ export const updateStatus = mutation({
 
     await ctx.db.patch(args.conversationId, {
       status: args.status,
+    });
+
+    await ctx.runMutation(internal.private.audit.logAction, {
+      organizationId: orgId,
+      actorUserId: identity.subject,
+      actorName: identity.name || "Unknown Agent",
+      action: `Status changed to ${args.status}`,
+      resourceType: "conversation",
+      resourceId: args.conversationId,
     });
 
     // ── Send escalation email to the end-user ─────────────────────────────────
@@ -295,6 +304,65 @@ export const assign = mutation({
       assignedToUserId: args.assignedToUserId,
       assignedToName: args.assignedToName,
       assignedAt: args.assignedToUserId ? Date.now() : undefined,
+    });
+
+    await ctx.runMutation(internal.private.audit.logAction, {
+      organizationId: orgId,
+      actorUserId: identity.subject,
+      actorName: identity.name || "Unknown Agent",
+      action: args.assignedToUserId ? `Assigned to ${args.assignedToName}` : "Unassigned",
+      resourceType: "conversation",
+      resourceId: args.conversationId,
+    });
+  },
+});
+
+export const sendEmailReply = action({
+  args: {
+    conversationId: v.id("conversations"),
+    subject: v.string(),
+    textBody: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("Not authenticated");
+
+    const orgId = (identity.orgId || (identity as any).org_id) as string;
+    if (!orgId) throw new ConvexError("Organization not found");
+
+    // Fetch conversation & contact via a query or internalQuery
+    // Note: actions can only run queries, we need to create an internalQuery or fetch via mutation
+    const data = await ctx.runQuery(internal.system.inboundEmail.getConversationDetails, {
+      conversationId: args.conversationId,
+    });
+
+    if (!data || data.conversation.organizationId !== orgId) {
+      throw new ConvexError("Invalid conversation");
+    }
+
+    const { conversation, contactSession } = data;
+
+    if (!contactSession.email) {
+      throw new ConvexError("Contact does not have an email address");
+    }
+
+    // Format HTML body simply
+    const htmlBody = `<div style="font-family: sans-serif; font-size: 14px;">${args.textBody.replace(/\n/g, "<br/>")}</div>`;
+
+    const success = await sendEmail({
+      to: contactSession.email,
+      subject: args.subject || "Re: Your Support Request",
+      html: htmlBody,
+    });
+
+    if (!success) {
+      throw new ConvexError("Failed to send email via Resend");
+    }
+
+    // Append to conversation
+    await ctx.runMutation(internal.system.inboundEmail.appendAgentMessage, {
+      threadId: conversation.threadId,
+      content: args.textBody,
     });
   },
 });

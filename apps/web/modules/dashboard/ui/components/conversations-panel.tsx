@@ -23,7 +23,6 @@ import { usePathname } from "next/navigation";
 import { ConversationStatusIcon } from "@workspace/ui/components/conversation-status-icon";
 import { useAtomValue, useSetAtom } from "jotai/react";
 import { statusFilterAtom } from "../../atoms";
-import { statusFilterAtom } from "../../atoms";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover";
@@ -227,9 +226,16 @@ export const ConversationsPanel = () => {
                       <span className="truncate text-label-md font-label-md font-bold text-primary">
                         {conversation.contactSession.name}
                       </span>
-                      <span className="shrink-0 text-label-sm font-label-sm text-on-surface-variant">
-                        {formatDistanceToNow(conversation._creationTime)}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {conversation.slaStatus === "breached" && (
+                          <span className="text-[9px] font-bold tracking-wider uppercase bg-error/10 text-error px-1.5 py-0.5 rounded-sm">
+                            SLA Breach
+                          </span>
+                        )}
+                        <span className="text-label-sm font-label-sm text-on-surface-variant">
+                          {formatDistanceToNow(conversation._creationTime)}
+                        </span>
+                      </div>
                     </div>
                     {conversation.assignedToName && (
                       <div className="flex items-center gap-1 mb-1 text-[10px] text-on-surface-variant">

@@ -45,7 +45,10 @@ import { cn } from "@workspace/ui/lib/utils";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { toast } from "sonner";
 import { TagChips } from "../components/tag-chips";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@workspace/ui/components/dialog";
+import { Textarea } from "@workspace/ui/components/textarea";
+import { Input } from "@workspace/ui/components/input";
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -462,10 +465,9 @@ function ContactDetailsPane({ contactSession, conversation }: { contactSession: 
         </div>
         <h3 className="text-body-lg font-bold text-primary">{contactSession.name}</h3>
         <p className="text-label-sm text-on-surface-variant mb-4">{contactSession.email}</p>
-        <button className="w-full border border-outline-variant bg-background py-2 text-label-sm font-label-sm font-bold uppercase tracking-widest hover:border-primary transition-colors flex items-center justify-center gap-2 text-on-surface">
-          <span className="material-symbols-outlined text-[16px]" data-icon="mail">mail</span>
-          Send Email
-        </button>
+        {contactSession.email && (
+          <EmailReplyDialog conversationId={conversation._id} contactEmail={contactSession.email} />
+        )}
       </div>
 
       {/* Collapsible Sections */}
@@ -554,6 +556,78 @@ function ContactDetailsPane({ contactSession, conversation }: { contactSession: 
         </details>
       </div>
     </section>
+  );
+}
+
+function EmailReplyDialog({ conversationId, contactEmail }: { conversationId: Id<"conversations">, contactEmail: string }) {
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState("Re: Your Support Request");
+  const [body, setBody] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const sendEmailReply = useAction(api.private.conversations.sendEmailReply);
+
+  const handleSend = async () => {
+    setIsSending(true);
+    try {
+      await sendEmailReply({
+        conversationId,
+        subject,
+        textBody: body,
+      });
+      toast.success("Email sent successfully!");
+      setOpen(false);
+      setBody("");
+    } catch (err: any) {
+      toast.error(`Failed to send email: ${err.message}`);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="w-full border border-outline-variant bg-background py-2 text-label-sm font-label-sm font-bold uppercase tracking-widest hover:border-primary transition-colors flex items-center justify-center gap-2 text-on-surface">
+          <span className="material-symbols-outlined text-[16px]" data-icon="mail">mail</span>
+          Send Email
+        </button>
+      </DialogTrigger>
+      <DialogContent className="bg-surface-container border-outline-variant text-on-surface sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Send Email Reply</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label className="text-label-sm text-on-surface-variant">To</label>
+            <Input disabled value={contactEmail} className="bg-surface border-outline-variant" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-label-sm text-on-surface-variant">Subject</label>
+            <Input 
+              value={subject} 
+              onChange={(e) => setSubject(e.target.value)} 
+              className="bg-surface border-outline-variant" 
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-label-sm text-on-surface-variant">Message</label>
+            <Textarea 
+              value={body} 
+              onChange={(e) => setBody(e.target.value)} 
+              rows={6}
+              className="bg-surface border-outline-variant resize-none" 
+              placeholder="Type your email reply here..."
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setOpen(false)} disabled={isSending}>Cancel</Button>
+          <Button onClick={handleSend} disabled={isSending || !body.trim()}>
+            {isSending ? "Sending..." : "Send Email"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
