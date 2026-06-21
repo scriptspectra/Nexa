@@ -348,4 +348,39 @@ http.route({
   }),
 });
 
+// ─── REST API Routes ────────────────────────────────────────────────────────
+// Example route protected by API Key
+http.route({
+  path: "/api/v1/conversations",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response("Missing or invalid Authorization header", { status: 401 });
+    }
+
+    const rawKey = authHeader.replace("Bearer ", "");
+    
+    const keyInfo = await ctx.runMutation(internal.system.apiKeys.verifyAndRecordUsage, {
+      rawKey,
+    });
+
+    if (!keyInfo) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    const { organizationId } = keyInfo;
+
+    // Fetch conversations for this org
+    const conversations = await ctx.runQuery(internal.private.conversations.listByOrgId, {
+      organizationId,
+    });
+
+    return new Response(JSON.stringify(conversations), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
+
 export default http;

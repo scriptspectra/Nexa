@@ -1,8 +1,9 @@
-import { action, mutation, query } from "../_generated/server";
+import { action, mutation, query, internalQuery } from "../_generated/server";
 import { ConvexError, v } from "convex/values";
 import { supportAgent } from "../system/ai/agents/supportAgent";
 import { MessageDoc } from "@convex-dev/agent";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
+import { internal, api } from "../_generated/api";
 import { Doc } from "../_generated/dataModel";
 import { sendEmail, sendEscalationEmail } from "../lib/email";
 
@@ -364,5 +365,17 @@ export const sendEmailReply = action({
       threadId: conversation.threadId,
       content: args.textBody,
     });
+  },
+});
+
+export const listByOrgId = internalQuery({
+  args: {
+    organizationId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("conversations")
+      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
+      .collect();
   },
 });

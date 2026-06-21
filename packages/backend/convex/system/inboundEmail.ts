@@ -3,7 +3,6 @@ import { v } from "convex/values";
 import { supportAgent } from "./ai/agents/supportAgent";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
-import { parseBody } from "./ai/rag"; // not needed, just generic text
 
 export const handleInboundEmail = internalMutation({
   args: {

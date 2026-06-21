@@ -223,4 +223,6 @@ export default defineSchema({
     aiResponsesCount: v.number(),
   })
     .index("by_organization_and_month", ["organizationId", "month"]),
+
+
 });

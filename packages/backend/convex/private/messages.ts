@@ -107,7 +107,7 @@ export const getSuggestions = action({
 
     const messagesContent = recentMessages.page
       .reverse()
-      .map(m => `${m.role === "user" ? "Customer" : "Agent"}: ${m.content}`)
+      .map(m => `${m.message?.role === "user" ? "Customer" : "Agent"}: ${m.text || ""}`)
       .join("\n");
 
     const response = await generateText({
