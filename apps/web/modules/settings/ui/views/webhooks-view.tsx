@@ -89,7 +89,7 @@ export const WebhooksView = () => {
           <DialogTrigger asChild>
             <Button>Add Endpoint</Button>
           </DialogTrigger>
-          <DialogContent className="bg-surface-container border-outline-variant text-on-surface sm:max-w-md">
+          <DialogContent className="bg-surface-container border-outline-variant text-on-surface max-w-md">
             <DialogHeader>
               <DialogTitle>Register Webhook Endpoint</DialogTitle>
             </DialogHeader>

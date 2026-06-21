@@ -599,7 +599,7 @@ function EmailReplyDialog({ conversationId, contactEmail }: { conversationId: Id
           Send Email
         </button>
       </DialogTrigger>
-      <DialogContent className="bg-surface-container border-outline-variant text-on-surface sm:max-w-md">
+      <DialogContent className="bg-surface-container border-outline-variant text-on-surface max-w-md">
         <DialogHeader>
           <DialogTitle>Send Email Reply</DialogTitle>
         </DialogHeader>
