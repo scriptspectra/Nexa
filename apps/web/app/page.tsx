@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { motion, useInView, type Variants, easeOut } from "framer-motion";
 const fadeUp: Variants = {
@@ -342,9 +343,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#06060f]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-cyan-400 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
+            <Image src="/logo.svg" alt="Zephyra Logo" width={32} height={32} className="w-8 h-8" />
             <span className="text-xl font-bold tracking-tight">Zephyra</span>
           </div>
 
@@ -600,7 +599,7 @@ export default function LandingPage() {
             </motion.h2>
             <motion.p
               variants={fadeUp}
-              className="text-white/40 max-w-xl mx-auto text-lg"
+              className="text-white/40 w-full max-w-xl mx-auto text-lg"
             >
               15 enterprise-grade capabilities — already built in, ready to
               activate.
@@ -856,15 +855,15 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeUp}
-              className="inline-block rounded-3xl border border-amber-500/20 bg-gradient-to-b from-amber-600/10 to-transparent p-12"
+              className="block w-full rounded-3xl border border-amber-500/20 bg-gradient-to-b from-amber-600/10 to-transparent p-12"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-cyan-400 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-900/40">
-                <Zap className="w-8 h-8 text-white" />
+              <div className="flex justify-center mb-6">
+                <Image src="/logo.svg" alt="Zephyra Logo" width={64} height={64} className="w-16 h-16" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">
                 Ready to make your conversations work harder?
               </h2>
-              <p className="text-white/40 text-lg mb-8 max-w-lg mx-auto">
+              <p className="text-white/40 text-lg mb-8 w-full max-w-lg mx-auto">
                 Join 12,000+ businesses using Zephyra to power smarter customer
                 interactions. Average setup time: under 15 minutes.
               </p>
@@ -894,9 +893,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-10 mb-10">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-cyan-400 flex items-center justify-center">
-                  <Zap className="w-3.5 h-3.5 text-white" />
-                </div>
+                <Image src="/logo.svg" alt="Zephyra Logo" width={28} height={28} className="w-7 h-7" />
                 <span className="text-lg font-bold">Zephyra</span>
               </div>
               <p className="text-sm text-white/30 leading-relaxed mb-4">
