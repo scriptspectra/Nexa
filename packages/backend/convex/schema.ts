@@ -234,4 +234,14 @@ export default defineSchema({
     }),
   })
     .index("by_user_id", ["userId"]),
+  // Superadmin tables
+  suspended_orgs: defineTable({
+    orgId: v.string(),
+    suspendedAt: v.number(),
+  }).index("by_orgId", ["orgId"]),
+  system_logs: defineTable({
+    timestamp: v.number(),
+    type: v.string(),
+    message: v.string(),
+  }).index("by_timestamp", ["timestamp"]).index("by_type", ["type"]),
 });

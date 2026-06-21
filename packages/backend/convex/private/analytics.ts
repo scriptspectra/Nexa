@@ -49,16 +49,22 @@ function formatDuration(ms: number): string {
 
 export const getMetrics = query({
   args: {
-    organizationId: v.string(),
+    organizationId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     const orgId = getOrgIdFromIdentity(identity);
 
-    if (!orgId || orgId !== args.organizationId) {
+    // If args.organizationId is provided, ensure it matches the user's org.
+    if (args.organizationId && orgId !== args.organizationId) {
+      return EMPTY_METRICS;
+    }
+    // If no orgId (unauthenticated) return empty.
+    if (!orgId) {
       return EMPTY_METRICS;
     }
 
+    // Continue with existing logic, using orgId for filtering.
     const now = Date.now();
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
     const sixtyDaysAgo = now - 60 * 24 * 60 * 60 * 1000;

@@ -80,10 +80,10 @@ export const AnalyticsView = () => {
   const { organization, isLoaded } = useOrganization();
   const metrics = useQuery(
     api.private.analytics.getMetrics,
-    organization?.id ? { organizationId: organization.id } : "skip",
+    organization?.id ? { organizationId: organization.id } : undefined,
   );
 
-  if (!isLoaded || (organization?.id && metrics === undefined)) {
+  if (!isLoaded || metrics === undefined) {
     return (
       <div className="flex-1 flex items-center justify-center p-xl bg-background">
         <p className="text-on-surface-variant text-label-md font-label-md">
