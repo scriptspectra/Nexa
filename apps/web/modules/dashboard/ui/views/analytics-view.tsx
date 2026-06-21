@@ -103,6 +103,10 @@ export const AnalyticsView = () => {
     );
   }
 
+  const chartData = metrics.chartData ?? [];
+  const hourlyDist = metrics.hourlyDistribution ?? [];
+  const agentStats = metrics.agentStats ?? [];
+
   const exportRef = useRef<HTMLDivElement>(null);  const handleExportPdf = async () => {
     if (!exportRef.current) return;
     const canvas = await html2canvas(exportRef.current, { scale: 2 });
@@ -218,7 +222,7 @@ export const AnalyticsView = () => {
             </div>
           </div>
           <div className="h-[400px] w-full min-h-[400px]">
-            <AnalyticsChart chartData={metrics.chartData} />
+        <AnalyticsChart chartData={chartData} />
           </div>
         </div>
 
@@ -232,8 +236,8 @@ export const AnalyticsView = () => {
               Which hours of the day receive the most conversations (UTC)
             </p>
           </div>
-          {metrics.hourlyDistribution.length > 0 ? (
-            <HourlyHeatmap distribution={metrics.hourlyDistribution} />
+          {hourlyDist.length > 0 ? (
+            <HourlyHeatmap distribution={hourlyDist} />
           ) : (
             <p className="text-on-surface-variant text-label-sm">No data yet.</p>
           )}
@@ -249,7 +253,7 @@ export const AnalyticsView = () => {
               Top agents by conversations handled in the last 30 days
             </p>
           </div>
-          {metrics.agentStats.length === 0 ? (
+          {agentStats.length === 0 ? (
             <p className="text-on-surface-variant text-label-sm">No assigned conversations yet.</p>
           ) : (
             <div className="overflow-x-auto custom-scrollbar">
@@ -264,7 +268,7 @@ export const AnalyticsView = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
-                  {metrics.agentStats.map((agent, i) => (
+                  {agentStats.map((agent, i) => (
                     <tr key={agent.name} className="hover:bg-surface-container-low transition-colors">
                       <td className="py-2 text-on-surface-variant">{i + 1}</td>
                       <td className="py-2 text-white font-bold">{agent.name}</td>
