@@ -167,8 +167,8 @@ export const WebhooksView = () => {
         </Dialog>
       </div>
 
-      <div className="border border-outline-variant rounded bg-surface-container-low overflow-hidden">
-        <table className="w-full text-left text-sm">
+      <div className="border border-outline-variant rounded bg-surface-container-low overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left text-sm min-w-[600px]">
           <thead className="bg-surface-container-highest text-on-surface-variant">
             <tr>
               <th className="p-4 font-semibold uppercase text-xs tracking-wider">URL</th>

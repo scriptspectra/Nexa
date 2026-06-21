@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfiniteScroll } from "@workspace/ui/hooks/use-infinite-scroll";
+import Link from "next/link";
 import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger";
 import { toUIMessages, useThreadMessages } from "@convex-dev/agent/react";
 import { useOrganization } from "@clerk/nextjs";
@@ -250,6 +251,12 @@ export const ConversationIdView = ({
       <section className="flex-1 flex flex-col relative bg-background border-r border-outline-variant">
       <header className="h-16 flex items-center justify-between px-lg border-b border-outline-variant">
         <div className="flex items-center gap-3">
+          <Link 
+            href="/conversations"
+            className="md:hidden p-1.5 -ml-1 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-md hover:bg-surface-container"
+          >
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          </Link>
           <div className="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary font-bold text-label-sm">
             <span className="text-[11px] font-bold">{conversation?.contactSession?.name?.[0]?.toUpperCase() ?? "?"}</span>
           </div>
@@ -457,7 +464,7 @@ function ContactDetailsPane({ contactSession, conversation }: { contactSession: 
   const meta = contactSession.metadata || {};
 
   return (
-    <section className="w-80 flex-shrink-0 flex flex-col bg-surface-container-lowest overflow-y-auto custom-scrollbar">
+    <section className="hidden lg:flex w-80 flex-shrink-0 flex flex-col bg-surface-container-lowest overflow-y-auto custom-scrollbar">
       {/* Profile Section */}
       <div className="p-lg text-center border-b border-outline-variant">
         <div className="mb-sm flex justify-center">

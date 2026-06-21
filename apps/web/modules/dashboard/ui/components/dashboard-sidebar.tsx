@@ -25,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/settings/sla", label: "Settings", icon: "settings_applications", adminOnly: true },
 ];
 
-export const DashboardSidebar = () => {
+export const DashboardSidebar = ({ onClose }: { onClose?: () => void }) => {
   const pathname = usePathname();
   const { membership } = useOrganization({ membership: true } as any);
 
@@ -50,7 +50,7 @@ export const DashboardSidebar = () => {
               : pathname?.startsWith(item.href);
 
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} onClick={onClose}>
               <div
                 className={`flex items-center gap-3 px-sm py-xs rounded-none cursor-pointer transition-all active:scale-[0.98] ${
                   isActive

@@ -249,28 +249,30 @@ export const AnalyticsView = () => {
           {metrics.agentStats.length === 0 ? (
             <p className="text-on-surface-variant text-label-sm">No assigned conversations yet.</p>
           ) : (
-            <table className="w-full text-label-sm">
-              <thead>
-                <tr className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant">
-                  <th className="text-left py-2 font-bold">#</th>
-                  <th className="text-left py-2 font-bold">Agent</th>
-                  <th className="text-right py-2 font-bold text-green-400">Resolved</th>
-                  <th className="text-right py-2 font-bold text-yellow-400">Escalated</th>
-                  <th className="text-right py-2 font-bold text-white">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant">
-                {metrics.agentStats.map((agent, i) => (
-                  <tr key={agent.name} className="hover:bg-surface-container-low transition-colors">
-                    <td className="py-2 text-on-surface-variant">{i + 1}</td>
-                    <td className="py-2 text-white font-bold">{agent.name}</td>
-                    <td className="py-2 text-right text-green-400">{agent.resolved}</td>
-                    <td className="py-2 text-right text-yellow-400">{agent.escalated}</td>
-                    <td className="py-2 text-right text-white font-bold">{agent.total}</td>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-label-sm min-w-[500px]">
+                <thead>
+                  <tr className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-outline-variant">
+                    <th className="text-left py-2 font-bold">#</th>
+                    <th className="text-left py-2 font-bold">Agent</th>
+                    <th className="text-right py-2 font-bold text-green-400">Resolved</th>
+                    <th className="text-right py-2 font-bold text-yellow-400">Escalated</th>
+                    <th className="text-right py-2 font-bold text-white">Total</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-outline-variant">
+                  {metrics.agentStats.map((agent, i) => (
+                    <tr key={agent.name} className="hover:bg-surface-container-low transition-colors">
+                      <td className="py-2 text-on-surface-variant">{i + 1}</td>
+                      <td className="py-2 text-white font-bold">{agent.name}</td>
+                      <td className="py-2 text-right text-green-400">{agent.resolved}</td>
+                      <td className="py-2 text-right text-yellow-400">{agent.escalated}</td>
+                      <td className="py-2 text-right text-white font-bold">{agent.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 

@@ -43,3 +43,12 @@ self.addEventListener("notificationclick", function (event) {
     })
   );
 });
+
+self.addEventListener("fetch", function (event) {
+  // Pass-through fetch handler for PWA installation criteria
+  event.respondWith(
+    fetch(event.request).catch(function () {
+      return new Response("Offline");
+    })
+  );
+});
