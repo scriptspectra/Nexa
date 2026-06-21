@@ -81,6 +81,21 @@ const AnalyticsViewInner = () => {
     api.private.analytics.getMetrics,
     organization?.id ? { organizationId: organization.id } : "skip",
   );
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPdf = async () => {
+    if (!exportRef.current) return;
+    const html2canvas = (await import("html2canvas")).default;
+    const { jsPDF } = await import("jspdf");
+    const canvas = await html2canvas(exportRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('analytics.pdf');
+  };
 
   // Still loading Clerk or waiting on Convex response
   if (!isLoaded || (organization?.id && metrics === undefined)) {
@@ -119,21 +134,6 @@ const AnalyticsViewInner = () => {
   const chartData = metrics.chartData ?? [];
   const hourlyDist = metrics.hourlyDistribution ?? [];
   const agentStats = metrics.agentStats ?? [];
-
-  const exportRef = useRef<HTMLDivElement>(null);
-  const handleExportPdf = async () => {
-    if (!exportRef.current) return;
-    const html2canvas = (await import("html2canvas")).default;
-    const { jsPDF } = await import("jspdf");
-    const canvas = await html2canvas(exportRef.current, { scale: 2 });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('analytics.pdf');
-  };
 
   return (
     <div ref={exportRef} className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">

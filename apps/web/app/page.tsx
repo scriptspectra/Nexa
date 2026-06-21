@@ -159,7 +159,7 @@ const PLANS = [
   },
   {
     name: "Professional",
-    price: "$19",
+    price: "$79",
     period: "/ month",
     highlight: true,
     features: [
@@ -177,7 +177,7 @@ const PLANS = [
   },
   {
     name: "Enterprise",
-    price: "Custom",
+    price: "199",
     period: "",
     highlight: false,
     features: [
@@ -793,11 +793,10 @@ export default function LandingPage() {
                 key={plan.name}
                 variants={fadeUp}
                 custom={i}
-                className={`rounded-2xl border p-7 relative ${
-                  plan.highlight
-                    ? "border-amber-500/50 bg-gradient-to-b from-amber-600/15 to-amber-900/10 shadow-2xl shadow-amber-900/30"
-                    : "border-white/5 bg-white/[0.02]"
-                }`}
+                className={`rounded-2xl border p-7 relative ${plan.highlight
+                  ? "border-amber-500/50 bg-gradient-to-b from-amber-600/15 to-amber-900/10 shadow-2xl shadow-amber-900/30"
+                  : "border-white/5 bg-white/[0.02]"
+                  }`}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-cyan-500 text-xs font-bold text-white">
@@ -831,11 +830,10 @@ export default function LandingPage() {
 
                 <Link
                   href={plan.href}
-                  className={`w-full block text-center py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                    plan.highlight
-                      ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white shadow-lg shadow-amber-900/30 hover:scale-[1.02]"
-                      : "border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                  }`}
+                  className={`w-full block text-center py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${plan.highlight
+                    ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white shadow-lg shadow-amber-900/30 hover:scale-[1.02]"
+                    : "border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                    }`}
                 >
                   {plan.cta}
                 </Link>
