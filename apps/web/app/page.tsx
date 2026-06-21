@@ -204,14 +204,14 @@ function DashboardMockup() {
     // pt-8 pr-8 pb-6 pl-8 gives room for the floating cards that extend outside
     <div className="relative w-full mx-auto pt-8 pr-10 pb-6 pl-8">
       <div
-        className="rounded-2xl border border-violet-500/20 bg-[#0d0d1a]/90 shadow-2xl shadow-violet-900/30 p-5 backdrop-blur-sm"
+        className="rounded-2xl border border-amber-500/20 bg-[#0d0d1a]/90 shadow-2xl shadow-amber-900/30 p-5 backdrop-blur-sm"
         style={{ fontFamily: "system-ui" }}
       >
         <div className="flex items-center gap-2 mb-4">
           <div className="w-3 h-3 rounded-full bg-red-500/70" />
           <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
           <div className="w-3 h-3 rounded-full bg-green-500/70" />
-          <span className="ml-2 text-xs text-violet-300/60">
+          <span className="ml-2 text-xs text-amber-300/60">
             Zephyra Dashboard
           </span>
         </div>
@@ -224,9 +224,9 @@ function DashboardMockup() {
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-lg bg-violet-600/10 border border-violet-500/20 p-3"
+              className="rounded-lg bg-amber-600/10 border border-amber-500/20 p-3"
             >
-              <div className="text-[10px] text-violet-300/60 mb-1">
+              <div className="text-[10px] text-amber-300/60 mb-1">
                 {s.label}
               </div>
               <div className="text-lg font-bold text-white">{s.val}</div>
@@ -235,8 +235,8 @@ function DashboardMockup() {
           ))}
         </div>
 
-        <div className="rounded-lg bg-violet-600/5 border border-violet-500/15 p-3 mb-3">
-          <div className="text-[10px] text-violet-300/50 mb-2">
+        <div className="rounded-lg bg-amber-600/5 border border-amber-500/15 p-3 mb-3">
+          <div className="text-[10px] text-amber-300/50 mb-2">
             Conversation Volume
           </div>
           <div className="flex items-end gap-1 h-16">
@@ -247,7 +247,7 @@ function DashboardMockup() {
                   className="flex-1 rounded-t"
                   style={{
                     height: `${h}%`,
-                    background: `linear-gradient(to top, #7c3aed, #a78bfa)`,
+                    background: `linear-gradient(to top, #f59e0b, #fbbf24)`,
                     opacity: 0.5 + (i / 12) * 0.5,
                   }}
                 />
@@ -257,22 +257,22 @@ function DashboardMockup() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-violet-600/5 border border-violet-500/15 p-3">
-            <div className="text-[10px] text-violet-300/50 mb-1">
+          <div className="rounded-lg bg-amber-600/5 border border-amber-500/15 p-3">
+            <div className="text-[10px] text-amber-300/50 mb-1">
               Usage Quota
             </div>
-            <div className="w-full bg-violet-900/40 rounded-full h-2 mb-1">
+            <div className="w-full bg-amber-900/40 rounded-full h-2 mb-1">
               <div
-                className="bg-gradient-to-r from-violet-500 to-cyan-400 h-2 rounded-full"
+                className="bg-gradient-to-r from-amber-500 to-cyan-400 h-2 rounded-full"
                 style={{ width: "68%" }}
               />
             </div>
-            <div className="text-[10px] text-violet-300/70">
+            <div className="text-[10px] text-amber-300/70">
               3,400 / 5,000 runs
             </div>
           </div>
-          <div className="rounded-lg bg-violet-600/5 border border-violet-500/15 p-3">
-            <div className="text-[10px] text-violet-300/50 mb-1">
+          <div className="rounded-lg bg-amber-600/5 border border-amber-500/15 p-3">
+            <div className="text-[10px] text-amber-300/50 mb-1">
               Languages Active
             </div>
             <div className="flex gap-1 flex-wrap mt-1">
@@ -303,8 +303,8 @@ function DashboardMockup() {
       </div>
 
       {/* Floating card — bottom left, contained within padding */}
-      <div className="absolute bottom-0 left-0 w-32 h-20 rounded-xl border border-violet-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-violet-900/20 p-3 backdrop-blur-sm">
-        <div className="text-[9px] text-violet-300/60 mb-1">SLA Status</div>
+      <div className="absolute bottom-0 left-0 w-32 h-20 rounded-xl border border-amber-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-amber-900/20 p-3 backdrop-blur-sm">
+        <div className="text-[9px] text-amber-300/60 mb-1">SLA Status</div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-xs font-semibold text-white">Operational</span>
@@ -334,7 +334,7 @@ export default function LandingPage() {
         className="fixed inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.25) 0%, transparent 70%)",
+            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,158,11,) 0%, transparent 70%)",
         }}
       />
 
@@ -342,7 +342,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#06060f]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-cyan-400 flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">Zephyra</span>
@@ -371,7 +371,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/sign-up"
-                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 font-medium shadow-lg shadow-violet-900/30"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 transition-all duration-200 font-medium shadow-lg shadow-amber-900/30"
               >
                 Start Free
               </Link>
@@ -379,7 +379,7 @@ export default function LandingPage() {
             <SignedIn>
               <Link
                 href="/conversations"
-                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 font-medium shadow-lg shadow-violet-900/30"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 transition-all duration-200 font-medium shadow-lg shadow-amber-900/30"
               >
                 Dashboard
               </Link>
@@ -409,7 +409,7 @@ export default function LandingPage() {
             <SignedOut>
               <Link
                 href="/sign-up"
-                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 text-center font-medium"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 text-center font-medium"
                 onClick={() => setMobileOpen(false)}
               >
                 Start Free
@@ -418,7 +418,7 @@ export default function LandingPage() {
             <SignedIn>
               <Link
                 href="/conversations"
-                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 text-center font-medium"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-500 text-center font-medium"
                 onClick={() => setMobileOpen(false)}
               >
                 Dashboard
@@ -437,7 +437,7 @@ export default function LandingPage() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full pointer-events-none"
           style={{
             background:
-              "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(245,158,11,) 0%, transparent 70%)",
           }}
         />
 
@@ -450,9 +450,9 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeUp}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-medium mb-6"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-medium mb-6"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
               AI-Powered Conversational Platform
             </motion.div>
 
@@ -465,7 +465,7 @@ export default function LandingPage() {
                 className="bg-clip-text text-transparent"
                 style={{
                   backgroundImage:
-                    "linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%)",
+                    "linear-gradient(135deg, #fbbf24 0%, #38bdf8 100%)",
                 }}
               >
                 drive serious growth
@@ -487,7 +487,7 @@ export default function LandingPage() {
             >
               <Link
                 href="/sign-up"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 font-semibold transition-all duration-200 shadow-xl shadow-violet-900/40 hover:shadow-violet-700/40 hover:scale-105"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 font-semibold transition-all duration-200 shadow-xl shadow-amber-900/40 hover:shadow-amber-700/40 hover:scale-105"
               >
                 Start for Free
                 <ArrowRight className="w-4 h-4" />
@@ -506,7 +506,7 @@ export default function LandingPage() {
               className="flex items-center gap-3 mt-8"
             >
               <div className="flex -space-x-2">
-                {["#7c3aed", "#06b6d4", "#f43f5e", "#10b981"].map((c, i) => (
+                {["#f59e0b", "#06b6d4", "#f43f5e", "#10b981"].map((c, i) => (
                   <div
                     key={i}
                     className="w-8 h-8 rounded-full border-2 border-[#06060f] flex items-center justify-center text-xs font-bold"
@@ -564,8 +564,8 @@ export default function LandingPage() {
                 custom={i}
                 className="text-center"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 mb-3 mx-auto">
-                  <s.icon className="w-5 h-5 text-violet-400" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-3 mx-auto">
+                  <s.icon className="w-5 h-5 text-amber-400" />
                 </div>
                 <div className="text-3xl font-extrabold text-white mb-1">
                   {s.value}
@@ -588,7 +588,7 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeUp}
-              className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3"
+              className="text-sm text-amber-400 font-semibold uppercase tracking-widest mb-3"
             >
               What We Deliver
             </motion.div>
@@ -620,10 +620,10 @@ export default function LandingPage() {
                 custom={i}
                 whileHover={{ y: -4, scale: 1.02 }}
                 transition={{ duration: 0.2 }}
-                className="group rounded-2xl border border-white/5 bg-white/[0.02] hover:border-violet-500/30 hover:bg-violet-500/5 p-6 transition-all duration-300 cursor-pointer"
+                className="group rounded-2xl border border-white/5 bg-white/[0.02] hover:border-amber-500/30 hover:bg-amber-500/5 p-6 transition-all duration-300 cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/20 border border-violet-500/20 flex items-center justify-center mb-4 group-hover:from-violet-600/50 group-hover:to-cyan-500/30 transition-all duration-300">
-                  <f.icon className="w-5 h-5 text-violet-300" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-600/30 to-cyan-500/20 border border-amber-500/20 flex items-center justify-center mb-4 group-hover:from-amber-600/50 group-hover:to-cyan-500/30 transition-all duration-300">
+                  <f.icon className="w-5 h-5 text-amber-300" />
                 </div>
                 <h3 className="text-base font-semibold text-white mb-2">
                   {f.title}
@@ -631,7 +631,7 @@ export default function LandingPage() {
                 <p className="text-sm text-white/40 leading-relaxed">
                   {f.desc}
                 </p>
-                <div className="mt-4 inline-flex items-center gap-1 text-xs text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="mt-4 inline-flex items-center gap-1 text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   Learn more <ChevronRight className="w-3 h-3" />
                 </div>
               </motion.div>
@@ -646,7 +646,7 @@ export default function LandingPage() {
         className="py-24 px-6"
         style={{
           background:
-            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.07) 0%, transparent 70%)",
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(245,158,11,) 0%, transparent 70%)",
         }}
       >
         <div className="max-w-7xl mx-auto">
@@ -658,7 +658,7 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeUp}
-              className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3"
+              className="text-sm text-amber-400 font-semibold uppercase tracking-widest mb-3"
             >
               Our Process
             </motion.div>
@@ -676,7 +676,7 @@ export default function LandingPage() {
             animate={howSection.inView ? "visible" : "hidden"}
             className="grid md:grid-cols-4 gap-6 relative"
           >
-            <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+            <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
 
             {STEPS.map((s, i) => (
               <motion.div
@@ -685,7 +685,7 @@ export default function LandingPage() {
                 custom={i}
                 className="relative text-center"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-800 border border-violet-500/30 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-900/30">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 border border-amber-500/30 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-900/30">
                   <span className="text-xl font-black text-white">{s.num}</span>
                 </div>
                 <h3 className="text-base font-semibold text-white mb-2">
@@ -703,9 +703,9 @@ export default function LandingPage() {
       {/* BUSINESS VALUE */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="rounded-3xl border border-violet-500/15 bg-gradient-to-br from-violet-950/40 to-[#06060f] p-10 grid md:grid-cols-3 gap-8">
+          <div className="rounded-3xl border border-amber-500/15 bg-gradient-to-br from-amber-950/40 to-[#06060f] p-10 grid md:grid-cols-3 gap-8">
             <div className="md:col-span-1">
-              <div className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3">
+              <div className="text-sm text-amber-400 font-semibold uppercase tracking-widest mb-3">
                 Business Value
               </div>
               <h2 className="text-3xl font-bold text-white leading-tight">
@@ -739,8 +739,8 @@ export default function LandingPage() {
                   key={v.title}
                   className="flex gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-violet-500/15 border border-violet-500/20 flex-shrink-0 flex items-center justify-center">
-                    <v.icon className="w-4 h-4 text-violet-400" />
+                  <div className="w-10 h-10 rounded-lg bg-amber-500/15 border border-amber-500/20 flex-shrink-0 flex items-center justify-center">
+                    <v.icon className="w-4 h-4 text-amber-400" />
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-white mb-1">
@@ -768,7 +768,7 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeUp}
-              className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3"
+              className="text-sm text-amber-400 font-semibold uppercase tracking-widest mb-3"
             >
               Pricing
             </motion.div>
@@ -796,12 +796,12 @@ export default function LandingPage() {
                 custom={i}
                 className={`rounded-2xl border p-7 relative ${
                   plan.highlight
-                    ? "border-violet-500/50 bg-gradient-to-b from-violet-600/15 to-violet-900/10 shadow-2xl shadow-violet-900/30"
+                    ? "border-amber-500/50 bg-gradient-to-b from-amber-600/15 to-amber-900/10 shadow-2xl shadow-amber-900/30"
                     : "border-white/5 bg-white/[0.02]"
                 }`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-xs font-bold text-white">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-cyan-500 text-xs font-bold text-white">
                     Most Popular
                   </div>
                 )}
@@ -824,7 +824,7 @@ export default function LandingPage() {
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm">
-                      <Check className="w-4 h-4 text-violet-400 mt-0.5 flex-shrink-0" />
+                      <Check className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                       <span className="text-white/70">{f}</span>
                     </li>
                   ))}
@@ -834,7 +834,7 @@ export default function LandingPage() {
                   href={plan.href}
                   className={`w-full block text-center py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     plan.highlight
-                      ? "bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white shadow-lg shadow-violet-900/30 hover:scale-[1.02]"
+                      ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white shadow-lg shadow-amber-900/30 hover:scale-[1.02]"
                       : "border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-white"
                   }`}
                 >
@@ -856,9 +856,9 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeUp}
-              className="inline-block rounded-3xl border border-violet-500/20 bg-gradient-to-b from-violet-600/10 to-transparent p-12"
+              className="inline-block rounded-3xl border border-amber-500/20 bg-gradient-to-b from-amber-600/10 to-transparent p-12"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-900/40">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-cyan-400 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-900/40">
                 <Zap className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">
@@ -871,7 +871,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/sign-up"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 font-semibold transition-all duration-200 shadow-xl shadow-violet-900/40 hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 font-semibold transition-all duration-200 shadow-xl shadow-amber-900/40 hover:scale-105"
                 >
                   Start Free Today
                   <ArrowRight className="w-4 h-4" />
@@ -894,7 +894,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-10 mb-10">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-cyan-400 flex items-center justify-center">
                   <Zap className="w-3.5 h-3.5 text-white" />
                 </div>
                 <span className="text-lg font-bold">Zephyra</span>
@@ -908,7 +908,7 @@ export default function LandingPage() {
                   <a
                     key={i}
                     href="#"
-                    className="w-8 h-8 rounded-lg border border-white/10 hover:border-violet-500/40 flex items-center justify-center text-white/40 hover:text-white transition-all duration-200"
+                    className="w-8 h-8 rounded-lg border border-white/10 hover:border-amber-500/40 flex items-center justify-center text-white/40 hover:text-white transition-all duration-200"
                   >
                     <Icon className="w-4 h-4" />
                   </a>
