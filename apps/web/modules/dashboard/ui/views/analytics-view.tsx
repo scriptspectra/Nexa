@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
+import { ErrorBoundary } from "../../../../components/error-boundary";
 
 const AnalyticsChart = dynamic(
   () =>
@@ -74,7 +75,7 @@ function HourlyHeatmap({ distribution }: { distribution: { hour: number; count: 
   );
 }
 
-export const AnalyticsView = () => {
+const AnalyticsViewInner = () => {
   const { organization, isLoaded } = useOrganization();
   const metrics = useQuery(
     api.private.analytics.getMetrics,
@@ -303,3 +304,8 @@ export const AnalyticsView = () => {
   );
 };
 
+export const AnalyticsView = () => (
+  <ErrorBoundary>
+    <AnalyticsViewInner />
+  </ErrorBoundary>
+);
