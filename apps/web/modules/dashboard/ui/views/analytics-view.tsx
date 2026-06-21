@@ -105,6 +105,18 @@ export const AnalyticsView = () => {
     );
   }
 
+  // Narrow the type — metrics is always defined here because we guarded
+  // against organization?.id being falsy above, and the loading state above.
+  if (!metrics) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-xl bg-background">
+        <p className="text-on-surface-variant text-label-md font-label-md">
+          Loading analytics...
+        </p>
+      </div>
+    );
+  }
+
   const chartData = metrics.chartData ?? [];
   const hourlyDist = metrics.hourlyDistribution ?? [];
   const agentStats = metrics.agentStats ?? [];
