@@ -336,8 +336,7 @@ export const IntegrationsDialog = ({
             <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-300">Quick Guide</h5>
             <p className="text-zinc-400 text-xs leading-relaxed">
               1. Copy the HTML snippet from your live dashboard domain, not localhost. <br />
-              2. Paste it just before the closing <code className="font-mono text-amber-500/80">&lt;/head&gt;</code> tag on your website or dashboard layout file. <br />
-              3. Make sure your widget deployment uses the same <code className="font-mono text-amber-500/80">NEXT_PUBLIC_CONVEX_URL</code> as the dashboard.
+              2. Paste it just before the closing <code className="font-mono text-amber-500/80">&lt;/head&gt;</code> tag on your website or dashboard layout file.
             </p>
           </div>
         </div>
