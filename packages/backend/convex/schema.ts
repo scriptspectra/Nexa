@@ -215,4 +215,12 @@ export default defineSchema({
     enabled: v.boolean(),
   })
     .index("by_organization_id", ["organizationId"]),
+
+  // Phase 5 — Usage limits
+  usageCounters: defineTable({
+    organizationId: v.string(),
+    month: v.string(), // e.g., "2026-06"
+    aiResponsesCount: v.number(),
+  })
+    .index("by_organization_and_month", ["organizationId", "month"]),
 });

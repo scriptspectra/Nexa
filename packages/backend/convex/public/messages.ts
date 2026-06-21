@@ -62,8 +62,18 @@ export const create = action({
       },
     );
 
-    const shouldTriggerAgent =
-      conversation.status === "unresolved" && subscription?.status === "active"
+    let shouldTriggerAgent =
+      conversation.status === "unresolved" && subscription?.status === "active";
+
+    if (shouldTriggerAgent) {
+      const usageCheck = await ctx.runMutation(internal.private.usage.incrementAndCheckUsage, {
+        organizationId: conversation.organizationId,
+      });
+      if (!usageCheck.allowed) {
+        shouldTriggerAgent = false;
+        // Automatically save a system message about limit? For MVP we just don't trigger AI.
+      }
+    }
 
     if (shouldTriggerAgent) {
       await supportAgent.generateText(

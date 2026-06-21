@@ -4,6 +4,8 @@ import { useOrganization } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import type { BillingDetails } from "../../hooks/use-billing-details";
+import { useQuery } from "convex/react";
+import { api } from "@workspace/backend/_generated/api";
 
 const STARTER_FEATURES = [
   "24/7 AI Support (Limited runs)",
@@ -272,8 +274,18 @@ type UsageStatsProps = {
 };
 
 export const UsageStats = ({ details, seatCount, maxSeats }: UsageStatsProps) => {
+  const { organization } = useOrganization();
   const isPro = details?.isPro ?? false;
   const seatProgress = maxSeats > 0 ? Math.min((seatCount / maxSeats) * 100, 100) : 0;
+
+  const usage = useQuery(
+    api.private.usage.getCurrentUsage,
+    organization?.id ? { organizationId: organization.id } : "skip"
+  );
+
+  const aiRunsCount = usage?.aiResponsesCount || 0;
+  const aiRunsLimit = usage?.limit || 100;
+  const aiProgress = Math.min((aiRunsCount / aiRunsLimit) * 100, 100);
 
   return (
     <div className="lg:col-span-4 space-y-gutter">
@@ -285,10 +297,13 @@ export const UsageStats = ({ details, seatCount, maxSeats }: UsageStatsProps) =>
           <div>
             <div className="flex justify-between font-label-sm text-on-surface mb-xs">
               <span>AI Runs</span>
-              <span>{isPro ? "Unlimited" : "Limited"}</span>
+              <span>{aiRunsCount} of {aiRunsLimit}</span>
             </div>
             <div className="h-1 w-full bg-surface-container-highest">
-              <div className={`h-full bg-secondary ${isPro ? "w-full" : "w-1/3"}`} />
+              <div 
+                className="h-full bg-secondary transition-all" 
+                style={{ width: `${aiProgress}%` }} 
+              />
             </div>
           </div>
           <div>
