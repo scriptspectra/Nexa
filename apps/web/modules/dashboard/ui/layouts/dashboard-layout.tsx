@@ -4,6 +4,7 @@ import { DashboardSidebar } from "@/modules/dashboard/ui/components/dashboard-si
 import { Provider } from "jotai";
 
 import { OnboardingChecklist } from "@/modules/dashboard/ui/components/onboarding-checklist";
+import { PWAInstallButton } from "@/modules/dashboard/ui/components/pwa-install-button";
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -23,6 +24,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                   </div>
                 </div>
                 <div className="flex items-center gap-md">
+                  <PWAInstallButton />
                   <OnboardingChecklist />
                 </div>
               </header>
