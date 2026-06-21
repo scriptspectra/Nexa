@@ -2,8 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useRef } from "react";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import { useOrganization } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
@@ -121,8 +119,11 @@ export const AnalyticsView = () => {
   const hourlyDist = metrics.hourlyDistribution ?? [];
   const agentStats = metrics.agentStats ?? [];
 
-  const exportRef = useRef<HTMLDivElement>(null);  const handleExportPdf = async () => {
+  const exportRef = useRef<HTMLDivElement>(null);
+  const handleExportPdf = async () => {
     if (!exportRef.current) return;
+    const html2canvas = (await import("html2canvas")).default;
+    const { jsPDF } = await import("jspdf");
     const canvas = await html2canvas(exportRef.current, { scale: 2 });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'pt', 'a4');
