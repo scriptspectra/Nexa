@@ -13,8 +13,10 @@ import { Id } from "@workspace/backend/_generated/dataModel";
 import { Button } from "@workspace/ui/components/button";
 import { DicebearAvatar } from "@workspace/ui/components/dicebear-avatar";
 import { useQuery } from "convex/react";
-import { ClockIcon, GlobeIcon, MailIcon, MonitorIcon } from "lucide-react";
+import { ClockIcon, GlobeIcon, MailIcon, MonitorIcon, TagIcon } from "lucide-react";
 import Link from "next/link";
+import { TagChips } from "./tag-chips";
+import { EmailReplyDialog } from "./email-reply-dialog";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 
@@ -154,8 +156,8 @@ export const ContactPanel = () => {
         ]
       },
       {
-        id: "section-details",
-        title: "Section details",
+        id: "session-details",
+        title: "Session Details",
         icon: ClockIcon,
         items: [
           {
@@ -190,12 +192,9 @@ export const ContactPanel = () => {
         </div>
         <h3 className="text-body-lg font-bold text-primary">{contactSession.name}</h3>
         <p className="text-label-sm font-label-sm text-on-surface-variant mb-4">{contactSession.email}</p>
-        <Button asChild className="w-full border border-outline-variant bg-background py-2 text-label-sm font-label-sm font-bold uppercase tracking-widest hover:border-primary transition-colors flex items-center justify-center gap-2 rounded-none" variant="outline" size="lg">
-          <Link href={`mailto:${contactSession.email}`}>
-            <MailIcon className="size-4" />
-            <span>Send Email</span>
-          </Link>
-        </Button>
+        {conversationId && contactSession.email && (
+          <EmailReplyDialog conversationId={conversationId} contactEmail={contactSession.email} />
+        )}
       </div>
 
       <div className="flex-1">
@@ -233,6 +232,24 @@ export const ContactPanel = () => {
                 </AccordionContent>
               </AccordionItem>
             ))}
+            {conversationId && (
+              <AccordionItem
+                className="rounded-none border-b border-outline-variant"
+                value="tags"
+              >
+                <AccordionTrigger
+                  className="flex w-full flex-1 items-start justify-between gap-4 rounded-none bg-surface-container px-sm py-sm text-left text-label-md font-label-md uppercase tracking-wider text-primary outline-none transition-all hover:no-underline hover:bg-surface-container-low"
+                >
+                  <div className="flex items-center gap-4">
+                    <TagIcon className="size-4 shrink-0" />
+                    <span>Tags</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-sm py-sm">
+                  <TagChips conversationId={conversationId} />
+                </AccordionContent>
+              </AccordionItem>
+            )}
           </Accordion>
         )}
       </div>
