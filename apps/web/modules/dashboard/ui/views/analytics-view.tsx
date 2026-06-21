@@ -133,8 +133,6 @@ export const AnalyticsView = () => {
             <button onClick={handleExportPdf} className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">Export PDF</button>
           </div>
         </div>
-          </div>
-        </div>
 
         {/* ── KPI Cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">

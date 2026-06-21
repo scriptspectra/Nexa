@@ -254,7 +254,7 @@ export const BillingHistory = ({ details }: BillingHistoryProps) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => window.open(entry.invoiceUrl, "_blank", "noopener,noreferrer")}
+                  onClick={() => entry.invoiceUrl && window.open(entry.invoiceUrl, "_blank", "noopener,noreferrer")}
                   className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors"
                   aria-label={`Print invoice for ${entry.description}`}
                 >
