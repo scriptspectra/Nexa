@@ -3,6 +3,8 @@ import { OrganizationGuard } from "@/modules/auth/ui/components/organization-gua
 import { DashboardSidebar } from "@/modules/dashboard/ui/components/dashboard-sidebar";
 import { Provider } from "jotai";
 
+import { OnboardingChecklist } from "@/modules/dashboard/ui/components/onboarding-checklist";
+
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthGuard>
@@ -19,6 +21,9 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                     <a className="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">SLA Status</a>
                     <a className="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">History</a>
                   </div>
+                </div>
+                <div className="flex items-center gap-md">
+                  <OnboardingChecklist />
                 </div>
               </header>
               <div className="flex-1 overflow-hidden flex flex-col relative">

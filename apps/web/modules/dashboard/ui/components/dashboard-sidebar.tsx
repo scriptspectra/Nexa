@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { OrganizationSwitcher, UserButton, useOrganization } from "@clerk/nextjs";
-import { OnboardingChecklist } from "./onboarding-checklist";
+
 
 interface NavItem {
   href: string;
@@ -40,8 +40,7 @@ export const DashboardSidebar = () => {
         <p className="text-[10px] font-label-sm text-on-surface-variant uppercase tracking-tighter">Enterprise Helpdesk</p>
       </div>
 
-      {/* Onboarding Checklist */}
-      <OnboardingChecklist />
+
 
       <nav className="flex-1 space-y-1">
         {NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin).map((item) => {
