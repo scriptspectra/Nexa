@@ -348,10 +348,14 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
-            {["Features", "How It Works", "Pricing", "About"].map((n) => (
+            {([
+              ["Features", "#features"],
+              ["How It Works", "#our-process"],
+              ["Pricing", "#pricing"],
+            ] as [string, string][]).map(([n, href]) => (
               <a
                 key={n}
-                href="#"
+                href={href}
                 className="hover:text-white transition-colors duration-200"
               >
                 {n}
@@ -395,10 +399,14 @@ export default function LandingPage() {
 
         {mobileOpen && (
           <div className="md:hidden border-t border-white/5 bg-[#06060f]/95 px-6 py-4 flex flex-col gap-4">
-            {["Features", "How It Works", "Pricing", "About"].map((n) => (
+            {([
+              ["Features", "#features"],
+              ["How It Works", "#our-process"],
+              ["Pricing", "#pricing"],
+            ] as [string, string][]).map(([n, href]) => (
               <a
                 key={n}
-                href="#"
+                href={href}
                 className="text-white/60 hover:text-white text-sm transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
@@ -544,7 +552,7 @@ export default function LandingPage() {
 
 
       {/* FEATURES */}
-      <section ref={featuresSection.ref} className="py-24 px-6">
+      <section id="features" ref={featuresSection.ref} className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
             variants={stagger}
@@ -725,7 +733,7 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING */}
-      <section ref={pricingSection.ref} className="py-24 px-6">
+      <section id="pricing" ref={pricingSection.ref} className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
             variants={stagger}
@@ -830,7 +838,7 @@ export default function LandingPage() {
                 Ready to make your conversations work harder?
               </h2>
               <p className="text-white/40 text-lg mb-8 px-4 md:px-24 lg:px-32">
-                Join 12,000+ businesses using Zephyra to power smarter customer
+                Join ''businesses using Zephyra to power smarter customer
                 interactions. Average setup time: under 15 minutes.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
