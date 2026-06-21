@@ -485,17 +485,17 @@ export default function LandingPage() {
               className="flex flex-wrap items-center gap-4"
             >
               <Link
-                href="/sign-up"
+                href="/conversations"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 font-semibold transition-all duration-200 shadow-xl shadow-amber-900/40 hover:shadow-amber-700/40 hover:scale-105"
               >
                 Start for Free
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <a
-                href="#"
+                href="#our-process"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 font-medium transition-all duration-200"
               >
-                View Demo
+                How It Works
                 <ChevronRight className="w-4 h-4" />
               </a>
             </motion.div>
@@ -523,9 +523,6 @@ export default function LandingPage() {
                   />
                 ))}
               </div>
-              <span className="text-sm text-white/40">
-                Trusted by 12K+ businesses
-              </span>
             </motion.div>
           </motion.div>
 
@@ -544,37 +541,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* STATS */}
-      <section
-        ref={statsSection.ref}
-        className="py-16 px-6 border-y border-white/5"
-      >
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate={statsSection.inView ? "visible" : "hidden"}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
-          >
-            {STATS.map((s, i) => (
-              <motion.div
-                key={s.label}
-                variants={fadeUp}
-                custom={i}
-                className="text-center"
-              >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-3 mx-auto">
-                  <s.icon className="w-5 h-5 text-amber-400" />
-                </div>
-                <div className="text-3xl font-extrabold text-white mb-1">
-                  {s.value}
-                </div>
-                <div className="text-sm text-white/40">{s.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+
 
       {/* FEATURES */}
       <section ref={featuresSection.ref} className="py-24 px-6">
@@ -641,6 +608,7 @@ export default function LandingPage() {
 
       {/* HOW IT WORKS */}
       <section
+        id="our-process"
         ref={howSection.ref}
         className="py-24 px-6"
         style={{
@@ -867,17 +835,17 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/sign-up"
+                  href="/conversations"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 font-semibold transition-all duration-200 shadow-xl shadow-amber-900/40 hover:scale-105"
                 >
                   Start Free Today
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <a
-                  href="#"
+                  href="mailto:hello@zephyra.ai"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 font-medium transition-all duration-200"
                 >
-                  Book a Strategy Call
+                  Contact Us / Send Email
                 </a>
               </div>
             </motion.div>
