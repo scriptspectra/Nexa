@@ -24,7 +24,7 @@ export const handleInboundEmail = internalMutation({
     if (!contactSession) {
       const contactSessionId = await ctx.db.insert("contactSessions", {
         organizationId: args.orgId,
-        name: args.fromName || args.fromEmail.split("@")[0],
+        name: args.fromName || args.fromEmail.split("@")[0] || "Unknown",
         email: args.fromEmail,
         expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 365, // 1 year
       });

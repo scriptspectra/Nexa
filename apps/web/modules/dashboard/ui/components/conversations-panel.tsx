@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import { cn } from "@workspace/ui/lib/utils";
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import { ListIcon, ArrowRightIcon, ArrowUpIcon, CheckIcon, CornerUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

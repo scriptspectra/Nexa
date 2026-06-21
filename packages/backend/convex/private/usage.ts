@@ -1,4 +1,4 @@
-import { internalMutation, internalQuery } from "../_generated/server";
+import { internalMutation, internalQuery, query } from "../_generated/server";
 import { ConvexError, v } from "convex/values";
 import { PLAN_LIMITS } from "./planLimits"; // I need to create this file
 
@@ -54,7 +54,7 @@ export const incrementAndCheckUsage = internalMutation({
   },
 });
 
-export const getCurrentUsage = internalQuery({
+export const getCurrentUsage = query({
   args: {
     organizationId: v.string(),
   },

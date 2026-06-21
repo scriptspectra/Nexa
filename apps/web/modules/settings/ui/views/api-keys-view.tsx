@@ -144,7 +144,7 @@ export const ApiKeysView = () => {
                   <td className="p-4 font-medium text-on-surface">{key.name}</td>
                   <td className="p-4 font-mono text-on-surface-variant">{key.keyPrefix}...</td>
                   <td className="p-4 text-on-surface-variant">
-                    {new Date(key.createdAt).toLocaleDateString()}
+                    {new Date(key._creationTime).toLocaleDateString()}
                   </td>
                   <td className="p-4 text-on-surface-variant">
                     {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleDateString() : "Never"}

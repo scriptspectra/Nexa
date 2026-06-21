@@ -138,7 +138,7 @@ export const ConversationIdView = ({
   useEffect(() => {
     const match = messageValue.match(/(?:^|\s)\/([a-zA-Z0-9_-]*)$/);
     if (match) {
-      setMacroFilter(match[1].toLowerCase());
+      setMacroFilter((match[1] || "").toLowerCase());
       setShowMacroPopover(true);
     } else {
       setShowMacroPopover(false);
@@ -223,8 +223,8 @@ export const ConversationIdView = ({
     if (userId === "unassigned") {
       assignedToUserId = undefined;
     } else {
-      const member = memberships?.data?.find(m => m.publicUserData.userId === userId);
-      assignedToName = member ? `${member.publicUserData.firstName} ${member.publicUserData.lastName}`.trim() : "Operator";
+      const member = memberships?.data?.find(m => m.publicUserData?.userId === userId);
+      assignedToName = member?.publicUserData ? `${member.publicUserData.firstName || ""} ${member.publicUserData.lastName || ""}`.trim() : "Operator";
     }
 
     try {
@@ -269,12 +269,12 @@ export const ConversationIdView = ({
                 </SelectTrigger>
                 <SelectContent className="bg-surface-container-high border-outline-variant">
                   <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {memberships?.data?.map((membership) => (
+                  {memberships?.data?.filter(m => m.publicUserData?.userId).map((membership) => (
                     <SelectItem 
-                      key={membership.publicUserData.userId} 
-                      value={membership.publicUserData.userId || ""}
+                      key={membership.publicUserData!.userId} 
+                      value={membership.publicUserData!.userId!}
                     >
-                      {membership.publicUserData.firstName} {membership.publicUserData.lastName}
+                      {membership.publicUserData!.firstName} {membership.publicUserData!.lastName}
                     </SelectItem>
                   ))}
                 </SelectContent>
