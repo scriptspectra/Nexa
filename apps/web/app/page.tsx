@@ -201,7 +201,8 @@ const STATS = [
 
 function DashboardMockup() {
   return (
-    <div className="relative w-full max-w-xl mx-auto">
+    // pt-8 pr-8 pb-6 pl-8 gives room for the floating cards that extend outside
+    <div className="relative w-full mx-auto pt-8 pr-10 pb-6 pl-8">
       <div
         className="rounded-2xl border border-violet-500/20 bg-[#0d0d1a]/90 shadow-2xl shadow-violet-900/30 p-5 backdrop-blur-sm"
         style={{ fontFamily: "system-ui" }}
@@ -288,7 +289,8 @@ function DashboardMockup() {
         </div>
       </div>
 
-      <div className="absolute -top-6 -right-6 w-36 h-24 rounded-xl border border-cyan-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-cyan-900/20 p-3 backdrop-blur-sm">
+      {/* Floating card — top right, contained within padding */}
+      <div className="absolute top-0 right-0 w-36 h-24 rounded-xl border border-cyan-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-cyan-900/20 p-3 backdrop-blur-sm">
         <div className="text-[9px] text-cyan-300/60 mb-1">AI Sentiment</div>
         <div className="text-2xl font-bold text-white">82%</div>
         <div className="text-[9px] text-emerald-400">Positive</div>
@@ -300,7 +302,8 @@ function DashboardMockup() {
         </div>
       </div>
 
-      <div className="absolute -bottom-4 -left-6 w-32 h-20 rounded-xl border border-violet-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-violet-900/20 p-3 backdrop-blur-sm">
+      {/* Floating card — bottom left, contained within padding */}
+      <div className="absolute bottom-0 left-0 w-32 h-20 rounded-xl border border-violet-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-violet-900/20 p-3 backdrop-blur-sm">
         <div className="text-[9px] text-violet-300/60 mb-1">SLA Status</div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -438,7 +441,7 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center">
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -535,7 +538,7 @@ export default function LandingPage() {
                 : { opacity: 0, scale: 0.92, y: 30 }
             }
             transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="relative"
+            className="relative min-w-0"
           >
             <DashboardMockup />
           </motion.div>
