@@ -599,7 +599,7 @@ export default function LandingPage() {
             </motion.h2>
             <motion.p
               variants={fadeUp}
-              className="text-white/40 w-full max-w-xl mx-auto text-lg"
+              className="text-white/40 text-lg px-4 md:px-24 lg:px-32"
             >
               15 enterprise-grade capabilities — already built in, ready to
               activate.
@@ -863,7 +863,7 @@ export default function LandingPage() {
               <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">
                 Ready to make your conversations work harder?
               </h2>
-              <p className="text-white/40 text-lg mb-8 w-full max-w-lg mx-auto">
+              <p className="text-white/40 text-lg mb-8 px-4 md:px-24 lg:px-32">
                 Join 12,000+ businesses using Zephyra to power smarter customer
                 interactions. Average setup time: under 15 minutes.
               </p>
