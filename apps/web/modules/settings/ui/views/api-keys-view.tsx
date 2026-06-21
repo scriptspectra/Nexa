@@ -61,7 +61,7 @@ export const ApiKeysView = () => {
           <DialogTrigger asChild>
             <Button>Create New Key</Button>
           </DialogTrigger>
-          <DialogContent className="bg-surface-container border-outline-variant text-on-surface max-w-md">
+          <DialogContent className="bg-surface-container border-outline-variant text-on-surface w-full min-w-[480px] max-w-md">
             <DialogHeader>
               <DialogTitle>Create API Key</DialogTitle>
             </DialogHeader>
