@@ -211,3 +211,33 @@ export async function validateShopifyCredentials(
   const data = (await response.json()) as { shop: { name: string } };
   return data.shop.name;
 }
+
+/**
+ * Look up a Shopify order by its name/number (e.g. #1001 or 1001).
+ */
+export async function fetchShopifyOrderByName(
+  shopDomain: string,
+  adminApiKey: string,
+  orderName: string
+): Promise<any | null> {
+  // Order name might be passed as "#1001" or "1001"
+  const cleanName = orderName.startsWith("#") ? orderName : `#${orderName}`;
+  const url = `https://${shopDomain}/admin/api/2024-10/orders.json?status=any&name=${encodeURIComponent(cleanName)}`;
+
+  const response: any = await fetch(url, {
+    headers: {
+      "X-Shopify-Access-Token": adminApiKey,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Shopify API error (${response.status})`);
+  }
+
+  const data = await response.json();
+  const orders = data.orders || [];
+  
+  // Return the first match, or null
+  return orders.length > 0 ? orders[0] : null;
+}
+

@@ -34,6 +34,7 @@ import {
   RefreshCwIcon 
 } from "lucide-react";
 import { UploadDialog } from "../components/upload-dialog";
+import { AddUrlDialog } from "../components/add-url-dialog";
 import { useState } from "react";
 import { DeleteFileDialog } from "../components/delete-file-dialog";
 
@@ -59,6 +60,7 @@ export const FilesView = () => {
   });
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [addUrlDialogOpen, setAddUrlDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -120,6 +122,10 @@ export const FilesView = () => {
       <UploadDialog
         onOpenChange={setUploadDialogOpen}
         open={uploadDialogOpen}
+      />
+      <AddUrlDialog
+        onOpenChange={setAddUrlDialogOpen}
+        open={addUrlDialogOpen}
       />
       
       <div className="flex min-h-screen flex-col bg-black p-6 md:p-12 overflow-y-auto">
@@ -199,13 +205,22 @@ export const FilesView = () => {
                   className="w-full bg-zinc-900/40 border border-white/5 rounded-xl py-2 pl-10 pr-4 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-amber-500/30 transition-all font-sans"
                 />
               </div>
-              <Button
-                onClick={() => setUploadDialogOpen(true)}
-                className="w-full sm:w-auto bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl h-10 px-4 transition-all duration-300 shadow-md shadow-white/5 active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
-              >
-                <PlusIcon className="size-4" />
-                Add Document
-              </Button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => setAddUrlDialogOpen(true)}
+                  className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-xl h-10 px-4 transition-all duration-300 shadow-md shadow-white/5 active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
+                >
+                  <PlusIcon className="size-4" />
+                  Add URL
+                </Button>
+                <Button
+                  onClick={() => setUploadDialogOpen(true)}
+                  className="w-full sm:w-auto bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl h-10 px-4 transition-all duration-300 shadow-md shadow-white/5 active:scale-[0.98] flex items-center justify-center gap-2 border border-white/10"
+                >
+                  <PlusIcon className="size-4" />
+                  Add Document
+                </Button>
+              </div>
             </div>
 
             <Table>

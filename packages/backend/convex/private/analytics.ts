@@ -21,6 +21,7 @@ const EMPTY_METRICS = {
     operatorHandled: number;
   }>,
   hourlyDistribution: [] as Array<{ hour: number; count: number }>,
+  agentStats: [] as Array<{ name: string; resolved: number; escalated: number; total: number }>,
 };
 
 function toDateKey(timestamp: number): string {
@@ -160,6 +161,26 @@ export const getMetrics = query({
       count,
     }));
 
+    // ─── Agent Leaderboard ────────────────────────────────────────────────────
+    const agentMap: Record<string, { resolved: number; escalated: number }> = {};
+    conversations.forEach((c) => {
+      if (!c.assignedToName) return;
+      const name = c.assignedToName;
+      if (!agentMap[name]) agentMap[name] = { resolved: 0, escalated: 0 };
+      if (c.status === "resolved") agentMap[name].resolved++;
+      else if (c.status === "escalated") agentMap[name].escalated++;
+    });
+
+    const agentStats = Object.entries(agentMap)
+      .map(([name, { resolved, escalated }]) => ({
+        name,
+        resolved,
+        escalated,
+        total: resolved + escalated,
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10);
+
     return {
       totalConversations,
       totalConversationsDelta,
@@ -170,6 +191,7 @@ export const getMetrics = query({
       avgFirstResponseLabel,
       chartData,
       hourlyDistribution,
+      agentStats,
     };
   },
 });

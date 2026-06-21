@@ -86,6 +86,9 @@ export default defineSchema({
     // Channel (Phase 5 — email / voice)
     channel: v.optional(v.union(v.literal("widget"), v.literal("email"), v.literal("voice"))),
     externalId: v.optional(v.string()),
+    // SLA Tracking (Phase 5)
+    slaStatus: v.optional(v.union(v.literal("ok"), v.literal("warning"), v.literal("breached"))),
+    slaDeadline: v.optional(v.number()),
   })
     .index("by_organization_id", ["organizationId"])
     .index("by_contact_session_id", ["contactSessionId"])

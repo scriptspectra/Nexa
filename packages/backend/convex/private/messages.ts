@@ -63,6 +63,80 @@ export const enhanceResponse = action({
   },
 });
 
+export const getSuggestions = action({
+  args: {
+    threadId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Identity not found",
+      });
+    }
+
+    const orgId = (identity.orgId || (identity as any).org_id) as string;
+
+    if (!orgId) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Organization not found",
+      });
+    }
+
+    const subscription = await ctx.runQuery(
+      internal.system.subscriptions.getByOrganizationId,
+      {
+        organizationId: orgId,
+      },
+    );
+
+    if (subscription?.status !== "active") {
+      throw new ConvexError({
+        code: "BAD_REQUEST",
+        message: "Missing subscription"
+      });
+    }
+
+    const recentMessages = await supportAgent.listMessages(ctx, {
+      threadId: args.threadId,
+      paginationOpts: { numItems: 5, cursor: null },
+    });
+
+    const messagesContent = recentMessages.page
+      .reverse()
+      .map(m => `${m.role === "user" ? "Customer" : "Agent"}: ${m.content}`)
+      .join("\n");
+
+    const response = await generateText({
+      model: openai("gpt-4o-mini"),
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI assistant helping a support agent reply to a customer.
+Given the recent conversation history, suggest 3 short, distinct, professional ways the agent could reply.
+Return EXACTLY 3 lines, with no bullets, no numbering, and no intro/outro text. Just the 3 suggested replies separated by newlines.
+Keep each reply concise (1-3 sentences max).`,
+        },
+        {
+          role: "user",
+          content: messagesContent || "No context yet. Provide generic greeting suggestions.",
+        },
+      ],
+    });
+
+    const suggestions = response.text
+      .split("\n")
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .slice(0, 3);
+
+    return suggestions;
+  },
+});
+
 export const create = mutation({
   args: {
     prompt: v.string(),

@@ -166,6 +166,66 @@ export const addFile = action({
   },
 });
 
+export const scrapeUrl = action({
+  args: {
+    url: v.string(),
+    category: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) {
+      throw new ConvexError({ code: "UNAUTHORIZED", message: "Identity not found" });
+    }
+
+    const orgId = (identity.orgId || (identity as any).org_id) as string;
+    if (!orgId) {
+      throw new ConvexError({ code: "UNAUTHORIZED", message: "Organization not found" });
+    }
+
+    // Dynamic import to avoid breaking if not installed globally yet
+    const cheerio = await import("cheerio");
+
+    const response = await fetch(args.url);
+    if (!response.ok) {
+      throw new ConvexError({ code: "BAD_REQUEST", message: `Failed to fetch URL: ${response.statusText}` });
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // Remove script, style, nav, footer, etc to get clean text
+    $("script, style, nav, footer, header, noscript, iframe").remove();
+    
+    // Extract text and clean up whitespace
+    const text = $("body").text().replace(/\s+/g, " ").trim();
+    
+    if (!text) {
+      throw new ConvexError({ code: "BAD_REQUEST", message: "No text content found on this page" });
+    }
+
+    const title = $("title").text().trim() || args.url;
+    // We create a dummy ArrayBuffer of the text to use for contentHash
+    const bytes = new TextEncoder().encode(text).buffer;
+
+    const { entryId } = await rag.add(ctx, {
+      namespace: orgId,
+      text,
+      key: args.url,
+      title: title,
+      metadata: {
+        uploadedBy: orgId,
+        filename: title, // use title as filename for display
+        category: args.category ?? null,
+        url: args.url, // store original URL in metadata
+      } as any,
+      contentHash: await contentHashFromArrayBuffer(bytes)
+    });
+
+    return { entryId, title };
+  },
+});
+
 export const list = query({
   args: {
     category: v.optional(v.string()),

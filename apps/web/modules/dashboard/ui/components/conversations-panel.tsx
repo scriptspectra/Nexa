@@ -23,16 +23,26 @@ import { usePathname } from "next/navigation";
 import { ConversationStatusIcon } from "@workspace/ui/components/conversation-status-icon";
 import { useAtomValue, useSetAtom } from "jotai/react";
 import { statusFilterAtom } from "../../atoms";
+import { statusFilterAtom } from "../../atoms";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover";
+import { useOrganization } from "@clerk/nextjs";
 
 export const ConversationsPanel = () => {
   const pathname = usePathname();
   const { user } = useUser();
+  const { organization } = useOrganization();
 
   const statusFilter = useAtomValue(statusFilterAtom);
   const setStatusFilter = useSetAtom(statusFilterAtom);
   const [queueFilter, setQueueFilter] = useState<"all" | "me">("all");
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+  const orgTags = useQuery(
+    api.private.conversationTags.listTagsForOrg,
+    organization?.id ? { organizationId: organization.id } : "skip"
+  );
 
   const conversations = usePaginatedQuery(
     api.private.conversations.getMany,
@@ -42,6 +52,7 @@ export const ConversationsPanel = () => {
           ? undefined
           : statusFilter,
       assignedToUserId: queueFilter === "me" && user ? user.id : undefined,
+      tag: tagFilter || undefined,
     },
     {
       initialNumItems: 10,
@@ -73,20 +84,6 @@ export const ConversationsPanel = () => {
   return (
     <div className="flex h-full w-full flex-col bg-background text-foreground overflow-hidden">
       <div className="flex flex-col gap-2 p-sm border-b border-outline-variant">
-        <div className="flex bg-surface-container-low border border-outline-variant p-1 gap-1">
-          <button 
-            className={`flex-1 text-[11px] font-bold uppercase tracking-wider py-1 ${queueFilter === "all" ? "bg-white text-black" : "text-on-surface-variant hover:text-white"}`}
-            onClick={() => setQueueFilter("all")}
-          >
-            All Tickets
-          </button>
-          <button 
-            className={`flex-1 text-[11px] font-bold uppercase tracking-wider py-1 ${queueFilter === "me" ? "bg-white text-black" : "text-on-surface-variant hover:text-white"}`}
-            onClick={() => setQueueFilter("me")}
-          >
-            My Queue
-          </button>
-        </div>
         <div className="relative w-full">
           <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
           <input 
@@ -97,46 +94,92 @@ export const ConversationsPanel = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="relative w-full">
-          <Select
-            defaultValue="all"
-            onValueChange={(value) => setStatusFilter(
-              value as "unresolved" | "escalated" | "resolved" | "all"
+
+        {/* Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
+          {/* Status Chip */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className={cn(
+                "flex items-center gap-1 shrink-0 text-[11px] font-bold uppercase tracking-wider px-2 py-1 border rounded-full transition-colors",
+                statusFilter !== "all" 
+                  ? "border-primary bg-primary/10 text-primary" 
+                  : "border-outline-variant text-on-surface-variant hover:border-on-surface-variant"
+              )}>
+                Status: {statusFilter === "all" ? "All" : statusFilter}
+                <span className="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1 bg-surface-container-high border-outline-variant text-on-surface" align="start">
+              <div className="flex flex-col">
+                {["all", "unresolved", "escalated", "resolved"].map(s => (
+                  <button 
+                    key={s} 
+                    className={cn(
+                      "text-left px-2 py-1.5 text-label-sm hover:bg-surface-container-highest",
+                      statusFilter === s && "text-primary"
+                    )}
+                    onClick={() => setStatusFilter(s as any)}
+                  >
+                    {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Assigned Chip */}
+          <button 
+            className={cn(
+              "flex items-center gap-1 shrink-0 text-[11px] font-bold uppercase tracking-wider px-2 py-1 border rounded-full transition-colors",
+              queueFilter === "me" 
+                ? "border-primary bg-primary/10 text-primary" 
+                : "border-outline-variant text-on-surface-variant hover:border-on-surface-variant"
             )}
-            value={statusFilter}
+            onClick={() => setQueueFilter(queueFilter === "me" ? "all" : "me")}
           >
-            <SelectTrigger
-              className="w-full bg-background border border-outline-variant text-label-sm font-label-sm h-9 focus:border-primary focus:ring-0 rounded-none text-on-surface"
-            >
-              <SelectValue placeholder="Filter conversations" />
-            </SelectTrigger>
-            <SelectContent className="bg-surface-container-high border border-outline-variant text-on-surface z-50">
-              <SelectItem value="all" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
-                <div className="flex items-center gap-2">
-                  <ListIcon className="size-4" />
-                  <span>All Conversations</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="unresolved" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
-                <div className="flex items-center gap-2">
-                  <ArrowRightIcon className="size-4" />
-                  <span>Unresolved</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="escalated" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
-                <div className="flex items-center gap-2">
-                  <ArrowUpIcon className="size-4" />
-                  <span>Escalated</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="resolved" className="hover:bg-surface-container-highest cursor-pointer focus:bg-surface-container-highest focus:text-primary">
-                <div className="flex items-center gap-2">
-                  <CheckIcon className="size-4" />
-                  <span>Resolved</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+            Assigned: {queueFilter === "me" ? "Me" : "All"}
+          </button>
+
+          {/* Tag Chip */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className={cn(
+                "flex items-center gap-1 shrink-0 text-[11px] font-bold uppercase tracking-wider px-2 py-1 border rounded-full transition-colors",
+                tagFilter 
+                  ? "border-primary bg-primary/10 text-primary" 
+                  : "border-outline-variant text-on-surface-variant hover:border-on-surface-variant"
+              )}>
+                Tag: {tagFilter || "Any"}
+                <span className="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-1 bg-surface-container-high border-outline-variant text-on-surface" align="start">
+              <div className="flex flex-col max-h-48 overflow-y-auto custom-scrollbar">
+                <button 
+                  className={cn(
+                    "text-left px-2 py-1.5 text-label-sm hover:bg-surface-container-highest",
+                    !tagFilter && "text-primary font-bold"
+                  )}
+                  onClick={() => setTagFilter(null)}
+                >
+                  Any Tag
+                </button>
+                {(orgTags ?? []).map(t => (
+                  <button 
+                    key={t} 
+                    className={cn(
+                      "text-left px-2 py-1.5 text-label-sm hover:bg-surface-container-highest",
+                      tagFilter === t && "text-primary font-bold"
+                    )}
+                    onClick={() => setTagFilter(t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
       {isLoadingFirstPage ? (

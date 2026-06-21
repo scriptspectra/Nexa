@@ -44,6 +44,8 @@ import { useState } from "react";
 import { cn } from "@workspace/ui/lib/utils";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { toast } from "sonner";
+import { TagChips } from "../components/tag-chips";
+import { useEffect, useRef } from "react";
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -57,6 +59,12 @@ export const ConversationIdView = ({
   const conversation = useQuery(api.private.conversations.getOne, {
     conversationId,
   });
+
+  const { organization } = useOrganization();
+  const macros = useQuery(
+    api.private.macros.listAll,
+    organization?.id ? { organizationId: organization.id } : "skip"
+  );
 
   const messages = useThreadMessages(
     api.private.messages.getMany,
@@ -99,6 +107,56 @@ export const ConversationIdView = ({
       setIsEnhancing(false);
     }
   }
+
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const fetchSuggestions = useAction(api.private.messages.getSuggestions);
+
+  const handleGetSuggestions = async () => {
+    if (!conversation?.threadId) return;
+    setIsLoadingSuggestions(true);
+    try {
+      const result = await fetchSuggestions({ threadId: conversation.threadId });
+      setSuggestions(result);
+    } catch (error) {
+      toast.error("Failed to get suggestions");
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Macro popover logic
+  const [showMacroPopover, setShowMacroPopover] = useState(false);
+  const [macroFilter, setMacroFilter] = useState("");
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const messageValue = form.watch("message");
+
+  useEffect(() => {
+    const match = messageValue.match(/(?:^|\s)\/([a-zA-Z0-9_-]*)$/);
+    if (match) {
+      setMacroFilter(match[1].toLowerCase());
+      setShowMacroPopover(true);
+    } else {
+      setShowMacroPopover(false);
+    }
+  }, [messageValue]);
+
+  const filteredMacros = (macros ?? []).filter((m) =>
+    m.title.toLowerCase().includes(macroFilter) ||
+    m.shortcut?.toLowerCase().includes(macroFilter)
+  );
+
+  const insertMacro = (content: string) => {
+    const current = form.getValues("message");
+    const replaced = current.replace(/(?:^|\s)\/[a-zA-Z0-9_-]*$/, (match) => {
+      const space = match.startsWith(" ") ? " " : "";
+      return space + content;
+    });
+    form.setValue("message", replaced);
+    setShowMacroPopover(false);
+    inputRef.current?.focus();
+  };
 
   const createMessage = useMutation(api.private.messages.create);
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -263,7 +321,64 @@ export const ConversationIdView = ({
         <AIConversationScrollButton />
       </AIConversation>
       
-      <div className="p-lg border-t border-outline-variant bg-surface-dim">
+      <div className="p-lg border-t border-outline-variant bg-surface-dim relative">
+        
+        {/* AI Suggestions */}
+        {conversation?.status !== "resolved" && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleGetSuggestions}
+              disabled={isLoadingSuggestions}
+              className="h-7 text-[11px] bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
+            >
+              <Wand2Icon className="w-3 h-3 mr-1.5" />
+              {isLoadingSuggestions ? "Generating..." : "Suggest replies"}
+            </Button>
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => form.setValue("message", s)}
+                className="text-[11px] border border-outline-variant rounded-full px-3 py-1 text-on-surface-variant hover:text-primary hover:border-primary transition-colors max-w-xs truncate"
+                title={s}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Macro Popover */}
+        {showMacroPopover && filteredMacros.length > 0 && (
+          <div className="absolute bottom-full left-lg mb-2 w-80 max-h-60 overflow-y-auto bg-surface-container-high border border-outline-variant shadow-xl rounded-md z-50">
+            <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant bg-surface-container-highest">
+              Insert Macro
+            </div>
+            <ul className="py-1">
+              {filteredMacros.map((macro) => (
+                <li key={macro._id}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-surface-container-highest transition-colors flex flex-col gap-1"
+                    onClick={() => insertMacro(macro.content)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-label-sm font-bold text-white truncate">{macro.title}</span>
+                      {macro.shortcut && (
+                        <span className="text-[10px] font-mono text-primary bg-primary/10 px-1 py-0.5 rounded">
+                          {macro.shortcut}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-on-surface-variant line-clamp-1">{macro.content}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <Form {...form}>
           <AIInput onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -271,7 +386,8 @@ export const ConversationIdView = ({
               disabled={conversation?.status === "resolved"}
               name="message"
               render={({ field }) => (
-                <AIInputTextarea
+                  <AIInputTextarea
+                  ref={inputRef}
                   disabled={
                     conversation?.status === "resolved" ||
                     form.formState.isSubmitting ||
@@ -401,6 +517,17 @@ function ContactDetailsPane({ contactSession, conversation }: { contactSession: 
                 {meta.timezoneOffset != null ? `UTC ${meta.timezoneOffset > 0 ? "-" : "+"}${Math.abs(meta.timezoneOffset / 60)}h` : "Unknown"}
               </span>
             </div>
+          </div>
+        </details>
+
+        {/* Tags */}
+        <details className="group border-b border-outline-variant" open>
+          <summary className="flex justify-between items-center p-sm cursor-pointer hover:bg-surface-container-low transition-colors list-none">
+            <span className="text-label-md font-label-md uppercase tracking-wider text-primary">Tags</span>
+            <span className="material-symbols-outlined transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+          </summary>
+          <div className="px-sm pb-sm">
+            <TagChips conversationId={conversation._id} />
           </div>
         </details>
 

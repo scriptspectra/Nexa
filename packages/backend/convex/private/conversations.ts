@@ -4,6 +4,7 @@ import { supportAgent } from "../system/ai/agents/supportAgent";
 import { MessageDoc } from "@convex-dev/agent";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { Doc } from "../_generated/dataModel";
+import { sendEscalationEmail } from "../lib/email";
 
 export const updateStatus = mutation({
   args: {
@@ -50,8 +51,23 @@ export const updateStatus = mutation({
     await ctx.db.patch(args.conversationId, {
       status: args.status,
     });
+
+    // ── Send escalation email to the end-user ─────────────────────────────────
+    if (args.status === "escalated") {
+      const contactSession = await ctx.db.get(conversation.contactSessionId);
+      if (contactSession?.email) {
+        // Fire-and-forget — don't let email failure break the status update
+        sendEscalationEmail({
+          contactEmail: contactSession.email,
+          contactName: contactSession.name,
+          organizationName: orgId,
+          conversationId: args.conversationId,
+        }).catch((err) => console.error("ESCALATION_EMAIL_ERROR:", err));
+      }
+    }
   },
 });
+
 
 export const getOne = query({
   args: {
@@ -119,6 +135,7 @@ export const getMany = query({
       )
     ),
     assignedToUserId: v.optional(v.string()),
+    tag: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -206,9 +223,25 @@ export const getMany = query({
       })
     );
 
-    const validConversations = conversationsWithAdditionalData.filter(
+    let validConversations = conversationsWithAdditionalData.filter(
       (conv): conv is NonNullable<typeof conv> => conv !== null,
     );
+
+    // Apply tag filter in-memory if requested (since tags are in a separate table)
+    if (args.tag) {
+      const filtered = [];
+      for (const conv of validConversations) {
+        const tags = await ctx.db
+          .query("conversationTags")
+          .withIndex("by_conversation_id", (q) => q.eq("conversationId", conv._id))
+          .collect();
+        
+        if (tags.some((t) => t.tag.toLowerCase() === args.tag!.toLowerCase())) {
+          filtered.push(conv);
+        }
+      }
+      validConversations = filtered;
+    }
 
     return {
       ...conversations,
