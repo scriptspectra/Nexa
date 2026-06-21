@@ -1,11 +1,17 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
 import { ErrorBoundary } from "../../../../components/error-boundary";
+
+const DATE_RANGE_OPTIONS = [
+  { label: "Last 7 Days", days: 7 },
+  { label: "Last 30 Days", days: 30 },
+  { label: "Last 90 Days", days: 90 },
+];
 
 const AnalyticsChart = dynamic(
   () =>
@@ -77,24 +83,49 @@ function HourlyHeatmap({ distribution }: { distribution: { hour: number; count: 
 
 const AnalyticsViewInner = () => {
   const { organization, isLoaded } = useOrganization();
+  const [selectedRange, setSelectedRange] = useState(DATE_RANGE_OPTIONS[1]!);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const metrics = useQuery(
     api.private.analytics.getMetrics,
     organization?.id ? { organizationId: organization.id } : "skip",
   );
-  const exportRef = useRef<HTMLDivElement>(null);
 
   const handleExportPdf = async () => {
-    if (!exportRef.current) return;
-    const html2canvas = (await import("html2canvas")).default;
-    const { jsPDF } = await import("jspdf");
-    const canvas = await html2canvas(exportRef.current, { scale: 2 });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('analytics.pdf');
+    if (!exportRef.current || exporting) return;
+    setExporting(true);
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
+      const canvas = await html2canvas(exportRef.current, {
+        scale: 2,
+        backgroundColor: "#111111",
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "pt", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`analytics-${selectedRange.days}d.pdf`);
+    } finally {
+      setExporting(false);
+    }
   };
 
   // Still loading Clerk or waiting on Convex response
@@ -136,23 +167,74 @@ const AnalyticsViewInner = () => {
   const agentStats = metrics.agentStats ?? [];
 
   return (
-    <div ref={exportRef} className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
+    <div className="flex-1 overflow-y-auto p-xl custom-scrollbar bg-black">
       <div className="max-w-6xl mx-auto space-y-md">
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
           <div>
             <h1 className="text-headline-lg font-bold text-white mb-xs">Conversation Analytics</h1>
-            <p className="text-body-sm text-on-surface-variant">Detailed performance metrics for the last 30 days.</p>
+            <p className="text-body-sm text-on-surface-variant">
+              Detailed performance metrics for the {selectedRange.label.toLowerCase()}.
+            </p>
           </div>
           <div className="flex items-center gap-md">
-            <div className="flex items-center gap-2 border border-outline-variant bg-surface-container-low px-sm py-xs cursor-pointer hover:border-primary transition-colors">
-              <span className="material-symbols-outlined text-[16px] text-white">calendar_today</span>
-              <span className="text-label-sm font-label-sm text-white uppercase tracking-wider">Last 30 Days</span>
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+            {/* Date range dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <div
+                className="flex items-center gap-2 border border-outline-variant bg-surface-container-low px-sm py-xs cursor-pointer hover:border-primary transition-colors select-none"
+                onClick={() => setDropdownOpen((o) => !o)}
+              >
+                <span className="material-symbols-outlined text-[16px] text-white">calendar_today</span>
+                <span className="text-label-sm font-label-sm text-white uppercase tracking-wider">{selectedRange.label}</span>
+                <span
+                  className="material-symbols-outlined text-[16px] text-on-surface-variant transition-transform duration-200"
+                  style={{ transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                >
+                  expand_more
+                </span>
+              </div>
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a1a] border border-outline-variant shadow-xl min-w-[160px]">
+                  {DATE_RANGE_OPTIONS.map((opt) => (
+                    <div
+                      key={opt.days}
+                      className={`px-sm py-xs text-label-sm uppercase tracking-wider cursor-pointer transition-colors ${
+                        selectedRange.days === opt.days
+                          ? "text-white bg-surface-container"
+                          : "text-on-surface-variant hover:text-white hover:bg-surface-container-low"
+                      }`}
+                      onClick={() => {
+                        setSelectedRange(opt);
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      {opt.label}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <button onClick={handleExportPdf} className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors">Export PDF</button>
+
+            {/* Export PDF */}
+            <button
+              onClick={handleExportPdf}
+              disabled={exporting}
+              className="bg-white text-black px-md py-xs text-label-sm font-label-sm font-bold uppercase tracking-widest hover:bg-neutral-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              {exporting ? (
+                <>
+                  <span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>
+                  Exporting…
+                </>
+              ) : (
+                "Export PDF"
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Content captured for PDF */}
+        <div ref={exportRef}>
 
         {/* ── KPI Cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">
@@ -299,6 +381,7 @@ const AnalyticsViewInner = () => {
           )}
         </div>
 
+        </div>{/* end exportRef */}
       </div>
     </div>
   );
