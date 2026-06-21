@@ -438,11 +438,12 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <motion.div
             variants={stagger}
             initial="hidden"
             animate={heroSection.inView ? "visible" : "hidden"}
+            className="min-w-0"
           >
             <motion.div
               variants={fadeUp}
@@ -454,7 +455,7 @@ export default function LandingPage() {
 
             <motion.h1
               variants={fadeUp}
-              className="text-5xl lg:text-6xl font-extrabold leading-tight mb-6 tracking-tight"
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 tracking-tight"
             >
               Conversations that{" "}
               <span
@@ -470,7 +471,7 @@ export default function LandingPage() {
 
             <motion.p
               variants={fadeUp}
-              className="text-lg text-white/50 leading-relaxed mb-8 max-w-lg"
+              className="text-base lg:text-lg text-white/50 leading-relaxed mb-8"
             >
               From unified AI dashboards to multilingual voice support —
               everything your business needs to engage customers, measure ROI,
