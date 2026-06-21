@@ -63,7 +63,7 @@ export const AddUrlDialog = ({
 
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Add URL</DialogTitle>
           <DialogDescription>

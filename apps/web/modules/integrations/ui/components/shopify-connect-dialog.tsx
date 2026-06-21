@@ -52,7 +52,7 @@ export const ShopifyConnectDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg border border-white/10 bg-zinc-950 text-white rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-xl border border-white/10 bg-zinc-950 text-white rounded-2xl shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             <ShoppingBagIcon className="size-5 text-emerald-400" />
