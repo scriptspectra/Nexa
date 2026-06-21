@@ -83,7 +83,8 @@ export const AnalyticsView = () => {
     organization?.id ? { organizationId: organization.id } : "skip",
   );
 
-  if (!isLoaded || metrics === undefined) {
+  // Still loading Clerk or waiting on Convex response
+  if (!isLoaded || (organization?.id && metrics === undefined)) {
     return (
       <div className="flex-1 flex items-center justify-center p-xl bg-background">
         <p className="text-on-surface-variant text-label-md font-label-md">
@@ -93,7 +94,8 @@ export const AnalyticsView = () => {
     );
   }
 
-  if (!organization?.id || !metrics) {
+  // No org selected (query was skipped)
+  if (!organization?.id) {
     return (
       <div className="flex-1 flex items-center justify-center p-xl bg-background">
         <p className="text-on-surface-variant text-label-md font-label-md">
