@@ -31,11 +31,11 @@ export default function LandingPage() {
       const mainGroup = new THREE.Group();
       scene.add(mainGroup);
 
-      // Central Core
+      // Central Core — green tint
       const coreGeo = new THREE.IcosahedronGeometry(1.2, 15);
       const coreMat = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
-        emissive: 0xffffff,
+        color: 0x00e676,
+        emissive: 0x00e676,
         emissiveIntensity: 0.8,
         transparent: true,
         opacity: 0.9,
@@ -46,9 +46,9 @@ export default function LandingPage() {
       // Core Halo
       const haloGeo = new THREE.SphereGeometry(1.4, 32, 32);
       const haloMat = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: 0x00c853,
         transparent: true,
-        opacity: 0.1,
+        opacity: 0.12,
         side: THREE.BackSide,
       });
       mainGroup.add(new THREE.Mesh(haloGeo, haloMat));
@@ -59,9 +59,9 @@ export default function LandingPage() {
         const radius = 2.5 + i * 0.8;
         const ringGeo = new THREE.TorusGeometry(radius, 0.005, 16, 128);
         const ringMat = new THREE.MeshBasicMaterial({
-          color: 0xffffff,
+          color: 0x69f0ae,
           transparent: true,
-          opacity: 0.15 - i * 0.02,
+          opacity: 0.18 - i * 0.02,
         });
         const ring = new THREE.Mesh(ringGeo, ringMat);
         ring.rotation.x = Math.random() * Math.PI;
@@ -101,11 +101,11 @@ export default function LandingPage() {
       partGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
       const points = new THREE.Points(
         partGeo,
-        new THREE.PointsMaterial({ color: 0xffffff, size: 0.015, transparent: true, opacity: 0.3 })
+        new THREE.PointsMaterial({ color: 0x69f0ae, size: 0.015, transparent: true, opacity: 0.3 })
       );
       scene.add(points);
 
-      scene.add(Object.assign(new THREE.PointLight(0xffffff, 2, 20), { position: { x: 5, y: 5, z: 5 } }));
+      scene.add(Object.assign(new THREE.PointLight(0x00e676, 2, 20), { position: { x: 5, y: 5, z: 5 } }));
       scene.add(Object.assign(new THREE.PointLight(0xffffff, 1, 20), { position: { x: -5, y: -5, z: 5 } }));
 
       let mouseX = 0, mouseY = 0;
@@ -148,7 +148,6 @@ export default function LandingPage() {
       };
       window.addEventListener("resize", onResize);
 
-      // Store cleanup refs on the script element
       (script as any).__cleanup = () => {
         cancelAnimationFrame(animId);
         window.removeEventListener("mousemove", onMouseMove);
@@ -168,7 +167,7 @@ export default function LandingPage() {
   return (
     <div
       style={{
-        backgroundColor: "#0d0e0f",
+        backgroundColor: "#080a08",
         color: "#ffffff",
         fontFamily: "'Geist', sans-serif",
         overflowX: "hidden",
@@ -199,47 +198,159 @@ export default function LandingPage() {
         .anim-4 { animation: fadeInUp 0.8s ease-out 0.3s forwards; opacity: 0; }
         .anim-5 { animation: fadeInUp 0.8s ease-out 0.4s forwards; opacity: 0; }
 
-        .feature-box {
-          background: #1b1c1c;
-          border: 1px solid #343535;
-          transition: all 0.3s ease;
-        }
-        .feature-box:hover {
-          border-color: #8e9192;
-          background: #1f2020;
+        @keyframes scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
         }
 
+        @keyframes glowPulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(0,230,118,0.3), 0 0 40px rgba(0,230,118,0.1); }
+          50% { box-shadow: 0 0 40px rgba(0,230,118,0.6), 0 0 80px rgba(0,230,118,0.2); }
+        }
+
+        @keyframes borderFlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .feature-box {
+          background: #0f110f;
+          border: 1px solid #1a2e1a;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .feature-box::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(0,230,118,0.03) 0%, transparent 60%);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .feature-box:hover {
+          border-color: rgba(0,230,118,0.4);
+          background: #111811;
+        }
+        .feature-box:hover::before { opacity: 1; }
+
         .glass-card {
-          background: rgba(27,28,28,0.6);
+          background: rgba(10,14,10,0.8);
           backdrop-filter: blur(12px);
-          border: 1px solid rgba(68,71,72,0.4);
+          border: 1px solid rgba(0,230,118,0.15);
         }
 
         .mesh-grid {
-          background-image: linear-gradient(#444748 1px, transparent 1px),
-                            linear-gradient(90deg, #444748 1px, transparent 1px);
+          background-image: linear-gradient(rgba(0,230,118,0.04) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(0,230,118,0.04) 1px, transparent 1px);
           background-size: 40px 40px;
-          opacity: 0.05;
         }
 
-        .grayscale-int { filter: grayscale(1); transition: filter 0.3s; }
-        .grayscale-int:hover { filter: grayscale(0); }
+        .grayscale-int { filter: grayscale(1) brightness(0.6); transition: filter 0.3s; }
+        .grayscale-int:hover { filter: grayscale(0) brightness(1); }
 
         .void-gradient {
-          background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%);
+          background: radial-gradient(circle at 50% 50%, rgba(0,230,118,0.06) 0%, rgba(0,0,0,0) 70%);
         }
 
         .nav-link {
           font-family: 'JetBrains Mono', monospace;
           font-size: 13px;
           font-weight: 500;
-          color: #c4c7c8;
+          color: rgba(255,255,255,0.5);
           text-decoration: none;
           transition: color 0.2s;
           cursor: pointer;
         }
-        .nav-link:hover { color: #ffffff; }
-        .nav-link-active { color: #ffffff; border-bottom: 1px solid #ffffff; }
+        .nav-link:hover { color: #00e676; }
+        .nav-link-active { color: #00e676; border-bottom: 1px solid #00e676; }
+
+        .green-btn {
+          display: inline-block;
+          background: #00e676;
+          color: #080a08;
+          padding: 16px 32px;
+          font-family: 'Geist', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          border-radius: 2px;
+          text-decoration: none;
+          transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+          animation: glowPulse 3s ease-in-out infinite;
+        }
+        .green-btn:hover {
+          background: #69f0ae;
+          transform: translateY(-2px);
+        }
+
+        .outline-btn {
+          display: inline-block;
+          background: transparent;
+          color: #ffffff;
+          border: 1px solid rgba(0,230,118,0.4);
+          padding: 16px 32px;
+          font-family: 'Geist', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          border-radius: 2px;
+          text-decoration: none;
+          cursor: pointer;
+          transition: border-color 0.2s, color 0.2s;
+        }
+        .outline-btn:hover { border-color: #00e676; color: #00e676; }
+
+        .stat-card {
+          background: #0f110f;
+          border: 1px solid #1a2e1a;
+          padding: 24px;
+          text-align: center;
+          transition: border-color 0.3s;
+        }
+        .stat-card:hover { border-color: rgba(0,230,118,0.4); }
+
+        .integration-icon {
+          width: 64px;
+          height: 64px;
+          background: #0f110f;
+          border: 1px solid #1a2e1a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          transition: border-color 0.3s;
+        }
+        .grayscale-int:hover .integration-icon { border-color: #00e676; }
+
+        .terminal-cursor {
+          display: inline-block;
+          width: 8px;
+          height: 16px;
+          background: #00e676;
+          animation: blink 1s step-end infinite;
+          vertical-align: middle;
+          margin-left: 2px;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+
+        .section-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border: 1px solid rgba(0,230,118,0.3);
+          background: rgba(0,230,118,0.06);
+          padding: 4px 12px;
+          margin-bottom: 24px;
+        }
+
+        .divider-green {
+          border: none;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(0,230,118,0.3), transparent);
+        }
       `}</style>
 
       {/* ── NAV ── */}
@@ -249,9 +360,9 @@ export default function LandingPage() {
           top: 0,
           width: "100%",
           zIndex: 50,
-          backgroundColor: "rgba(18,20,20,0.8)",
+          backgroundColor: "rgba(8,10,8,0.85)",
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(68,71,72,0.3)",
+          borderBottom: "1px solid rgba(0,230,118,0.12)",
         }}
       >
         <div
@@ -274,9 +385,11 @@ export default function LandingPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                background: "linear-gradient(135deg, #00e676 0%, #00c853 100%)",
+                borderRadius: "6px",
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 24 }}>diamond</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#080a08" }}>diamond</span>
             </div>
             <span
               style={{
@@ -307,7 +420,7 @@ export default function LandingPage() {
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: 13,
-                  color: "#c4c7c8",
+                  color: "rgba(255,255,255,0.5)",
                   textDecoration: "none",
                   transition: "color 0.2s",
                 }}
@@ -317,15 +430,15 @@ export default function LandingPage() {
               <Link
                 href="/sign-up"
                 style={{
-                  backgroundColor: "#ffffff",
-                  color: "#121414",
+                  backgroundColor: "#00e676",
+                  color: "#080a08",
                   padding: "8px 16px",
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: 13,
-                  fontWeight: 500,
+                  fontWeight: 700,
                   borderRadius: "2px",
                   textDecoration: "none",
-                  transition: "opacity 0.2s",
+                  transition: "background 0.2s",
                 }}
               >
                 Deploy Now
@@ -335,12 +448,12 @@ export default function LandingPage() {
               <Link
                 href="/conversations"
                 style={{
-                  backgroundColor: "#ffffff",
-                  color: "#121414",
+                  backgroundColor: "#00e676",
+                  color: "#080a08",
                   padding: "8px 16px",
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: 13,
-                  fontWeight: 500,
+                  fontWeight: 700,
                   borderRadius: "2px",
                   textDecoration: "none",
                 }}
@@ -363,7 +476,28 @@ export default function LandingPage() {
           overflow: "hidden",
         }}
       >
-        <div className="void-gradient" style={{ position: "absolute", inset: 0, zIndex: 0, opacity: 0.5 }} />
+        {/* Background grid */}
+        <div
+          className="mesh-grid"
+          style={{ position: "absolute", inset: 0, zIndex: 0 }}
+        />
+        <div className="void-gradient" style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0.8 }} />
+
+        {/* Green glow orb */}
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            right: "10%",
+            width: 400,
+            height: 400,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(0,230,118,0.08) 0%, transparent 70%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
         <div
           style={{
             position: "relative",
@@ -385,24 +519,14 @@ export default function LandingPage() {
             {/* Left copy */}
             <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               <div className="anim-1">
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    backgroundColor: "#1f2020",
-                    border: "1px solid #444748",
-                    padding: "4px 12px",
-                    borderRadius: "999px",
-                  }}
-                >
+                <div className="section-tag">
                   <span
                     style={{
                       width: 8,
                       height: 8,
                       borderRadius: "50%",
-                      backgroundColor: "#aec6ff",
-                      boxShadow: "0 0 8px rgba(174,198,255,0.8)",
+                      backgroundColor: "#00e676",
+                      boxShadow: "0 0 8px rgba(0,230,118,0.8)",
                       display: "inline-block",
                     }}
                   />
@@ -411,7 +535,7 @@ export default function LandingPage() {
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: 11,
                       fontWeight: 500,
-                      color: "#c4c7c8",
+                      color: "#00e676",
                       textTransform: "uppercase",
                       letterSpacing: "0.15em",
                     }}
@@ -434,7 +558,7 @@ export default function LandingPage() {
                 }}
               >
                 Conversational Commerce,<br />
-                <span style={{ color: "#c4c7c8" }}>Synchronized.</span>
+                <span style={{ color: "#00e676" }}>Synchronized.</span>
               </h1>
 
               <p
@@ -443,7 +567,7 @@ export default function LandingPage() {
                   fontFamily: "'Geist', sans-serif",
                   fontSize: 18,
                   lineHeight: "28px",
-                  color: "#c4c7c8",
+                  color: "rgba(255,255,255,0.55)",
                   margin: 0,
                   maxWidth: "480px",
                 }}
@@ -455,42 +579,30 @@ export default function LandingPage() {
                 className="anim-4"
                 style={{ display: "flex", gap: "16px", paddingTop: "8px", flexWrap: "wrap" }}
               >
-                <Link
-                  href="/sign-up"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    color: "#121414",
-                    padding: "16px 32px",
-                    fontFamily: "'Geist', sans-serif",
-                    fontSize: 16,
-                    fontWeight: 700,
-                    borderRadius: "2px",
-                    textDecoration: "none",
-                    transition: "background 0.2s",
-                  }}
-                >
+                <Link href="/sign-up" className="green-btn">
                   Deploy for Free
                 </Link>
-                <button
-                  style={{
-                    backgroundColor: "transparent",
-                    color: "#ffffff",
-                    border: "1px solid #444748",
-                    padding: "16px 32px",
-                    fontFamily: "'Geist', sans-serif",
-                    fontSize: 16,
-                    fontWeight: 700,
-                    borderRadius: "2px",
-                    cursor: "pointer",
-                    transition: "border-color 0.2s",
-                  }}
-                >
+                <button className="outline-btn">
                   View Docs
                 </button>
               </div>
+
+              {/* Trust badges */}
+              <div className="anim-5" style={{ display: "flex", gap: "24px", paddingTop: "8px", flexWrap: "wrap" }}>
+                {[
+                  { icon: "verified", label: "SOC 2 Ready" },
+                  { icon: "bolt", label: "99.9% Uptime" },
+                  { icon: "language", label: "40+ Languages" },
+                ].map((b) => (
+                  <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: "#00e676" }}>{b.icon}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{b.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Right — Three.js */}
+            {/* Right — Three.js (FUNCTIONALITY UNCHANGED) */}
             <div
               className="anim-5"
               style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
@@ -504,27 +616,42 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <hr className="divider-green" />
+
+      {/* ── STATS STRIP ── */}
+      <section style={{ padding: "40px 0", backgroundColor: "#0a0d0a" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "24px" }}>
+            {[
+              { icon: "group", value: "12K+", label: "Businesses Served" },
+              { icon: "chat", value: "4.8M", label: "Conversations / Month" },
+              { icon: "language", value: "40+", label: "Languages Supported" },
+              { icon: "trending_up", value: "99.9%", label: "Uptime SLA" },
+            ].map((s) => (
+              <div key={s.label} className="stat-card">
+                <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#00e676", marginBottom: "8px", display: "block" }}>{s.icon}</span>
+                <div style={{ fontFamily: "'Geist', sans-serif", fontSize: 32, fontWeight: 700, color: "#fff", marginBottom: "4px" }}>{s.value}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <hr className="divider-green" />
+
       {/* ── FEATURES GRID ── */}
-      <section style={{ padding: "80px 0", backgroundColor: "#121414" }}>
+      <section style={{ padding: "80px 0", backgroundColor: "#0d100d" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 32px" }}>
           <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 64px" }}>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                border: "1px solid #444748",
-                padding: "4px 12px",
-                marginBottom: "24px",
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>diamond</span>
+            <div className="section-tag" style={{ justifyContent: "center", margin: "0 auto 24px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#00e676" }}>diamond</span>
               <span
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: 11,
                   fontWeight: 500,
-                  color: "#c4c7c8",
+                  color: "#00e676",
                   textTransform: "uppercase",
                   letterSpacing: "0.15em",
                 }}
@@ -544,7 +671,7 @@ export default function LandingPage() {
             >
               Unified Commerce Engine
             </h2>
-            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "#c4c7c8", lineHeight: "24px" }}>
+            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: "24px" }}>
               Experience the full power of synchronized intelligence with our core feature suite.
             </p>
           </div>
@@ -569,15 +696,15 @@ export default function LandingPage() {
                   style={{
                     width: 40,
                     height: 40,
-                    backgroundColor: "#1f2020",
-                    border: "1px solid #444748",
+                    backgroundColor: "rgba(0,230,118,0.08)",
+                    border: "1px solid rgba(0,230,118,0.2)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: "8px",
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#fff" }}>{f.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#00e676" }}>{f.icon}</span>
                 </div>
                 <div>
                   <h3
@@ -591,7 +718,7 @@ export default function LandingPage() {
                   >
                     {f.title}
                   </h3>
-                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "#c4c7c8", lineHeight: "20px" }}>
+                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: "20px" }}>
                     {f.desc}
                   </p>
                 </div>
@@ -601,13 +728,15 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <hr className="divider-green" />
+
       {/* ── LIVE DEMO ── */}
       <section
         style={{
           padding: "80px 0",
-          backgroundColor: "#0d0e0f",
-          borderTop: "1px solid rgba(68,71,72,0.2)",
-          borderBottom: "1px solid rgba(68,71,72,0.2)",
+          backgroundColor: "#080a08",
+          borderTop: "1px solid rgba(0,230,118,0.06)",
+          borderBottom: "1px solid rgba(0,230,118,0.06)",
         }}
       >
         <div style={{ maxWidth: "896px", margin: "0 auto", padding: "0 32px" }}>
@@ -618,7 +747,7 @@ export default function LandingPage() {
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: 13,
                 fontWeight: 500,
-                color: "#aec6ff",
+                color: "#00e676",
                 textTransform: "uppercase",
                 letterSpacing: "0.15em",
                 marginBottom: "8px",
@@ -639,13 +768,13 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="glass-card" style={{ borderRadius: "12px", overflow: "hidden", boxShadow: "0 25px 50px rgba(0,0,0,0.5)" }}>
+          <div className="glass-card" style={{ borderRadius: "12px", overflow: "hidden", boxShadow: "0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(0,230,118,0.04)" }}>
             {/* Chat header */}
             <div
               style={{
-                backgroundColor: "#292a2a",
+                backgroundColor: "#0f110f",
                 padding: "16px 24px",
-                borderBottom: "1px solid #444748",
+                borderBottom: "1px solid rgba(0,230,118,0.12)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -657,32 +786,36 @@ export default function LandingPage() {
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    backgroundColor: "#fff",
+                    background: "linear-gradient(135deg, #00e676, #00c853)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#121414" }}>bolt</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#080a08" }}>bolt</span>
                 </div>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#fff" }}>
                   Zephyra AI Assistant
                 </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#00e676", boxShadow: "0 0 6px rgba(0,230,118,0.8)" }} />
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#00e676", textTransform: "uppercase", letterSpacing: "0.1em" }}>Online</span>
+                </div>
               </div>
               <div style={{ display: "flex", gap: "8px" }}>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#444748" }} />
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#444748" }} />
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#1a2e1a", border: "1px solid #00e676" }} />
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#1a2e1a" }} />
               </div>
             </div>
 
             {/* Chat body */}
-            <div style={{ padding: "32px", minHeight: "400px", backgroundColor: "#090909", display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div style={{ padding: "32px", minHeight: "400px", backgroundColor: "#060806", display: "flex", flexDirection: "column", gap: "24px" }}>
               {/* User message */}
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <div
                   style={{
-                    backgroundColor: "#1f2020",
-                    border: "1px solid #444748",
+                    backgroundColor: "#0f110f",
+                    border: "1px solid rgba(0,230,118,0.15)",
                     padding: "16px",
                     borderRadius: "8px 8px 0 8px",
                     maxWidth: "80%",
@@ -699,41 +832,43 @@ export default function LandingPage() {
                 <div
                   style={{
                     backgroundColor: "#ffffff",
-                    color: "#121414",
+                    color: "#080a08",
                     padding: "16px",
                     borderRadius: "8px 8px 8px 0",
                     maxWidth: "80%",
-                    boxShadow: "0 4px 20px rgba(255,255,255,0.1)",
+                    boxShadow: "0 4px 20px rgba(0,230,118,0.15)",
+                    border: "1px solid rgba(0,230,118,0.3)",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#121414" }}>verified</span>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#00c853" }}>verified</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#00a847" }}>
                       In Stock
                     </span>
                   </div>
-                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, margin: 0 }}>
+                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, margin: 0, color: "#080a08" }}>
                     Yes! We have 4 left in stock in our primary warehouse. Would you like to add it to your cart or check for matching beanies?
                   </p>
                 </div>
               </div>
 
               {/* Actions */}
-              <div style={{ paddingTop: "24px", borderTop: "1px solid rgba(68,71,72,0.3)" }}>
+              <div style={{ paddingTop: "24px", borderTop: "1px solid rgba(0,230,118,0.08)" }}>
                 <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
                   {["Add to Cart", "Show Similar"].map((label) => (
                     <button
                       key={label}
                       style={{
-                        backgroundColor: "#1f2020",
-                        border: "1px solid #444748",
+                        backgroundColor: "rgba(0,230,118,0.08)",
+                        border: "1px solid rgba(0,230,118,0.25)",
                         padding: "4px 12px",
                         fontFamily: "'JetBrains Mono', monospace",
                         fontSize: 11,
                         fontWeight: 500,
-                        color: "#c4c7c8",
+                        color: "#00e676",
                         cursor: "pointer",
-                        transition: "border-color 0.2s",
+                        transition: "background 0.2s",
+                        borderRadius: "2px",
                       }}
                     >
                       {label}
@@ -745,16 +880,17 @@ export default function LandingPage() {
                     display: "flex",
                     gap: "16px",
                     alignItems: "center",
-                    backgroundColor: "#1b1c1c",
+                    backgroundColor: "#0f110f",
                     padding: "16px",
-                    border: "1px solid #444748",
+                    border: "1px solid rgba(0,230,118,0.1)",
+                    borderRadius: "4px",
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#8e9192" }}>sentiment_satisfied</span>
-                  <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(196,199,200,0.5)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "rgba(255,255,255,0.3)" }}>sentiment_satisfied</span>
+                  <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.3)" }}>
                     Type your question...
                   </span>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#fff", marginLeft: "auto" }}>send</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#00e676", marginLeft: "auto" }}>send</span>
                 </div>
               </div>
             </div>
@@ -762,8 +898,10 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <hr className="divider-green" />
+
       {/* ── INTEGRATIONS ── */}
-      <section style={{ padding: "80px 0", backgroundColor: "#121414" }}>
+      <section style={{ padding: "80px 0", backgroundColor: "#0d100d" }}>
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 32px" }}>
           <div
             style={{
@@ -788,7 +926,7 @@ export default function LandingPage() {
               >
                 Works where you do.
               </h2>
-              <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "#c4c7c8" }}>
+              <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.45)" }}>
                 Connect your favorite tools in minutes.
               </p>
             </div>
@@ -805,19 +943,8 @@ export default function LandingPage() {
                   className="grayscale-int"
                   style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer" }}
                 >
-                  <div
-                    style={{
-                      width: 64,
-                      height: 64,
-                      backgroundColor: "#121414",
-                      border: "1px solid #444748",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#fff" }}>{t.icon}</span>
+                  <div className="integration-icon">
+                    <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#00e676" }}>{t.icon}</span>
                   </div>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#fff" }}>
                     {t.label}
@@ -829,9 +956,38 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <hr className="divider-green" />
+
       {/* ── CTA ── */}
-      <section style={{ padding: "80px 0", position: "relative", overflow: "hidden" }}>
+      <section style={{ padding: "80px 0", position: "relative", overflow: "hidden", backgroundColor: "#080a08" }}>
+        {/* Background glow */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+            width: 600,
+            height: 400,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
         <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "80px 32px", textAlign: "center", position: "relative", zIndex: 10 }}>
+          <div
+            style={{
+              display: "inline-block",
+              padding: "4px 12px",
+              border: "1px solid rgba(0,230,118,0.3)",
+              background: "rgba(0,230,118,0.05)",
+              marginBottom: "24px",
+            }}
+          >
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#00e676", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+              No credit card required
+            </span>
+          </div>
           <h2
             style={{
               fontFamily: "'Geist', sans-serif",
@@ -844,21 +1000,13 @@ export default function LandingPage() {
           >
             Ready to scale your store&apos;s intelligence?
           </h2>
+          <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 18, color: "rgba(255,255,255,0.45)", marginBottom: "40px" }}>
+            Join 12,000+ businesses using Zephyra. Average setup time: under 15 minutes.
+          </p>
           <Link
             href="/sign-up"
-            style={{
-              display: "inline-block",
-              backgroundColor: "#ffffff",
-              color: "#121414",
-              padding: "24px 48px",
-              fontFamily: "'Geist', sans-serif",
-              fontSize: 18,
-              fontWeight: 700,
-              borderRadius: "2px",
-              textDecoration: "none",
-              boxShadow: "0 25px 50px rgba(0,0,0,0.4)",
-              transition: "transform 0.2s",
-            }}
+            className="green-btn"
+            style={{ fontSize: 18, padding: "24px 48px" }}
           >
             Get Started with Zephyra
           </Link>
@@ -867,7 +1015,7 @@ export default function LandingPage() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 13,
               fontWeight: 500,
-              color: "#c4c7c8",
+              color: "rgba(255,255,255,0.3)",
               marginTop: "32px",
               textTransform: "uppercase",
               letterSpacing: "0.15em",
@@ -878,13 +1026,15 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <hr className="divider-green" />
+
       {/* ── FOOTER ── */}
       <footer
         style={{
-          backgroundColor: "#0d0e0f",
+          backgroundColor: "#060806",
           width: "100%",
           padding: "80px 0",
-          borderTop: "1px solid rgba(68,71,72,0.2)",
+          borderTop: "1px solid rgba(0,230,118,0.08)",
         }}
       >
         <div
@@ -899,10 +1049,25 @@ export default function LandingPage() {
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#fff" }}>diamond</span>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  background: "linear-gradient(135deg, #00e676, #00c853)",
+                  borderRadius: "5px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#080a08" }}>diamond</span>
+              </div>
               <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 22, fontWeight: 700, color: "#fff" }}>Zephyra</span>
             </div>
-            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "#c4c7c8" }}>
+            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.35)", lineHeight: "20px" }}>
+              AI-powered conversational platform for businesses that demand results.
+            </p>
+            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.25)" }}>
               © 2024 Zephyra Inc. All rights reserved.
             </p>
           </div>
@@ -922,7 +1087,7 @@ export default function LandingPage() {
             },
           ].map((col) => (
             <div key={col.heading} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#fff", marginBottom: "8px" }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#00e676", marginBottom: "8px" }}>
                 {col.heading}
               </span>
               {col.links.map((l) => (
@@ -932,7 +1097,7 @@ export default function LandingPage() {
                   style={{
                     fontFamily: "'Geist', sans-serif",
                     fontSize: 14,
-                    color: "#c4c7c8",
+                    color: "rgba(255,255,255,0.35)",
                     textDecoration: "none",
                     transition: "color 0.2s",
                   }}

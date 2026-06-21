@@ -80,7 +80,7 @@ export const AnalyticsView = () => {
   const { organization, isLoaded } = useOrganization();
   const metrics = useQuery(
     api.private.analytics.getMetrics,
-    organization?.id ? { organizationId: organization.id } : undefined,
+    organization?.id ? { organizationId: organization.id } : "skip",
   );
 
   if (!isLoaded || metrics === undefined) {
