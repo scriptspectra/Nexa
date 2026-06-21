@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/web-push": "^3.6.4",
     "@workspace/typescript-config": "workspace:*",
     "typescript": "latest"
   },
@@ -28,6 +29,7 @@
     "convex": "^1.25.4",
     "convex-helpers": "^0.1.100",
     "svix": "^1.73.0",
+    "web-push": "^3.6.7",
     "zod": "3.25.67"
   }
 }

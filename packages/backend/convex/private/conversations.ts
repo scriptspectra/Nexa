@@ -62,6 +62,15 @@ export const updateStatus = mutation({
       resourceId: args.conversationId,
     });
 
+    await ctx.scheduler.runAfter(0, internal.private.webhooks.dispatchEventAction, {
+      organizationId: orgId,
+      eventType: "conversation.updated",
+      payload: {
+        conversationId: args.conversationId,
+        status: args.status,
+      },
+    });
+
     // ── Send escalation email to the end-user ─────────────────────────────────
     if (args.status === "escalated") {
       const contactSession = await ctx.db.get(conversation.contactSessionId);
@@ -315,6 +324,25 @@ export const assign = mutation({
       resourceType: "conversation",
       resourceId: args.conversationId,
     });
+
+    await ctx.scheduler.runAfter(0, internal.private.webhooks.dispatchEventAction, {
+      organizationId: orgId,
+      eventType: "conversation.updated",
+      payload: {
+        conversationId: args.conversationId,
+        assignedToUserId: args.assignedToUserId,
+        assignedToName: args.assignedToName,
+      },
+    });
+
+    if (args.assignedToUserId) {
+      await ctx.scheduler.runAfter(0, internal.private.pushAction.sendNotificationAction, {
+        userIds: [args.assignedToUserId],
+        title: "Conversation Assigned",
+        body: `You have been assigned conversation ${args.conversationId}`,
+        url: `/conversations/${args.conversationId}`,
+      });
+    }
   },
 });
 

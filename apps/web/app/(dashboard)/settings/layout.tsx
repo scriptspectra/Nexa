@@ -7,6 +7,7 @@ const SETTINGS_TABS = [
   { href: "/settings/sla", label: "SLA Config" },
   { href: "/settings/audit-log", label: "Audit Log" },
   { href: "/settings/api-keys", label: "API Keys" },
+  { href: "/settings/webhooks", label: "Webhooks" },
 ];
 
 export default function SettingsLayout({

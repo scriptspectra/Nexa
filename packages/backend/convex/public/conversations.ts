@@ -144,6 +144,12 @@ export const create = mutation({
       threadId,
     });
 
+    await ctx.scheduler.runAfter(0, internal.private.webhooks.dispatchEventAction, {
+      organizationId: args.organizationId,
+      eventType: "conversation.created",
+      payload: { conversationId },
+    });
+
     return conversationId;
   },
 });

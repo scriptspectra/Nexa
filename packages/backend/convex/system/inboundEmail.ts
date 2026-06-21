@@ -47,13 +47,19 @@ export const handleInboundEmail = internalMutation({
     if (!conversation) {
       // Create new conversation
       threadId = "thread_" + Math.random().toString(36).substring(2, 15);
-      await ctx.db.insert("conversations", {
+      const conversationId = await ctx.db.insert("conversations", {
         organizationId: args.orgId,
         contactSessionId: contactSession._id,
         threadId,
         status: "unresolved",
         channel: "email",
         externalId: args.subject, // Store subject as externalId for display or threading
+      });
+
+      await ctx.scheduler.runAfter(0, internal.private.webhooks.dispatchEventAction, {
+        organizationId: args.orgId,
+        eventType: "conversation.created",
+        payload: { conversationId },
       });
     } else {
       threadId = conversation.threadId;

@@ -199,6 +199,17 @@ export const create = mutation({
         content: args.prompt,
       },
     });
+
+    await ctx.scheduler.runAfter(0, internal.private.webhooks.dispatchEventAction, {
+      organizationId: orgId,
+      eventType: "message.created",
+      payload: {
+        conversationId: args.conversationId,
+        threadId: conversation.threadId,
+        role: "assistant",
+        text: args.prompt,
+      },
+    });
   },
 });
 

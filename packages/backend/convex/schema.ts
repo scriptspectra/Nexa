@@ -224,5 +224,14 @@ export default defineSchema({
   })
     .index("by_organization_and_month", ["organizationId", "month"]),
 
-
+  // Phase 6 — Push notifications
+  pushSubscriptions: defineTable({
+    userId: v.string(),
+    endpoint: v.string(),
+    keys: v.object({
+      p256dh: v.string(),
+      auth: v.string(),
+    }),
+  })
+    .index("by_user_id", ["userId"]),
 });
