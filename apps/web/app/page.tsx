@@ -1,1112 +1,955 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import {
+  MessageSquare,
+  BarChart3,
+  FileText,
+  Globe,
+  Smartphone,
+  CreditCard,
+  Bell,
+  Shield,
+  Plug,
+  Palette,
+  Key,
+  Activity,
+  Zap,
+  ChevronRight,
+  Check,
+  ArrowRight,
+  Twitter,
+  Github,
+  Linkedin,
+  Menu,
+  X,
+  Star,
+  TrendingUp,
+  Users,
+  Clock,
+} from "lucide-react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.1, ease: "easeOut" },
+  }),
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+function useSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  return { ref, inView };
+}
+
+const FEATURES = [
+  {
+    icon: MessageSquare,
+    title: "Unified Conversational Dashboard",
+    desc: "Real-time metrics on AI-driven conversations — total chats, response latency, sentiment trends — all in one view.",
+  },
+  {
+    icon: BarChart3,
+    title: "AI-Generated Insights & Heatmaps",
+    desc: "Visual heatmaps of user activity, automatic detection of peak usage windows, and AI-summarized recommendations.",
+  },
+  {
+    icon: FileText,
+    title: "One-Click PDF Export",
+    desc: "Generate a ready-to-share analytics report in seconds. Perfect for quarterly business reviews or client deliverables.",
+  },
+  {
+    icon: Globe,
+    title: "Multilingual & Voice Support",
+    desc: "Ingest and respond in multiple languages, with an optional Vapi voice-agent for phone-based interactions.",
+  },
+  {
+    icon: Smartphone,
+    title: "PWA — Install Anywhere",
+    desc: "Users can add Zephyra to their home screen and work offline. Drives higher retention and reduces churn.",
+  },
+  {
+    icon: CreditCard,
+    title: "Scalable SaaS Billing",
+    desc: "Tiered pricing with automatic invoice generation, Lemon Squeezy checkout, and seamless seat-based scaling.",
+  },
+  {
+    icon: Bell,
+    title: "Usage-Based Quotas & Alerts",
+    desc: "Real-time usage stats with visual progress bars. Admins receive alerts when limits approach, preventing overages.",
+  },
+  {
+    icon: Shield,
+    title: "Secure Organizational Guardrails",
+    desc: "AuthGuard + OrganizationGuard enforce per-org isolation, ensuring data privacy and SOC 2-ready compliance.",
+  },
+  {
+    icon: Plug,
+    title: "Shopify & 3rd-Party Integrations",
+    desc: "Plug-and-play Shopify sync with a plugin framework for future CRM and marketing tool extensions.",
+  },
+  {
+    icon: Palette,
+    title: "Customizable Branding & Theme",
+    desc: "Adjust colors, fonts, and logo via the Customization module for full white-label deployments.",
+  },
+  {
+    icon: Key,
+    title: "Audit Log & API-Key Management",
+    desc: "Fine-grained API keys with scope controls, plus a full audit trail for compliance and security audits.",
+  },
+  {
+    icon: Activity,
+    title: "SLA & Incident Dashboard",
+    desc: "Real-time SLA status, incident history, and automated escalation hooks keep service commitments transparent.",
+  },
+];
+
+const STEPS = [
+  {
+    num: "01",
+    title: "Connect Your Channels",
+    desc: "Integrate Zephyra with your existing platforms in minutes using our plug-and-play connector library.",
+  },
+  {
+    num: "02",
+    title: "Configure Your AI",
+    desc: "Tune conversation flows, set guardrails, and personalise your brand's voice — no engineering required.",
+  },
+  {
+    num: "03",
+    title: "Launch & Monitor",
+    desc: "Go live instantly and watch the unified dashboard surface insights, anomalies, and growth opportunities.",
+  },
+  {
+    num: "04",
+    title: "Scale on Demand",
+    desc: "Upgrade seats and unlock advanced features as usage grows — the serverless backend scales automatically.",
+  },
+];
+
+const PLANS = [
+  {
+    name: "Starter",
+    price: "$0",
+    period: "/ month",
+    highlight: false,
+    features: [
+      "Up to 500 AI conversations",
+      "1 workspace",
+      "Basic analytics dashboard",
+      "Community support",
+      "PWA access",
+    ],
+    cta: "Get Started Free",
+    href: "/sign-up",
+  },
+  {
+    name: "Professional",
+    price: "$19",
+    period: "/ month",
+    highlight: true,
+    features: [
+      "Unlimited conversations",
+      "10 workspaces",
+      "AI heatmaps & insights",
+      "PDF export & reporting",
+      "Multilingual + Voice support",
+      "Shopify & CRM integrations",
+      "Priority support",
+      "Audit log & API keys",
+    ],
+    cta: "Start Free Trial",
+    href: "/sign-up",
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    highlight: false,
+    features: [
+      "Everything in Professional",
+      "Unlimited seats",
+      "White-label branding",
+      "SLA dashboard",
+      "SSO & SAML",
+      "Dedicated success manager",
+    ],
+    cta: "Contact Sales",
+    href: "/sign-up",
+  },
+];
+
+const STATS = [
+  { icon: Users, value: "12K+", label: "Businesses Served" },
+  { icon: MessageSquare, value: "4.8M", label: "Conversations / Month" },
+  { icon: Globe, value: "40+", label: "Languages Supported" },
+  { icon: TrendingUp, value: "99.9%", label: "Uptime SLA" },
+];
+
+function DashboardMockup() {
+  return (
+    <div className="relative w-full max-w-xl mx-auto">
+      <div
+        className="rounded-2xl border border-violet-500/20 bg-[#0d0d1a]/90 shadow-2xl shadow-violet-900/30 p-5 backdrop-blur-sm"
+        style={{ fontFamily: "system-ui" }}
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-3 h-3 rounded-full bg-red-500/70" />
+          <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+          <div className="w-3 h-3 rounded-full bg-green-500/70" />
+          <span className="ml-2 text-xs text-violet-300/60">
+            Zephyra Dashboard
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {[
+            { label: "Total Chats", val: "48.2K", delta: "+24%" },
+            { label: "Avg Latency", val: "1.2s", delta: "-18%" },
+            { label: "Sentiment", val: "94%", delta: "+7%" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="rounded-lg bg-violet-600/10 border border-violet-500/20 p-3"
+            >
+              <div className="text-[10px] text-violet-300/60 mb-1">
+                {s.label}
+              </div>
+              <div className="text-lg font-bold text-white">{s.val}</div>
+              <div className="text-[10px] text-emerald-400">{s.delta}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-lg bg-violet-600/5 border border-violet-500/15 p-3 mb-3">
+          <div className="text-[10px] text-violet-300/50 mb-2">
+            Conversation Volume
+          </div>
+          <div className="flex items-end gap-1 h-16">
+            {[40, 65, 45, 80, 60, 90, 75, 100, 85, 95, 70, 88].map(
+              (h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t"
+                  style={{
+                    height: `${h}%`,
+                    background: `linear-gradient(to top, #7c3aed, #a78bfa)`,
+                    opacity: 0.5 + (i / 12) * 0.5,
+                  }}
+                />
+              )
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg bg-violet-600/5 border border-violet-500/15 p-3">
+            <div className="text-[10px] text-violet-300/50 mb-1">
+              Usage Quota
+            </div>
+            <div className="w-full bg-violet-900/40 rounded-full h-2 mb-1">
+              <div
+                className="bg-gradient-to-r from-violet-500 to-cyan-400 h-2 rounded-full"
+                style={{ width: "68%" }}
+              />
+            </div>
+            <div className="text-[10px] text-violet-300/70">
+              3,400 / 5,000 runs
+            </div>
+          </div>
+          <div className="rounded-lg bg-violet-600/5 border border-violet-500/15 p-3">
+            <div className="text-[10px] text-violet-300/50 mb-1">
+              Languages Active
+            </div>
+            <div className="flex gap-1 flex-wrap mt-1">
+              {["EN", "ES", "FR", "DE", "JP"].map((l) => (
+                <span
+                  key={l}
+                  className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                >
+                  {l}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute -top-6 -right-6 w-36 h-24 rounded-xl border border-cyan-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-cyan-900/20 p-3 backdrop-blur-sm">
+        <div className="text-[9px] text-cyan-300/60 mb-1">AI Sentiment</div>
+        <div className="text-2xl font-bold text-white">82%</div>
+        <div className="text-[9px] text-emerald-400">Positive</div>
+        <div className="w-full bg-cyan-900/30 rounded-full h-1.5 mt-2">
+          <div
+            className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-1.5 rounded-full"
+            style={{ width: "82%" }}
+          />
+        </div>
+      </div>
+
+      <div className="absolute -bottom-4 -left-6 w-32 h-20 rounded-xl border border-violet-500/25 bg-[#0d0d1a]/90 shadow-lg shadow-violet-900/20 p-3 backdrop-blur-sm">
+        <div className="text-[9px] text-violet-300/60 mb-1">SLA Status</div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-xs font-semibold text-white">Operational</span>
+        </div>
+        <div className="text-[9px] text-emerald-400 mt-1">99.9% uptime</div>
+      </div>
+    </div>
+  );
+}
 
 export default function LandingPage() {
-  const threeRef = useRef<HTMLDivElement>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    if (!threeRef.current) return;
-    const container = threeRef.current;
-
-    // Dynamically load Three.js from CDN to avoid bundling issues
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
-    script.onload = () => {
-      const THREE = (window as any).THREE;
-      const width = container.clientWidth || 600;
-      const height = container.clientHeight || 600;
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.z = 10;
-
-      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
-
-      const mainGroup = new THREE.Group();
-      scene.add(mainGroup);
-
-      // Central Core — green tint
-      const coreGeo = new THREE.IcosahedronGeometry(1.2, 15);
-      const coreMat = new THREE.MeshPhongMaterial({
-        color: 0x00e676,
-        emissive: 0x00e676,
-        emissiveIntensity: 0.8,
-        transparent: true,
-        opacity: 0.9,
-      });
-      const core = new THREE.Mesh(coreGeo, coreMat);
-      mainGroup.add(core);
-
-      // Core Halo
-      const haloGeo = new THREE.SphereGeometry(1.4, 32, 32);
-      const haloMat = new THREE.MeshBasicMaterial({
-        color: 0x00c853,
-        transparent: true,
-        opacity: 0.12,
-        side: THREE.BackSide,
-      });
-      mainGroup.add(new THREE.Mesh(haloGeo, haloMat));
-
-      // Orbital Rings
-      const rings: any[] = [];
-      for (let i = 0; i < 5; i++) {
-        const radius = 2.5 + i * 0.8;
-        const ringGeo = new THREE.TorusGeometry(radius, 0.005, 16, 128);
-        const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x69f0ae,
-          transparent: true,
-          opacity: 0.18 - i * 0.02,
-        });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.random() * Math.PI;
-        ring.rotation.y = Math.random() * Math.PI;
-        mainGroup.add(ring);
-        rings.push({
-          mesh: ring,
-          speedX: (Math.random() - 0.5) * 0.005,
-          speedY: (Math.random() - 0.5) * 0.005,
-          radius,
-        });
-      }
-
-      // Data Packets
-      const packets: any[] = [];
-      const packetGeo = new THREE.SphereGeometry(0.025, 8, 8);
-      const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      for (let i = 0; i < 40; i++) {
-        const packet = new THREE.Mesh(packetGeo, packetMat);
-        const orbit = rings[Math.floor(Math.random() * rings.length)];
-        mainGroup.add(packet);
-        packets.push({ mesh: packet, orbit, angle: Math.random() * Math.PI * 2, speed: 0.01 + Math.random() * 0.02 });
-      }
-
-      // Particle Cloud
-      const partCount = 1000;
-      const partGeo = new THREE.BufferGeometry();
-      const positions = new Float32Array(partCount * 3);
-      for (let i = 0; i < partCount; i++) {
-        const r = 8 + Math.random() * 4;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-        positions[i * 3 + 2] = r * Math.cos(phi);
-      }
-      partGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      const points = new THREE.Points(
-        partGeo,
-        new THREE.PointsMaterial({ color: 0x69f0ae, size: 0.015, transparent: true, opacity: 0.3 })
-      );
-      scene.add(points);
-
-      scene.add(Object.assign(new THREE.PointLight(0x00e676, 2, 20), { position: { x: 5, y: 5, z: 5 } }));
-      scene.add(Object.assign(new THREE.PointLight(0xffffff, 1, 20), { position: { x: -5, y: -5, z: 5 } }));
-
-      let mouseX = 0, mouseY = 0;
-      const onMouseMove = (e: MouseEvent) => {
-        mouseX = (e.clientX - window.innerWidth / 2) / 500;
-        mouseY = (e.clientY - window.innerHeight / 2) / 500;
-      };
-      window.addEventListener("mousemove", onMouseMove);
-
-      let animId: number;
-      const animate = () => {
-        animId = requestAnimationFrame(animate);
-        const time = Date.now() * 0.001;
-        mainGroup.rotation.y += 0.002;
-        mainGroup.rotation.x += (mouseY - mainGroup.rotation.x) * 0.05;
-        mainGroup.rotation.z += (mouseX - mainGroup.rotation.z) * 0.05;
-        const pulse = 0.8 + Math.sin(time * 2) * 0.2;
-        core.scale.setScalar(pulse);
-        coreMat.emissiveIntensity = 0.5 + pulse * 0.5;
-        rings.forEach((r) => { r.mesh.rotation.x += r.speedX; r.mesh.rotation.y += r.speedY; });
-        packets.forEach((p) => {
-          p.angle += p.speed;
-          const x = Math.cos(p.angle) * p.orbit.radius;
-          const y = Math.sin(p.angle) * p.orbit.radius;
-          p.mesh.position.set(x, y, 0);
-          p.mesh.position.applyQuaternion(p.orbit.mesh.quaternion);
-          p.mesh.scale.setScalar(0.5 + Math.abs(Math.sin(time * 5 + p.angle)) * 1.5);
-        });
-        points.rotation.y -= 0.0005;
-        renderer.render(scene, camera);
-      };
-      animate();
-
-      const onResize = () => {
-        const w = container.clientWidth || 600;
-        const h = container.clientHeight || 600;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-      };
-      window.addEventListener("resize", onResize);
-
-      (script as any).__cleanup = () => {
-        cancelAnimationFrame(animId);
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("resize", onResize);
-        renderer.dispose();
-        if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
-      };
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      if ((script as any).__cleanup) (script as any).__cleanup();
-      if (document.head.contains(script)) document.head.removeChild(script);
-    };
-  }, []);
+  const heroSection = useSection();
+  const statsSection = useSection();
+  const featuresSection = useSection();
+  const howSection = useSection();
+  const pricingSection = useSection();
+  const ctaSection = useSection();
 
   return (
     <div
-      style={{
-        backgroundColor: "#080a08",
-        color: "#ffffff",
-        fontFamily: "'Geist', sans-serif",
-        overflowX: "hidden",
-        WebkitFontSmoothing: "antialiased",
-      }}
+      className="min-h-screen text-white overflow-x-hidden"
+      style={{ background: "#06060f" }}
     >
-      <style>{`
-        @import url('https://fonts.cdnfonts.com/css/geist');
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-
-        .material-symbols-outlined {
-          font-family: 'Material Symbols Outlined';
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-          font-size: inherit;
-          line-height: 1;
-          display: inline-block;
-          vertical-align: middle;
-        }
-
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .anim-1 { animation: fadeInUp 0.8s ease-out 0.0s forwards; opacity: 0; }
-        .anim-2 { animation: fadeInUp 0.8s ease-out 0.1s forwards; opacity: 0; }
-        .anim-3 { animation: fadeInUp 0.8s ease-out 0.2s forwards; opacity: 0; }
-        .anim-4 { animation: fadeInUp 0.8s ease-out 0.3s forwards; opacity: 0; }
-        .anim-5 { animation: fadeInUp 0.8s ease-out 0.4s forwards; opacity: 0; }
-
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100vh); }
-        }
-
-        @keyframes glowPulse {
-          0%, 100% { box-shadow: 0 0 20px rgba(0,230,118,0.3), 0 0 40px rgba(0,230,118,0.1); }
-          50% { box-shadow: 0 0 40px rgba(0,230,118,0.6), 0 0 80px rgba(0,230,118,0.2); }
-        }
-
-        @keyframes borderFlow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        .feature-box {
-          background: #0f110f;
-          border: 1px solid #1a2e1a;
-          transition: all 0.3s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        .feature-box::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(0,230,118,0.03) 0%, transparent 60%);
-          opacity: 0;
-          transition: opacity 0.3s;
-        }
-        .feature-box:hover {
-          border-color: rgba(0,230,118,0.4);
-          background: #111811;
-        }
-        .feature-box:hover::before { opacity: 1; }
-
-        .glass-card {
-          background: rgba(10,14,10,0.8);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(0,230,118,0.15);
-        }
-
-        .mesh-grid {
-          background-image: linear-gradient(rgba(0,230,118,0.04) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(0,230,118,0.04) 1px, transparent 1px);
-          background-size: 40px 40px;
-        }
-
-        .grayscale-int { filter: grayscale(1) brightness(0.6); transition: filter 0.3s; }
-        .grayscale-int:hover { filter: grayscale(0) brightness(1); }
-
-        .void-gradient {
-          background: radial-gradient(circle at 50% 50%, rgba(0,230,118,0.06) 0%, rgba(0,0,0,0) 70%);
-        }
-
-        .nav-link {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 13px;
-          font-weight: 500;
-          color: rgba(255,255,255,0.5);
-          text-decoration: none;
-          transition: color 0.2s;
-          cursor: pointer;
-        }
-        .nav-link:hover { color: #00e676; }
-        .nav-link-active { color: #00e676; border-bottom: 1px solid #00e676; }
-
-        .green-btn {
-          display: inline-block;
-          background: #00e676;
-          color: #080a08;
-          padding: 16px 32px;
-          font-family: 'Geist', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          border-radius: 2px;
-          text-decoration: none;
-          transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-          animation: glowPulse 3s ease-in-out infinite;
-        }
-        .green-btn:hover {
-          background: #69f0ae;
-          transform: translateY(-2px);
-        }
-
-        .outline-btn {
-          display: inline-block;
-          background: transparent;
-          color: #ffffff;
-          border: 1px solid rgba(0,230,118,0.4);
-          padding: 16px 32px;
-          font-family: 'Geist', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          border-radius: 2px;
-          text-decoration: none;
-          cursor: pointer;
-          transition: border-color 0.2s, color 0.2s;
-        }
-        .outline-btn:hover { border-color: #00e676; color: #00e676; }
-
-        .stat-card {
-          background: #0f110f;
-          border: 1px solid #1a2e1a;
-          padding: 24px;
-          text-align: center;
-          transition: border-color 0.3s;
-        }
-        .stat-card:hover { border-color: rgba(0,230,118,0.4); }
-
-        .integration-icon {
-          width: 64px;
-          height: 64px;
-          background: #0f110f;
-          border: 1px solid #1a2e1a;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 8px;
-          transition: border-color 0.3s;
-        }
-        .grayscale-int:hover .integration-icon { border-color: #00e676; }
-
-        .terminal-cursor {
-          display: inline-block;
-          width: 8px;
-          height: 16px;
-          background: #00e676;
-          animation: blink 1s step-end infinite;
-          vertical-align: middle;
-          margin-left: 2px;
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-
-        .section-tag {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          border: 1px solid rgba(0,230,118,0.3);
-          background: rgba(0,230,118,0.06);
-          padding: 4px 12px;
-          margin-bottom: 24px;
-        }
-
-        .divider-green {
-          border: none;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(0,230,118,0.3), transparent);
-        }
-      `}</style>
-
-      {/* ── NAV ── */}
-      <nav
+      <div
+        className="fixed inset-0 pointer-events-none"
         style={{
-          position: "fixed",
-          top: 0,
-          width: "100%",
-          zIndex: 50,
-          backgroundColor: "rgba(8,10,8,0.85)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(0,230,118,0.12)",
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.25) 0%, transparent 70%)",
         }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            height: "64px",
-            padding: "0 32px",
-            maxWidth: "1280px",
-            margin: "0 auto",
-          }}
-        >
-          {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "linear-gradient(135deg, #00e676 0%, #00c853 100%)",
-                borderRadius: "6px",
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#080a08" }}>diamond</span>
+      />
+
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#06060f]/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
             </div>
-            <span
-              style={{
-                fontFamily: "'Geist', sans-serif",
-                fontSize: 22,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                color: "#fff",
-              }}
-            >
-              Zephyra
-            </span>
+            <span className="text-xl font-bold tracking-tight">Zephyra</span>
           </div>
 
-          {/* Nav links */}
-          <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <a className="nav-link nav-link-active" href="#">Platform</a>
-            <a className="nav-link" href="#">Features</a>
-            <a className="nav-link" href="#">Integrations</a>
-            <a className="nav-link" href="#">Pricing</a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
+            {["Features", "How It Works", "Pricing", "About"].map((n) => (
+              <a
+                key={n}
+                href="#"
+                className="hover:text-white transition-colors duration-200"
+              >
+                {n}
+              </a>
+            ))}
           </div>
 
-          {/* Auth buttons — FUNCTIONALITY UNCHANGED */}
-          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          {/* Auth — FUNCTIONALITY PRESERVED */}
+          <div className="hidden md:flex items-center gap-3">
             <SignedOut>
               <Link
                 href="/sign-in"
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 13,
-                  color: "rgba(255,255,255,0.5)",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
+                className="text-sm text-white/60 hover:text-white transition-colors"
               >
-                Sign In
+                Sign in
               </Link>
               <Link
                 href="/sign-up"
-                style={{
-                  backgroundColor: "#00e676",
-                  color: "#080a08",
-                  padding: "8px 16px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  borderRadius: "2px",
-                  textDecoration: "none",
-                  transition: "background 0.2s",
-                }}
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 font-medium shadow-lg shadow-violet-900/30"
               >
-                Deploy Now
+                Start Free
               </Link>
             </SignedOut>
             <SignedIn>
               <Link
                 href="/conversations"
-                style={{
-                  backgroundColor: "#00e676",
-                  color: "#080a08",
-                  padding: "8px 16px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  borderRadius: "2px",
-                  textDecoration: "none",
-                }}
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 font-medium shadow-lg shadow-violet-900/30"
               >
                 Dashboard
               </Link>
             </SignedIn>
           </div>
+
+          <button
+            className="md:hidden p-2 text-white/60 hover:text-white"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {mobileOpen && (
+          <div className="md:hidden border-t border-white/5 bg-[#06060f]/95 px-6 py-4 flex flex-col gap-4">
+            {["Features", "How It Works", "Pricing", "About"].map((n) => (
+              <a
+                key={n}
+                href="#"
+                className="text-white/60 hover:text-white text-sm transition-colors"
+                onClick={() => setMobileOpen(false)}
+              >
+                {n}
+              </a>
+            ))}
+            <SignedOut>
+              <Link
+                href="/sign-up"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 text-center font-medium"
+                onClick={() => setMobileOpen(false)}
+              >
+                Start Free
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <Link
+                href="/conversations"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 text-center font-medium"
+                onClick={() => setMobileOpen(false)}
+              >
+                Dashboard
+              </Link>
+            </SignedIn>
+          </div>
+        )}
       </nav>
 
-      {/* ── HERO ── */}
-      <header
+      {/* HERO */}
+      <section
+        ref={heroSection.ref}
+        className="relative pt-32 pb-24 px-6 overflow-hidden"
+      >
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={heroSection.inView ? "visible" : "hidden"}
+          >
+            <motion.div
+              variants={fadeUp}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-medium mb-6"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              AI-Powered Conversational Platform
+            </motion.div>
+
+            <motion.h1
+              variants={fadeUp}
+              className="text-5xl lg:text-6xl font-extrabold leading-tight mb-6 tracking-tight"
+            >
+              Conversations that{" "}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%)",
+                }}
+              >
+                drive serious growth
+              </span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeUp}
+              className="text-lg text-white/50 leading-relaxed mb-8 max-w-lg"
+            >
+              From unified AI dashboards to multilingual voice support —
+              everything your business needs to engage customers, measure ROI,
+              and scale without limits.
+            </motion.p>
+
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-wrap items-center gap-4"
+            >
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 font-semibold transition-all duration-200 shadow-xl shadow-violet-900/40 hover:shadow-violet-700/40 hover:scale-105"
+              >
+                Start for Free
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <a
+                href="#"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 font-medium transition-all duration-200"
+              >
+                View Demo
+                <ChevronRight className="w-4 h-4" />
+              </a>
+            </motion.div>
+
+            <motion.div
+              variants={fadeUp}
+              className="flex items-center gap-3 mt-8"
+            >
+              <div className="flex -space-x-2">
+                {["#7c3aed", "#06b6d4", "#f43f5e", "#10b981"].map((c, i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full border-2 border-[#06060f] flex items-center justify-center text-xs font-bold"
+                    style={{ background: c }}
+                  >
+                    {["A", "B", "C", "D"][i]}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-white/40">
+                Trusted by 12K+ businesses
+              </span>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 30 }}
+            animate={
+              heroSection.inView
+                ? { opacity: 1, scale: 1, y: 0 }
+                : { opacity: 0, scale: 0.92, y: 30 }
+            }
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="relative"
+          >
+            <DashboardMockup />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section
+        ref={statsSection.ref}
+        className="py-16 px-6 border-y border-white/5"
+      >
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={statsSection.inView ? "visible" : "hidden"}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+          >
+            {STATS.map((s, i) => (
+              <motion.div
+                key={s.label}
+                variants={fadeUp}
+                custom={i}
+                className="text-center"
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 mb-3 mx-auto">
+                  <s.icon className="w-5 h-5 text-violet-400" />
+                </div>
+                <div className="text-3xl font-extrabold text-white mb-1">
+                  {s.value}
+                </div>
+                <div className="text-sm text-white/40">{s.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section ref={featuresSection.ref} className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={featuresSection.inView ? "visible" : "hidden"}
+            className="text-center mb-16"
+          >
+            <motion.div
+              variants={fadeUp}
+              className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3"
+            >
+              What We Deliver
+            </motion.div>
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl font-bold text-white mb-4"
+            >
+              Powerful features that grow your business
+            </motion.h2>
+            <motion.p
+              variants={fadeUp}
+              className="text-white/40 max-w-xl mx-auto text-lg"
+            >
+              15 enterprise-grade capabilities — already built in, ready to
+              activate.
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={featuresSection.inView ? "visible" : "hidden"}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
+          >
+            {FEATURES.map((f, i) => (
+              <motion.div
+                key={f.title}
+                variants={fadeUp}
+                custom={i}
+                whileHover={{ y: -4, scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+                className="group rounded-2xl border border-white/5 bg-white/[0.02] hover:border-violet-500/30 hover:bg-violet-500/5 p-6 transition-all duration-300 cursor-pointer"
+              >
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600/30 to-cyan-500/20 border border-violet-500/20 flex items-center justify-center mb-4 group-hover:from-violet-600/50 group-hover:to-cyan-500/30 transition-all duration-300">
+                  <f.icon className="w-5 h-5 text-violet-300" />
+                </div>
+                <h3 className="text-base font-semibold text-white mb-2">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-white/40 leading-relaxed">
+                  {f.desc}
+                </p>
+                <div className="mt-4 inline-flex items-center gap-1 text-xs text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  Learn more <ChevronRight className="w-3 h-3" />
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section
+        ref={howSection.ref}
+        className="py-24 px-6"
         style={{
-          position: "relative",
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          paddingTop: "96px",
-          overflow: "hidden",
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.07) 0%, transparent 70%)",
         }}
       >
-        {/* Background grid */}
-        <div
-          className="mesh-grid"
-          style={{ position: "absolute", inset: 0, zIndex: 0 }}
-        />
-        <div className="void-gradient" style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0.8 }} />
-
-        {/* Green glow orb */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            right: "10%",
-            width: 400,
-            height: 400,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,230,118,0.08) 0%, transparent 70%)",
-            zIndex: 1,
-            pointerEvents: "none",
-          }}
-        />
-
-        <div
-          style={{
-            position: "relative",
-            zIndex: 10,
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: "0 32px",
-            width: "100%",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 3fr",
-              gap: "48px",
-              alignItems: "center",
-            }}
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={howSection.inView ? "visible" : "hidden"}
+            className="text-center mb-16"
           >
-            {/* Left copy */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              <div className="anim-1">
-                <div className="section-tag">
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      backgroundColor: "#00e676",
-                      boxShadow: "0 0 8px rgba(0,230,118,0.8)",
-                      display: "inline-block",
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 11,
-                      fontWeight: 500,
-                      color: "#00e676",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.15em",
-                    }}
-                  >
-                    Watch. Analyze. Improve.
-                  </span>
+            <motion.div
+              variants={fadeUp}
+              className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3"
+            >
+              Our Process
+            </motion.div>
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl font-bold text-white"
+            >
+              Go from zero to impact in minutes
+            </motion.h2>
+          </motion.div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={howSection.inView ? "visible" : "hidden"}
+            className="grid md:grid-cols-4 gap-6 relative"
+          >
+            <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+
+            {STEPS.map((s, i) => (
+              <motion.div
+                key={s.num}
+                variants={fadeUp}
+                custom={i}
+                className="relative text-center"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-800 border border-violet-500/30 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-900/30">
+                  <span className="text-xl font-black text-white">{s.num}</span>
                 </div>
+                <h3 className="text-base font-semibold text-white mb-2">
+                  {s.title}
+                </h3>
+                <p className="text-sm text-white/40 leading-relaxed">
+                  {s.desc}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* BUSINESS VALUE */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="rounded-3xl border border-violet-500/15 bg-gradient-to-br from-violet-950/40 to-[#06060f] p-10 grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-1">
+              <div className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3">
+                Business Value
               </div>
-
-              <h1
-                className="anim-2"
-                style={{
-                  fontFamily: "'Geist', sans-serif",
-                  fontSize: 40,
-                  fontWeight: 700,
-                  lineHeight: "48px",
-                  letterSpacing: "-0.04em",
-                  color: "#ffffff",
-                  margin: 0,
-                }}
-              >
-                Conversational Commerce,<br />
-                <span style={{ color: "#00e676" }}>Synchronized.</span>
-              </h1>
-
-              <p
-                className="anim-3"
-                style={{
-                  fontFamily: "'Geist', sans-serif",
-                  fontSize: 18,
-                  lineHeight: "28px",
-                  color: "rgba(255,255,255,0.55)",
-                  margin: 0,
-                  maxWidth: "480px",
-                }}
-              >
-                The AI engine for Shopify that masters your catalog. Real-time sync. Voice-ready support. Seamless intelligence.
-              </p>
-
-              <div
-                className="anim-4"
-                style={{ display: "flex", gap: "16px", paddingTop: "8px", flexWrap: "wrap" }}
-              >
-                <Link href="/sign-up" className="green-btn">
-                  Deploy for Free
-                </Link>
-                <button className="outline-btn">
-                  View Docs
-                </button>
-              </div>
-
-              {/* Trust badges */}
-              <div className="anim-5" style={{ display: "flex", gap: "24px", paddingTop: "8px", flexWrap: "wrap" }}>
-                {[
-                  { icon: "verified", label: "SOC 2 Ready" },
-                  { icon: "bolt", label: "99.9% Uptime" },
-                  { icon: "language", label: "40+ Languages" },
-                ].map((b) => (
-                  <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: "#00e676" }}>{b.icon}</span>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{b.label}</span>
+              <h2 className="text-3xl font-bold text-white leading-tight">
+                Why teams choose Zephyra
+              </h2>
+            </div>
+            <div className="md:col-span-2 grid sm:grid-cols-2 gap-4">
+              {[
+                {
+                  icon: TrendingUp,
+                  title: "Revenue Growth",
+                  desc: "Tiered billing and seamless upgrades turn free users into paying customers.",
+                },
+                {
+                  icon: Users,
+                  title: "Customer Retention",
+                  desc: "PWA installability and offline support keep users engaged without internet.",
+                },
+                {
+                  icon: Clock,
+                  title: "Operational Efficiency",
+                  desc: "One-click PDF reports and real-time dashboards cut reporting time by 70%+.",
+                },
+                {
+                  icon: Globe,
+                  title: "Market Expansion",
+                  desc: "Multilingual & voice capabilities open non-English markets and phone channels.",
+                },
+              ].map((v) => (
+                <div
+                  key={v.title}
+                  className="flex gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-violet-500/15 border border-violet-500/20 flex-shrink-0 flex items-center justify-center">
+                    <v.icon className="w-4 h-4 text-violet-400" />
                   </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white mb-1">
+                      {v.title}
+                    </div>
+                    <div className="text-xs text-white/40 leading-relaxed">
+                      {v.desc}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section ref={pricingSection.ref} className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={pricingSection.inView ? "visible" : "hidden"}
+            className="text-center mb-16"
+          >
+            <motion.div
+              variants={fadeUp}
+              className="text-sm text-violet-400 font-semibold uppercase tracking-widest mb-3"
+            >
+              Pricing
+            </motion.div>
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl font-bold text-white mb-4"
+            >
+              Start free. Scale with confidence.
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-white/40 text-lg">
+              No hidden fees. Upgrade or downgrade any time.
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={pricingSection.inView ? "visible" : "hidden"}
+            className="grid md:grid-cols-3 gap-6 items-start"
+          >
+            {PLANS.map((plan, i) => (
+              <motion.div
+                key={plan.name}
+                variants={fadeUp}
+                custom={i}
+                className={`rounded-2xl border p-7 relative ${
+                  plan.highlight
+                    ? "border-violet-500/50 bg-gradient-to-b from-violet-600/15 to-violet-900/10 shadow-2xl shadow-violet-900/30"
+                    : "border-white/5 bg-white/[0.02]"
+                }`}
+              >
+                {plan.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-xs font-bold text-white">
+                    Most Popular
+                  </div>
+                )}
+                <div className="mb-6">
+                  <div className="text-sm font-medium text-white/50 mb-1">
+                    {plan.name}
+                  </div>
+                  <div className="flex items-end gap-1">
+                    <span className="text-5xl font-extrabold text-white">
+                      {plan.price}
+                    </span>
+                    {plan.period && (
+                      <span className="text-white/40 mb-2 text-sm">
+                        {plan.period}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <Check className="w-4 h-4 text-violet-400 mt-0.5 flex-shrink-0" />
+                      <span className="text-white/70">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={plan.href}
+                  className={`w-full block text-center py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                    plan.highlight
+                      ? "bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white shadow-lg shadow-violet-900/30 hover:scale-[1.02]"
+                      : "border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section ref={ctaSection.ref} className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={ctaSection.inView ? "visible" : "hidden"}
+          >
+            <motion.div
+              variants={fadeUp}
+              className="inline-block rounded-3xl border border-violet-500/20 bg-gradient-to-b from-violet-600/10 to-transparent p-12"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-900/40">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">
+                Ready to make your conversations work harder?
+              </h2>
+              <p className="text-white/40 text-lg mb-8 max-w-lg mx-auto">
+                Join 12,000+ businesses using Zephyra to power smarter customer
+                interactions. Average setup time: under 15 minutes.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/sign-up"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 font-semibold transition-all duration-200 shadow-xl shadow-violet-900/40 hover:scale-105"
+                >
+                  Start Free Today
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <a
+                  href="#"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/10 hover:border-white/20 bg-white/5 font-medium transition-all duration-200"
+                >
+                  Book a Strategy Call
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/5 py-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-10 mb-10">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center">
+                  <Zap className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-lg font-bold">Zephyra</span>
+              </div>
+              <p className="text-sm text-white/30 leading-relaxed mb-4">
+                AI-powered conversational platform for businesses that demand
+                results.
+              </p>
+              <div className="flex gap-3">
+                {[Twitter, Github, Linkedin].map((Icon, i) => (
+                  <a
+                    key={i}
+                    href="#"
+                    className="w-8 h-8 rounded-lg border border-white/10 hover:border-violet-500/40 flex items-center justify-center text-white/40 hover:text-white transition-all duration-200"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
                 ))}
               </div>
             </div>
 
-            {/* Right — Three.js (FUNCTIONALITY UNCHANGED) */}
-            <div
-              className="anim-5"
-              style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-            >
-              <div
-                ref={threeRef}
-                style={{ width: "100%", height: "600px", backgroundColor: "transparent" }}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <hr className="divider-green" />
-
-      {/* ── STATS STRIP ── */}
-      <section style={{ padding: "40px 0", backgroundColor: "#0a0d0a" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 32px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "24px" }}>
             {[
-              { icon: "group", value: "12K+", label: "Businesses Served" },
-              { icon: "chat", value: "4.8M", label: "Conversations / Month" },
-              { icon: "language", value: "40+", label: "Languages Supported" },
-              { icon: "trending_up", value: "99.9%", label: "Uptime SLA" },
-            ].map((s) => (
-              <div key={s.label} className="stat-card">
-                <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#00e676", marginBottom: "8px", display: "block" }}>{s.icon}</span>
-                <div style={{ fontFamily: "'Geist', sans-serif", fontSize: 32, fontWeight: 700, color: "#fff", marginBottom: "4px" }}>{s.value}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <hr className="divider-green" />
-
-      {/* ── FEATURES GRID ── */}
-      <section style={{ padding: "80px 0", backgroundColor: "#0d100d" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 32px" }}>
-          <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 64px" }}>
-            <div className="section-tag" style={{ justifyContent: "center", margin: "0 auto 24px" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#00e676" }}>diamond</span>
-              <span
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 11,
-                  fontWeight: 500,
-                  color: "#00e676",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.15em",
-                }}
-              >
-                Premium Capabilities
-              </span>
-            </div>
-            <h2
-              style={{
-                fontFamily: "'Geist', sans-serif",
-                fontSize: 32,
-                fontWeight: 600,
-                color: "#ffffff",
-                letterSpacing: "-0.02em",
-                marginBottom: "16px",
-              }}
-            >
-              Unified Commerce Engine
-            </h2>
-            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: "24px" }}>
-              Experience the full power of synchronized intelligence with our core feature suite.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "24px",
-            }}
-          >
-            {[
-              { icon: "smart_toy", title: "AI Customer Support", desc: "Intelligent automated responses 24/7 with zero latency." },
-              { icon: "record_voice_over", title: "AI Voice Agent", desc: "Natural voice conversations with customers via low-latency streaming." },
-              { icon: "phone_in_talk", title: "Phone System", desc: "Full inbound & outbound calling capabilities integrated into your CRM." },
-              { icon: "menu_book", title: "Knowledge Base", desc: "Train AI on your documentation, PDFs, and website content instantly." },
-              { icon: "group", title: "Team Access", desc: "Shared inbox and collaboration tools for your support operators." },
-              { icon: "palette", title: "Widget Customization", desc: "Customize your chat widget appearance to match your brand DNA." },
-            ].map((f) => (
-              <div key={f.title} className="feature-box" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: "rgba(0,230,118,0.08)",
-                    border: "1px solid rgba(0,230,118,0.2)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#00e676" }}>{f.icon}</span>
+              {
+                title: "Product",
+                links: ["Features", "Pricing", "Changelog", "Roadmap"],
+              },
+              {
+                title: "Resources",
+                links: ["Documentation", "API Reference", "Blog", "Case Studies"],
+              },
+              {
+                title: "Company",
+                links: ["About", "Careers", "Privacy", "Terms"],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <div className="text-sm font-semibold text-white/70 mb-4">
+                  {col.title}
                 </div>
-                <div>
-                  <h3
-                    style={{
-                      fontFamily: "'Geist', sans-serif",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      color: "#ffffff",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {f.title}
-                  </h3>
-                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: "20px" }}>
-                    {f.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <hr className="divider-green" />
-
-      {/* ── LIVE DEMO ── */}
-      <section
-        style={{
-          padding: "80px 0",
-          backgroundColor: "#080a08",
-          borderTop: "1px solid rgba(0,230,118,0.06)",
-          borderBottom: "1px solid rgba(0,230,118,0.06)",
-        }}
-      >
-        <div style={{ maxWidth: "896px", margin: "0 auto", padding: "0 32px" }}>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <span
-              style={{
-                display: "block",
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 13,
-                fontWeight: 500,
-                color: "#00e676",
-                textTransform: "uppercase",
-                letterSpacing: "0.15em",
-                marginBottom: "8px",
-              }}
-            >
-              Live Simulation
-            </span>
-            <h2
-              style={{
-                fontFamily: "'Geist', sans-serif",
-                fontSize: 32,
-                fontWeight: 600,
-                color: "#ffffff",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Experience the Sync.
-            </h2>
-          </div>
-
-          <div className="glass-card" style={{ borderRadius: "12px", overflow: "hidden", boxShadow: "0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(0,230,118,0.04)" }}>
-            {/* Chat header */}
-            <div
-              style={{
-                backgroundColor: "#0f110f",
-                padding: "16px 24px",
-                borderBottom: "1px solid rgba(0,230,118,0.12)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, #00e676, #00c853)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#080a08" }}>bolt</span>
-                </div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#fff" }}>
-                  Zephyra AI Assistant
-                </span>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#00e676", boxShadow: "0 0 6px rgba(0,230,118,0.8)" }} />
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#00e676", textTransform: "uppercase", letterSpacing: "0.1em" }}>Online</span>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#1a2e1a", border: "1px solid #00e676" }} />
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#1a2e1a" }} />
-              </div>
-            </div>
-
-            {/* Chat body */}
-            <div style={{ padding: "32px", minHeight: "400px", backgroundColor: "#060806", display: "flex", flexDirection: "column", gap: "24px" }}>
-              {/* User message */}
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div
-                  style={{
-                    backgroundColor: "#0f110f",
-                    border: "1px solid rgba(0,230,118,0.15)",
-                    padding: "16px",
-                    borderRadius: "8px 8px 0 8px",
-                    maxWidth: "80%",
-                  }}
-                >
-                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "#fff", margin: 0 }}>
-                    Is the Midnight Puffer Jacket in Large available?
-                  </p>
-                </div>
-              </div>
-
-              {/* AI reply */}
-              <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                <div
-                  style={{
-                    backgroundColor: "#ffffff",
-                    color: "#080a08",
-                    padding: "16px",
-                    borderRadius: "8px 8px 8px 0",
-                    maxWidth: "80%",
-                    boxShadow: "0 4px 20px rgba(0,230,118,0.15)",
-                    border: "1px solid rgba(0,230,118,0.3)",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#00c853" }}>verified</span>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#00a847" }}>
-                      In Stock
-                    </span>
-                  </div>
-                  <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, margin: 0, color: "#080a08" }}>
-                    Yes! We have 4 left in stock in our primary warehouse. Would you like to add it to your cart or check for matching beanies?
-                  </p>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div style={{ paddingTop: "24px", borderTop: "1px solid rgba(0,230,118,0.08)" }}>
-                <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
-                  {["Add to Cart", "Show Similar"].map((label) => (
-                    <button
-                      key={label}
-                      style={{
-                        backgroundColor: "rgba(0,230,118,0.08)",
-                        border: "1px solid rgba(0,230,118,0.25)",
-                        padding: "4px 12px",
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 11,
-                        fontWeight: 500,
-                        color: "#00e676",
-                        cursor: "pointer",
-                        transition: "background 0.2s",
-                        borderRadius: "2px",
-                      }}
-                    >
-                      {label}
-                    </button>
+                <ul className="space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l}>
+                      <a
+                        href="#"
+                        className="text-sm text-white/30 hover:text-white/70 transition-colors duration-200"
+                      >
+                        {l}
+                      </a>
+                    </li>
                   ))}
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "16px",
-                    alignItems: "center",
-                    backgroundColor: "#0f110f",
-                    padding: "16px",
-                    border: "1px solid rgba(0,230,118,0.1)",
-                    borderRadius: "4px",
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "rgba(255,255,255,0.3)" }}>sentiment_satisfied</span>
-                  <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.3)" }}>
-                    Type your question...
-                  </span>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#00e676", marginLeft: "auto" }}>send</span>
-                </div>
+                </ul>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
 
-      <hr className="divider-green" />
-
-      {/* ── INTEGRATIONS ── */}
-      <section style={{ padding: "80px 0", backgroundColor: "#0d100d" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 32px" }}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "48px",
-              flexWrap: "wrap",
-            }}
-          >
-            <div>
-              <h2
-                style={{
-                  fontFamily: "'Geist', sans-serif",
-                  fontSize: 32,
-                  fontWeight: 600,
-                  color: "#fff",
-                  letterSpacing: "-0.02em",
-                  marginBottom: "8px",
-                }}
-              >
-                Works where you do.
-              </h2>
-              <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 16, color: "rgba(255,255,255,0.45)" }}>
-                Connect your favorite tools in minutes.
-              </p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "32px" }}>
-              {[
-                { icon: "shopping_bag", label: "Shopify" },
-                { icon: "chat", label: "Slack" },
-                { icon: "forum", label: "Discord" },
-                { icon: "bolt", label: "Zapier" },
-              ].map((t) => (
-                <div
-                  key={t.label}
-                  className="grayscale-int"
-                  style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer" }}
-                >
-                  <div className="integration-icon">
-                    <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#00e676" }}>{t.icon}</span>
-                  </div>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#fff" }}>
-                    {t.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <hr className="divider-green" />
-
-      {/* ── CTA ── */}
-      <section style={{ padding: "80px 0", position: "relative", overflow: "hidden", backgroundColor: "#080a08" }}>
-        {/* Background glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-            width: 600,
-            height: 400,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "80px 32px", textAlign: "center", position: "relative", zIndex: 10 }}>
-          <div
-            style={{
-              display: "inline-block",
-              padding: "4px 12px",
-              border: "1px solid rgba(0,230,118,0.3)",
-              background: "rgba(0,230,118,0.05)",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#00e676", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-              No credit card required
+          <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-sm text-white/20">
+              2026 Zephyra. All rights reserved.
             </span>
+            <span className="text-sm text-white/20">hello@zephyra.ai</span>
           </div>
-          <h2
-            style={{
-              fontFamily: "'Geist', sans-serif",
-              fontSize: 40,
-              fontWeight: 700,
-              letterSpacing: "-0.04em",
-              color: "#fff",
-              marginBottom: "24px",
-            }}
-          >
-            Ready to scale your store&apos;s intelligence?
-          </h2>
-          <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 18, color: "rgba(255,255,255,0.45)", marginBottom: "40px" }}>
-            Join 12,000+ businesses using Zephyra. Average setup time: under 15 minutes.
-          </p>
-          <Link
-            href="/sign-up"
-            className="green-btn"
-            style={{ fontSize: 18, padding: "24px 48px" }}
-          >
-            Get Started with Zephyra
-          </Link>
-          <p
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 13,
-              fontWeight: 500,
-              color: "rgba(255,255,255,0.3)",
-              marginTop: "32px",
-              textTransform: "uppercase",
-              letterSpacing: "0.15em",
-            }}
-          >
-            No credit card required • 14-day free trial
-          </p>
-        </div>
-      </section>
-
-      <hr className="divider-green" />
-
-      {/* ── FOOTER ── */}
-      <footer
-        style={{
-          backgroundColor: "#060806",
-          width: "100%",
-          padding: "80px 0",
-          borderTop: "1px solid rgba(0,230,118,0.08)",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr 1fr 1fr",
-            gap: "24px",
-            padding: "0 32px",
-            maxWidth: "1280px",
-            margin: "0 auto",
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div
-                style={{
-                  width: 28,
-                  height: 28,
-                  background: "linear-gradient(135deg, #00e676, #00c853)",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#080a08" }}>diamond</span>
-              </div>
-              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: 22, fontWeight: 700, color: "#fff" }}>Zephyra</span>
-            </div>
-            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.35)", lineHeight: "20px" }}>
-              AI-powered conversational platform for businesses that demand results.
-            </p>
-            <p style={{ fontFamily: "'Geist', sans-serif", fontSize: 14, color: "rgba(255,255,255,0.25)" }}>
-              © 2024 Zephyra Inc. All rights reserved.
-            </p>
-          </div>
-
-          {[
-            {
-              heading: "Product",
-              links: ["Documentation", "Changelog", "Status"],
-            },
-            {
-              heading: "Legal",
-              links: ["Privacy Policy", "Terms of Service"],
-            },
-            {
-              heading: "Marketplace",
-              links: ["Shopify App Store"],
-            },
-          ].map((col) => (
-            <div key={col.heading} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "#00e676", marginBottom: "8px" }}>
-                {col.heading}
-              </span>
-              {col.links.map((l) => (
-                <a
-                  key={l}
-                  href="#"
-                  style={{
-                    fontFamily: "'Geist', sans-serif",
-                    fontSize: 14,
-                    color: "rgba(255,255,255,0.35)",
-                    textDecoration: "none",
-                    transition: "color 0.2s",
-                  }}
-                >
-                  {l}
-                </a>
-              ))}
-            </div>
-          ))}
         </div>
       </footer>
     </div>

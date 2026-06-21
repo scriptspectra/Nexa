@@ -24,6 +24,7 @@
     "convex": "^1.25.4",
     "countries-and-timezones": "^3.8.0",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.40.0",
     "jotai": "^2.12.5",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.475.0",
