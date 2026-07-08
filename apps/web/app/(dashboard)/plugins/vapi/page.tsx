@@ -5,7 +5,7 @@ import { PremiumFeatureOverlay } from "@/modules/billing/ui/components/premium-f
 import { VapiView } from "@/modules/plugins/ui/views/vapi-view";
 
 const Page = () => {
-  const { isPro, isLoading } = useSubscription();
+  const { tier, isLoading } = useSubscription();
 
   if (isLoading) {
     return (
@@ -15,7 +15,7 @@ const Page = () => {
     );
   }
 
-  if (!isPro) {
+  if (!tier?.features?.canUseVoiceAi) {
     return (
       <PremiumFeatureOverlay>
         <VapiView />

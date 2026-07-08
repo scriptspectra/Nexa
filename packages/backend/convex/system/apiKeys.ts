@@ -1,6 +1,7 @@
 import { action, internalMutation, internalQuery, mutation, query } from "../_generated/server";
 import { ConvexError, v } from "convex/values";
 import { Id } from "../_generated/dataModel";
+import { hasFeature } from "./pricing";
 
 // Helper to hash the key for storage
 async function hashKey(key: string): Promise<string> {
@@ -22,6 +23,9 @@ export const create = mutation({
 
     const orgId = (identity.orgId || (identity as any).org_id) as string;
     if (!orgId) throw new ConvexError("Organization not found");
+
+    const canUseApi = await hasFeature(ctx, orgId, "canUseApi");
+    if (!canUseApi) throw new ConvexError("API keys are not available on your current plan.");
 
     // Generate a secure random key
     const rawKey = `zephyra_${crypto.randomUUID().replace(/-/g, "")}${crypto.randomUUID().replace(/-/g, "")}`;

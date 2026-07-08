@@ -234,6 +234,34 @@ export default defineSchema({
     }),
   })
     .index("by_user_id", ["userId"]),
+  // Web crawl jobs — sitemap, recursive link-following, and scheduled re-crawl
+  crawlJobs: defineTable({
+    organizationId: v.string(),
+    rootUrl: v.string(),
+    mode: v.union(
+      v.literal("single"),
+      v.literal("sitemap"),
+      v.literal("recursive"),
+    ),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("running"),
+      v.literal("done"),
+      v.literal("error"),
+    ),
+    recrawlIntervalHours: v.optional(v.number()),  // null = no auto recrawl
+    maxDepth: v.optional(v.number()),              // for recursive mode
+    maxPages: v.optional(v.number()),              // safety cap
+    pagesFound: v.optional(v.number()),
+    pagesCrawled: v.optional(v.number()),
+    errorMessage: v.optional(v.string()),
+    lastCrawledAt: v.optional(v.number()),
+    nextCrawlAt: v.optional(v.number()),           // used by the recrawl cron
+  })
+    .index("by_organization_id", ["organizationId"])
+    .index("by_next_crawl_at", ["nextCrawlAt"])
+    .index("by_status", ["status"]),
+
   // Superadmin tables
   suspended_orgs: defineTable({
     orgId: v.string(),

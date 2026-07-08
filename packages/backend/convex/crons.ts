@@ -10,4 +10,13 @@ crons.interval(
   internal.system.sla.checkSlas,
 );
 
+// Run web crawl re-crawl check every hour
+crons.interval(
+  "recrawl-due-jobs",
+  { hours: 1 },
+  internal.private.crawl.recrawlDueJobs,
+  {},
+);
+
 export default crons;
+

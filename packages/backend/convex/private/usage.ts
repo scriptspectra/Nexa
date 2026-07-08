@@ -1,6 +1,6 @@
 import { internalMutation, internalQuery, query } from "../_generated/server";
 import { ConvexError, v } from "convex/values";
-import { PLAN_LIMITS } from "./planLimits"; // I need to create this file
+import { getTier } from "../system/pricing";
 
 export const incrementAndCheckUsage = internalMutation({
   args: {
@@ -11,15 +11,9 @@ export const incrementAndCheckUsage = internalMutation({
     const now = new Date();
     const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    // 1. Get the org's active subscription status
-    const sub = await ctx.db
-      .query("subscriptions")
-      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
-      .first();
-
-    const planName = sub?.status === "active" ? (sub.productName || "Pro") : "Free";
-    
-    const limit = planName === "Free" ? PLAN_LIMITS.Free.aiResponsesCount : PLAN_LIMITS.Pro.aiResponsesCount;
+    // 1. Get the org's tier
+    const tier = await getTier(ctx, args.organizationId);
+    const limit = tier.aiLimit;
 
     // 2. Get or create current month usage
     let usage = await ctx.db
@@ -62,13 +56,8 @@ export const getCurrentUsage = query({
     const now = new Date();
     const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    const sub = await ctx.db
-      .query("subscriptions")
-      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
-      .first();
-
-    const planName = sub?.status === "active" ? (sub.productName || "Pro") : "Free";
-    const limit = planName === "Free" ? PLAN_LIMITS.Free.aiResponsesCount : PLAN_LIMITS.Pro.aiResponsesCount;
+    const tier = await getTier(ctx, args.organizationId);
+    const limit = tier.aiLimit;
 
     const usage = await ctx.db
       .query("usageCounters")
@@ -80,7 +69,7 @@ export const getCurrentUsage = query({
     return {
       aiResponsesCount: usage?.aiResponsesCount || 0,
       limit,
-      planName,
+      planName: tier.name,
     };
   },
 });

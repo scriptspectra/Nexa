@@ -5,13 +5,16 @@ import { useOrganization } from "@clerk/nextjs";
 export const useSubscription = () => {
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
 
-  const subscription = useQuery(
+  const data = useQuery(
     api.public.subscriptions.getSubscription,
     organization?.id ? { organizationId: organization.id } : "skip"
   );
 
   return {
-    isPro: subscription?.status === "active" || subscription?.status === "on_trial",
-    isLoading: !isOrgLoaded || subscription === undefined,
+    subscription: data?.subscription,
+    tier: data?.tier,
+    // Keep isPro for backward compatibility temporarily where not yet refactored
+    isPro: data?.tier?.id === "PRO",
+    isLoading: !isOrgLoaded || data === undefined,
   };
 };
