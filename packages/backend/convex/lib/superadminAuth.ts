@@ -13,7 +13,8 @@ export async function requireSuperadmin(
   if (!identity) {
     throw new ConvexError({ code: "UNAUTHORIZED", message: "Not signed in" });
   }
-  const role = (identity.publicMetadata ?? {})?.role;
+  const metadata = (identity.publicMetadata ?? {}) as Record<string, unknown>;
+  const role = metadata.role;
   if (role !== "superadmin") {
     throw new ConvexError({ code: "FORBIDDEN", message: "Superadmin role required" });
   }
