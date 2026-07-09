@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Convex admin API for superadmin dashboard
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";

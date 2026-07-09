@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values";
 import { v } from "convex/values";
-import { QueryCtx, MutationCtx } from "./_generated/server";
+import { QueryCtx, MutationCtx } from "../_generated/server";
 
 /**
  * Ensure the current request is made by a user whose publicMetadata.role is "superadmin".

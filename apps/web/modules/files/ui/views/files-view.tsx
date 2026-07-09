@@ -136,11 +136,11 @@ function CrawlJobRow({
       {/* Status */}
       <TableCell className="px-6 py-4">
         <Badge
-          className={`uppercase text-[10px] font-bold tracking-wider rounded-md border flex items-center gap-1 w-fit ${status.badge}`}
+          className={`uppercase text-[10px] font-bold tracking-wider rounded-md border flex items-center gap-1 w-fit ${status?.badge ?? ""}`}
           variant="outline"
         >
-          {status.icon}
-          {status.label}
+          {status?.icon}
+          {status?.label}
         </Badge>
         {job.status === "error" && job.errorMessage && (
           <p className="text-[10px] text-rose-400 mt-1 max-w-[180px] truncate" title={job.errorMessage}>
