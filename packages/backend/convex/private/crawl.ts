@@ -161,6 +161,7 @@ export const _updateJobStatus = internalMutation({
     errorMessage: v.optional(v.string()),
     lastCrawledAt: v.optional(v.number()),
     nextCrawlAt: v.optional(v.number()),
+    firecrawlJobId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { jobId, ...patch } = args;
@@ -208,103 +209,59 @@ export const runCrawlJob = internalAction({
 
     try {
       const { rootUrl, mode, maxDepth = 3, maxPages = 50, organizationId } = job;
+      const apiKey = process.env.FIRECRAWL_API_KEY;
 
-      // Collect URLs to crawl
-      let urlsToCrawl: string[] = [];
+      if (!apiKey) {
+        throw new Error("FIRECRAWL_API_KEY is not configured.");
+      }
 
-      if (mode === "sitemap") {
-        const sitemapUrls = await fetchSitemapUrls(rootUrl);
-        urlsToCrawl = sitemapUrls.slice(0, maxPages);
-      } else if (mode === "recursive") {
-        // BFS link discovery
-        const visited = new Set<string>();
-        const queue: Array<{ url: string; depth: number }> = [{ url: rootUrl, depth: 0 }];
-        visited.add(rootUrl);
+      const siteUrl = process.env.CONVEX_SITE_URL;
+      if (!siteUrl) {
+        throw new Error("CONVEX_SITE_URL is not available.");
+      }
 
-        while (queue.length > 0 && visited.size <= maxPages) {
-          const item = queue.shift();
-          if (!item) break;
-          const { url, depth } = item;
+      const webhookUrl = `${siteUrl}/firecrawl-webhook?jobId=${args.jobId}&orgId=${organizationId}`;
 
-          urlsToCrawl.push(url);
+      const requestBody = {
+        url: rootUrl,
+        limit: mode === "single" ? 1 : maxPages,
+        maxDepth: mode === "single" ? 1 : maxDepth,
+        scrapeOptions: { formats: ["markdown"] },
+        webhook: webhookUrl,
+      };
 
-          if (depth < maxDepth) {
-            try {
-              const response = await fetch(url, {
-                headers: { "User-Agent": "Nexa-KnowledgeBot/1.0" },
-                signal: AbortSignal.timeout(10000),
-              });
-              if (response.ok) {
-                const html = await response.text();
-                const links = extractInternalLinks(html, url);
-                for (const link of links) {
-                  if (!visited.has(link) && visited.size <= maxPages) {
-                    visited.add(link);
-                    queue.push({ url: link, depth: depth + 1 });
-                  }
-                }
-              }
-            } catch {
-              // Network error on discovery — skip
-            }
-          }
-        }
+      const response = await fetch("https://api.firecrawl.dev/v1/crawl", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`FireCrawl API error: ${response.statusText} - ${errorText}`);
+      }
+
+      const responseData = await response.json();
+
+      if (responseData.success && responseData.id) {
+        await ctx.runMutation(internal.private.crawl._updateJobStatus, {
+          jobId: args.jobId,
+          firecrawlJobId: responseData.id,
+          // Status stays 'running', webhook will mark it 'done'
+        });
       } else {
-        // single mode
-        urlsToCrawl = [rootUrl];
+        throw new Error("FireCrawl failed to return a job ID: " + JSON.stringify(responseData));
       }
 
-      await ctx.runMutation(internal.private.crawl._updateJobStatus, {
-        jobId: args.jobId,
-        pagesFound: urlsToCrawl.length,
-      });
-
-      // Crawl and ingest each page
-      let pagesCrawled = 0;
-      for (const url of urlsToCrawl) {
-        const result = await scrapePage(url);
-        if (!result) continue;
-
-        const { title, text } = result;
-        const bytes = new TextEncoder().encode(text).buffer as ArrayBuffer;
-
-        try {
-          await rag.add(ctx, {
-            namespace: organizationId,
-            text,
-            key: url,
-            title,
-            metadata: {
-              uploadedBy: organizationId,
-              filename: title,
-              url,
-              crawlJobId: args.jobId,
-              category: "web-crawl",
-            } as any,
-            contentHash: await contentHashFromArrayBuffer(bytes),
-          });
-          pagesCrawled++;
-        } catch {
-          // Skip individual page failures
-        }
-      }
-
-      const nextCrawlAt = job.recrawlIntervalHours
-        ? Date.now() + job.recrawlIntervalHours * 60 * 60 * 1000
-        : undefined;
-
-      await ctx.runMutation(internal.private.crawl._updateJobStatus, {
-        jobId: args.jobId,
-        status: "done",
-        pagesCrawled,
-        lastCrawledAt: Date.now(),
-        nextCrawlAt,
-      });
-    } catch (err: any) {
+    } catch (e: any) {
+      console.error("Crawl action failed:", e);
       await ctx.runMutation(internal.private.crawl._updateJobStatus, {
         jobId: args.jobId,
         status: "error",
-        errorMessage: err?.message ?? "Unknown error",
+        errorMessage: e?.message || "Unknown error occurred.",
       });
     }
   },

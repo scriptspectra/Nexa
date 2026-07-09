@@ -257,6 +257,7 @@ export default defineSchema({
     errorMessage: v.optional(v.string()),
     lastCrawledAt: v.optional(v.number()),
     nextCrawlAt: v.optional(v.number()),           // used by the recrawl cron
+    firecrawlJobId: v.optional(v.string()),        // Track external FireCrawl job ID
   })
     .index("by_organization_id", ["organizationId"])
     .index("by_next_crawl_at", ["nextCrawlAt"])

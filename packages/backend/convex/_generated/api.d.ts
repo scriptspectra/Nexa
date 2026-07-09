@@ -63,6 +63,7 @@ import type * as system_billingInvoices from "../system/billingInvoices.js";
 import type * as system_contactSessions from "../system/contactSessions.js";
 import type * as system_conversations from "../system/conversations.js";
 import type * as system_debug from "../system/debug.js";
+import type * as system_firecrawlWebhook from "../system/firecrawlWebhook.js";
 import type * as system_inboundEmail from "../system/inboundEmail.js";
 import type * as system_plugins from "../system/plugins.js";
 import type * as system_pricing from "../system/pricing.js";
@@ -141,6 +142,7 @@ declare const fullApi: ApiFromModules<{
   "system/contactSessions": typeof system_contactSessions;
   "system/conversations": typeof system_conversations;
   "system/debug": typeof system_debug;
+  "system/firecrawlWebhook": typeof system_firecrawlWebhook;
   "system/inboundEmail": typeof system_inboundEmail;
   "system/plugins": typeof system_plugins;
   "system/pricing": typeof system_pricing;

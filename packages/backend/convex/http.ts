@@ -383,4 +383,34 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/firecrawl-webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    const jobId = url.searchParams.get("jobId") as any;
+    const orgId = url.searchParams.get("orgId");
+
+    if (!jobId || !orgId) {
+      return new Response("Missing jobId or orgId", { status: 400 });
+    }
+
+    let payload;
+    try {
+      payload = await request.json();
+    } catch {
+      return new Response("Invalid JSON", { status: 400 });
+    }
+
+    // Process asynchronously so we can return 200 immediately
+    await ctx.scheduler.runAfter(0, internal.system.firecrawlWebhook.processWebhook, {
+      jobId,
+      orgId,
+      payload,
+    });
+
+    return new Response(null, { status: 200 });
+  }),
+});
+
 export default http;
