@@ -29,7 +29,7 @@ export const getMany = query({
       .paginate(args.paginationOpts);
 
     const conversationsWithLastMessage = await Promise.all(
-      conversations.page.map(async (conversation) => {
+      conversations.page.map(async (conversation: any) => {
         let lastMessage: MessageDoc | null = null;
 
         const messages = await supportAgent.listMessages(ctx, {

@@ -73,7 +73,7 @@ export const AuditLogView = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  results.map((log) => (
+                  results.map((log: any) => (
                     <TableRow key={log._id} className="border-b-outline-variant hover:bg-surface-container-high/50">
                       <TableCell className="text-on-surface text-body-sm">
                         {format(log._creationTime, "MMM d, yyyy HH:mm:ss")}

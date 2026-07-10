@@ -108,6 +108,7 @@ export const getConversationDetails = internalQuery({
   handler: async (ctx, args) => {
     const conversation = await ctx.db.get(args.conversationId);
     if (!conversation) return null;
+    if (!conversation.contactSessionId) return null;
     const contactSession = await ctx.db.get(conversation.contactSessionId);
     if (!contactSession) return null;
     return { conversation, contactSession };

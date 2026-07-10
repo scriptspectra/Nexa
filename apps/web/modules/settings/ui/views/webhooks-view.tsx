@@ -189,12 +189,12 @@ export const WebhooksView = () => {
                 </td>
               </tr>
             ) : (
-              webhooks.map((wh) => (
+              webhooks.map((wh: any) => (
                 <tr key={wh._id} className="hover:bg-surface-container-highest/50 transition-colors">
                   <td className="p-4 font-medium text-on-surface truncate max-w-xs">{wh.url}</td>
                   <td className="p-4 text-on-surface-variant">
                     <div className="flex flex-wrap gap-1">
-                      {wh.events.map((ev) => (
+                      {wh.events.map((ev: any) => (
                         <span key={ev} className="text-[10px] bg-surface-container-highest border border-outline-variant text-on-surface px-1.5 py-0.5 rounded font-mono">
                           {ev}
                         </span>

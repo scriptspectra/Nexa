@@ -72,7 +72,7 @@ export const updateStatus = mutation({
     });
 
     // ── Send escalation email to the end-user ─────────────────────────────────
-    if (args.status === "escalated") {
+    if (args.status === "escalated" && conversation.contactSessionId) {
       const contactSession = await ctx.db.get(conversation.contactSessionId);
       if (contactSession?.email) {
         // Fire-and-forget — don't let email failure break the status update
@@ -124,6 +124,13 @@ export const getOne = query({
       throw new ConvexError({
         code: "UNAUTHORZIED",
         message: "Invalid Organization ID",
+      });
+    }
+
+    if (!conversation.contactSessionId) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: "Contact Session not found"
       });
     }
 
@@ -216,8 +223,12 @@ export const getMany = query({
     }
 
     const conversationsWithAdditionalData = await Promise.all(
-      conversations.page.map(async (conversation) => {
+      conversations.page.map(async (conversation: any) => {
         let lastMessage: MessageDoc | null = null;
+
+        if (!conversation.contactSessionId) {
+          return null;
+        }
 
         const contactSession = await ctx.db.get(conversation.contactSessionId);
 

@@ -270,7 +270,7 @@ export const FilesView = () => {
   const crawlJobsResults = crawlJobs.results || [];
 
   // Client side filtering for responsive search UX
-  const filteredResults = filesResults.filter((file) => {
+  const filteredResults = filesResults.filter((file: any) => {
     const query = searchQuery.toLowerCase();
     return (
       file.name.toLowerCase().includes(query) ||
@@ -524,7 +524,7 @@ export const FilesView = () => {
                       );
                     }
 
-                    return filteredResults.map((file) => {
+                    return filteredResults.map((file: any) => {
                       const styles = getFileTypeStyle(file.type);
                       return (
                         <TableRow className="hover:bg-white/[0.02] border-b border-white/5 transition-colors" key={file.id}>
@@ -647,7 +647,7 @@ export const FilesView = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    crawlJobsResults.map((job) => (
+                    crawlJobsResults.map((job: any) => (
                       <CrawlJobRow
                         key={job._id}
                         job={job}

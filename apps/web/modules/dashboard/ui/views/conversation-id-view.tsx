@@ -146,7 +146,7 @@ export const ConversationIdView = ({
     }
   }, [messageValue]);
 
-  const filteredMacros = (macros ?? []).filter((m) =>
+  const filteredMacros = (macros ?? []).filter((m: any) =>
     m.title.toLowerCase().includes(macroFilter) ||
     m.shortcut?.toLowerCase().includes(macroFilter)
   );
@@ -276,7 +276,7 @@ export const ConversationIdView = ({
                 </SelectTrigger>
                 <SelectContent className="bg-surface-container-high border-outline-variant">
                   <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {memberships?.data?.filter(m => m.publicUserData?.userId).map((membership) => (
+                  {memberships?.data?.filter((m: any) => m.publicUserData?.userId).map((membership) => (
                     <SelectItem 
                       key={membership.publicUserData!.userId} 
                       value={membership.publicUserData!.userId!}
@@ -308,7 +308,7 @@ export const ConversationIdView = ({
             onLoadMore={handleLoadMore}
             ref={topElementRef}
           />
-          {toUIMessages(messages.results ?? [])?.map((message) => (
+          {toUIMessages(messages.results ?? [])?.map((message: any) => (
             <AIMessage
             // In reverse, because we are watching from "assistant" prespective
               from={message.role === "user" ? "assistant" : "user"}
@@ -366,7 +366,7 @@ export const ConversationIdView = ({
               Insert Macro
             </div>
             <ul className="py-1">
-              {filteredMacros.map((macro) => (
+              {filteredMacros.map((macro: any) => (
                 <li key={macro._id}>
                   <button
                     type="button"

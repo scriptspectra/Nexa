@@ -39,7 +39,7 @@ export const sendNotificationAction = internalAction({
     });
 
     await Promise.allSettled(
-      subscriptions.map(async (sub) => {
+      subscriptions.map(async (sub: any) => {
         try {
           const pushSubscription = {
             endpoint: sub.endpoint,

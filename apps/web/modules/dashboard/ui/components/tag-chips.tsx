@@ -49,10 +49,10 @@ export const TagChips = ({ conversationId }: TagChipsProps) => {
   const addTag = useMutation(api.private.conversationTags.addTag);
   const removeTag = useMutation(api.private.conversationTags.removeTag);
 
-  const existingTagNames = new Set((tags ?? []).map((t) => t.tag.toLowerCase()));
+  const existingTagNames = new Set((tags ?? []).map((t: any) => t.tag.toLowerCase()));
 
   const suggestions = (orgTags ?? []).filter(
-    (t) =>
+    (t: any) =>
       t.toLowerCase().includes(inputValue.toLowerCase()) &&
       !existingTagNames.has(t.toLowerCase())
   );
@@ -95,7 +95,7 @@ export const TagChips = ({ conversationId }: TagChipsProps) => {
     <div className="space-y-2">
       {/* Existing tags */}
       <div className="flex flex-wrap gap-1.5">
-        {(tags ?? []).map((tag) => {
+        {(tags ?? []).map((tag: any) => {
           const color = tag.color ?? getTagColor(tag.tag);
           return (
             <span
@@ -138,7 +138,7 @@ export const TagChips = ({ conversationId }: TagChipsProps) => {
           {/* Suggestions dropdown */}
           {showSuggestions && suggestions.length > 0 && (
             <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container-high border border-outline-variant shadow-lg min-w-[120px] max-h-40 overflow-y-auto">
-              {suggestions.map((s) => (
+              {suggestions.map((s: any) => (
                 <button
                   key={s}
                   className="w-full text-left px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-on-surface hover:bg-surface-container-highest hover:text-primary transition-colors"

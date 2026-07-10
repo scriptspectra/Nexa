@@ -143,7 +143,7 @@ export const syncAndGetDetails = action({
         : null,
       updatePaymentMethodUrl: subscription?.updatePaymentMethodUrl ?? null,
       customerPortalUrl: subscription?.customerPortalUrl ?? null,
-      invoices: invoices.map((invoice) => ({
+      invoices: invoices.map((invoice: any) => ({
         id: invoice.lemonSqueezyInvoiceId,
         date: formatInvoiceDate(invoice.createdAt),
         description: invoice.description,

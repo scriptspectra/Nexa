@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { generateText } from "ai";
-import { action, mutation, query } from "../_generated/server";
+import { action, mutation, query, internalMutation, internalQuery } from "../_generated/server";
 import { components, internal } from "../_generated/api";
 import { supportAgent } from "../system/ai/agents/supportAgent";
 import { paginationOptsValidator } from "convex/server";
@@ -265,7 +265,7 @@ export const getMany = query({
   },
 });
 
-export const saveInboundMessage = mutation({
+export const saveInboundMessage = internalMutation({
   args: {
     conversationId: v.id("conversations"),
     content: v.string(),

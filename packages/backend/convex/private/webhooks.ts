@@ -138,7 +138,7 @@ export const dispatchEventAction = internalAction({
       organizationId: args.organizationId,
     });
 
-    const matchingEndpoints = endpoints.filter((ep) => 
+    const matchingEndpoints = endpoints.filter((ep: any) => 
       ep.events.includes(args.eventType) || ep.events.includes("*")
     );
 
@@ -153,7 +153,7 @@ export const dispatchEventAction = internalAction({
 
     // 2. Dispatch HTTP requests in parallel
     await Promise.allSettled(
-      matchingEndpoints.map(async (ep) => {
+      matchingEndpoints.map(async (ep: any) => {
         try {
           const signature = await computeSignature(ep.secret, jsonPayload, timestamp);
           const response = await fetch(ep.url, {

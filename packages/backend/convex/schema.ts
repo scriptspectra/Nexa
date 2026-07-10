@@ -71,7 +71,7 @@ export default defineSchema({
   conversations: defineTable({
     threadId: v.string(), // Kept for legacy agent compatibility if needed
     organizationId: v.string(),
-    contactId: v.id("contacts"), // Replaces contactSessionId
+    contactId: v.optional(v.id("contacts")), // Optional for legacy UI migration
     contactSessionId: v.optional(v.id("contactSessions")), // Restored for UI compatibility
     status: v.union(
       v.literal("unresolved"),
@@ -98,6 +98,7 @@ export default defineSchema({
   })
     .index("by_organization_id", ["organizationId"])
     .index("by_contact_id", ["contactId"])
+    .index("by_contact_session_id", ["contactSessionId"])
     .index("by_thread_id", ["threadId"])
     .index("by_status_and_organization_id", ["status", "organizationId"])
     .index("by_assigned_user", ["assignedToUserId", "organizationId"]),

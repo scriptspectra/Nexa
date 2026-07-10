@@ -24,7 +24,7 @@ export const VapiFormFields = ({
           {...form.register("vapiSettings.assistantId")}
         >
           <option value="none">{assistantsLoading ? "Loading..." : "Select an assistant"}</option>
-          {assistants?.map((assistant) => (
+          {assistants?.map((assistant: any) => (
             <option key={assistant.id} value={assistant.id}>
               {assistant.name || "Unnamed Assistant"} - {assistant.model?.model || "Unknown model"}
             </option>
@@ -40,7 +40,7 @@ export const VapiFormFields = ({
           {...form.register("vapiSettings.phoneNumber")}
         >
           <option value="none">{phoneNumbersLoading ? "Loading..." : "Select a phone number"}</option>
-          {phoneNumbers?.map((phone) => (
+          {phoneNumbers?.map((phone: any) => (
             <option key={phone.id} value={phone.number || phone.id}>
               {phone.number || "Unknown"} - {phone.name || "Unnamed"}
             </option>

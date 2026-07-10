@@ -72,7 +72,7 @@ export const ConversationsPanel = () => {
     loadSize: 10,
   });
 
-  const filteredResults = (conversations.results || []).filter(conv => {
+  const filteredResults = (conversations.results || []).filter((conv: any) => {
     if (!searchQuery) return true;
     const lowerQuery = searchQuery.toLowerCase();
     const nameMatch = conv.contactSession.name?.toLowerCase().includes(lowerQuery);
@@ -164,7 +164,7 @@ export const ConversationsPanel = () => {
                 >
                   Any Tag
                 </button>
-                {(orgTags ?? []).map(t => (
+                {(orgTags ?? []).map((t: string) => (
                   <button 
                     key={t} 
                     className={cn(

@@ -139,7 +139,7 @@ export const ApiKeysView = () => {
                 </td>
               </tr>
             ) : (
-              apiKeys.map((key) => (
+              apiKeys.map((key: any) => (
                 <tr key={key._id} className="hover:bg-surface-container-highest/50 transition-colors">
                   <td className="p-4 font-medium text-on-surface">{key.name}</td>
                   <td className="p-4 font-mono text-on-surface-variant">{key.keyPrefix}...</td>

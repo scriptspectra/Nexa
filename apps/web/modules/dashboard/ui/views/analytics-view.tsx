@@ -366,7 +366,7 @@ const AnalyticsViewInner = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
-                  {agentStats.map((agent, i) => (
+                  {agentStats.map((agent: any, i: number) => (
                     <tr key={agent.name} className="hover:bg-surface-container-low transition-colors">
                       <td className="py-2 text-on-surface-variant">{i + 1}</td>
                       <td className="py-2 text-white font-bold">{agent.name}</td>

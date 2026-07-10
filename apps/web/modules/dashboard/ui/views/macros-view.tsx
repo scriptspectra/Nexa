@@ -79,7 +79,7 @@ export const MacrosView = () => {
           </div>
         ) : (
           <div className="space-y-sm">
-            {(macros.results || []).map((macro) =>
+            {(macros.results || []).map((macro: any) =>
               editingId === macro._id ? (
                 <MacroForm
                   key={macro._id}

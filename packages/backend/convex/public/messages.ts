@@ -107,10 +107,20 @@ export const getMany = query({
       });
     }
 
-    const paginated = await ctx.runQuery(internal.private.messages.getMessagesForConversation, {
-      threadId: args.threadId,
-      paginationOpts: args.paginationOpts,
-    });
+    const conversation = await ctx.db
+      .query("conversations")
+      .withIndex("by_thread_id", (q) => q.eq("threadId", args.threadId))
+      .unique();
+
+    if (!conversation) {
+      throw new ConvexError("Conversation not found");
+    }
+
+    const paginated = await ctx.db
+      .query("messages")
+      .withIndex("by_conversation_id", (q) => q.eq("conversationId", conversation._id))
+      .order("desc")
+      .paginate(args.paginationOpts);
 
     return paginated;
   },
