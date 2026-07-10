@@ -508,7 +508,7 @@ http.route({
     const redirectUri = `${url.origin}/api/integrations/meta/callback`;
     
     // Hand off to internal action to exchange code and save DB
-    await ctx.scheduler.runAfter(0, internal.integrations.meta.actions.handleOAuthCallback, {
+    await ctx.scheduler.runAfter(0, (internal as any).integrations.meta.actions.handleOAuthCallback, {
       code,
       redirectUri,
       orgId,

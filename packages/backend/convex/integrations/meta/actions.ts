@@ -15,7 +15,7 @@ export const handleOAuthCallback = internalAction({
     const tokenResult = await oauthProvider.exchangeCodeForToken(args.code, args.redirectUri);
 
     // Save token to DB
-    await ctx.runMutation(internal.integrations.meta.actions.saveMetaIntegration, {
+    await ctx.runMutation((internal as any).integrations.meta.actions.saveMetaIntegration, {
       organizationId: args.orgId,
       accessToken: tokenResult.accessToken,
     });
@@ -61,7 +61,7 @@ export const saveMetaIntegration = internalMutation({
 export const discoverMetaResources = internalAction({
   args: { organizationId: v.string() },
   handler: async (ctx, args) => {
-    const integration = await ctx.runQuery(internal.integrations.meta.actions.getMetaIntegration, {
+    const integration = await ctx.runQuery((internal as any).integrations.meta.actions.getMetaIntegration, {
       organizationId: args.organizationId,
     });
 

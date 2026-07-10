@@ -6,7 +6,7 @@ export const syncAllIntegrations = internalAction({
   args: {},
   handler: async (ctx) => {
     // Note: In a real system you'd paginate this
-    const integrations = await ctx.runQuery(internal.integrations.base.actions.getAllActiveIntegrations);
+    const integrations = await ctx.runQuery((internal as any).integrations.base.actions.getAllActiveIntegrations);
 
     for (const integration of integrations) {
       if (!integration.accessToken) continue;
@@ -16,13 +16,13 @@ export const syncAllIntegrations = internalAction({
         if (integration.provider === "meta") {
           // Health check & sync logic goes here
           // This would ideally map via a ProviderRegistry
-          await ctx.runAction(internal.integrations.meta.actions.discoverMetaResources, {
+          await ctx.runAction((internal as any).integrations.meta.actions.discoverMetaResources, {
             organizationId: integration.organizationId,
           });
         }
       } catch (e: any) {
         console.error(`Integration sync failed for ${integration._id}`, e);
-        await ctx.runMutation(internal.integrations.base.actions.updateIntegrationState, {
+        await ctx.runMutation((internal as any).integrations.base.actions.updateIntegrationState, {
           integrationId: integration._id,
           status: "reconnect_required",
           errorState: e.message,
