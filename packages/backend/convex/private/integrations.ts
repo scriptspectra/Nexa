@@ -10,9 +10,7 @@ export const getIntegrationStatus = query({
     if (!args.organizationId) return null;
     return await ctx.db
       .query("integrations")
-      .withIndex("by_organization_id_and_provider", (q) =>
-        q.eq("organizationId", args.organizationId).eq("provider", args.provider)
-      )
+      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
       .first();
   },
 });
