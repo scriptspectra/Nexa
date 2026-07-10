@@ -35,7 +35,7 @@ async function scrapePage(url: string): Promise<{ title: string; text: string } 
     // Inline cheerio-compatible minimal HTML text extraction without dynamic import issues
     // Use DOMParser-style regex approach that works in Convex runtime
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim().replace(/\s+/g, " ") : url;
+    const title = titleMatch?.[1]?.trim().replace(/\s+/g, " ") ?? url;
 
     // Strip scripts, styles, and tags
     const text = html
