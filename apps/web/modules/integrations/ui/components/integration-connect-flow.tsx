@@ -25,13 +25,13 @@ export const IntegrationConnectFlow = ({
   const router = useRouter();
 
   // Query integration status
-  const integration = useQuery(api.private.integrations.getIntegrationStatus, {
+  const integration = useQuery((api as any).private.integrations.getIntegrationStatus, {
     organizationId: organization?.id ?? "",
     provider,
   });
 
   // Action to discover resources
-  const discoverResources = useAction(api.integrations.meta.actions.discoverMetaResources);
+  const discoverResources = useAction((api as any).integrations.meta.actions.discoverMetaResources);
 
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [discoveredResources, setDiscoveredResources] = useState<any[]>([]);
