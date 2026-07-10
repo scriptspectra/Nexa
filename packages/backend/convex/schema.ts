@@ -69,14 +69,19 @@ export default defineSchema({
   })
     .index("by_organization_id", ["organizationId"]),
   conversations: defineTable({
-    threadId: v.string(),
+    threadId: v.string(), // Kept for legacy agent compatibility if needed
     organizationId: v.string(),
-    contactSessionId: v.id("contactSessions"),
+    contactId: v.id("contacts"), // Replaces contactSessionId
     status: v.union(
       v.literal("unresolved"),
       v.literal("escalated"),
       v.literal("resolved")
     ),
+    owner: v.optional(v.union(
+      v.literal("AI_ONLY"),
+      v.literal("AI_ASSISTED"),
+      v.literal("HUMAN_ONLY")
+    )),
     // Assignment (Phase 2)
     assignedToUserId: v.optional(v.string()),
     assignedToName: v.optional(v.string()),
@@ -91,7 +96,7 @@ export default defineSchema({
     slaDeadline: v.optional(v.number()),
   })
     .index("by_organization_id", ["organizationId"])
-    .index("by_contact_session_id", ["contactSessionId"])
+    .index("by_contact_id", ["contactId"])
     .index("by_thread_id", ["threadId"])
     .index("by_status_and_organization_id", ["status", "organizationId"])
     .index("by_assigned_user", ["assignedToUserId", "organizationId"]),
@@ -273,4 +278,57 @@ export default defineSchema({
     type: v.string(),
     message: v.string(),
   }).index("by_timestamp", ["timestamp"]).index("by_type", ["type"]),
+
+  // Phase 1 - Omni-Channel Entities
+
+  contacts: defineTable({
+    organizationId: v.string(),
+    mergedContactId: v.optional(v.id("contacts")), // For identity resolution
+    name: v.optional(v.string()),
+    createdAt: v.optional(v.number()),
+  }).index("by_organization_id", ["organizationId"]),
+
+  contactIdentities: defineTable({
+    contactId: v.id("contacts"),
+    provider: v.string(), // 'whatsapp', 'email', 'widget'
+    externalId: v.string(),
+  })
+    .index("by_contact_id", ["contactId"])
+    .index("by_external_id", ["externalId", "provider"]),
+
+  integrations: defineTable({
+    organizationId: v.string(),
+    provider: v.string(), // 'meta', 'slack', etc.
+    status: v.string(), // 'active', 'paused'
+    credentialsId: v.optional(v.string()), // Reference to secret or config
+  }).index("by_organization_id", ["organizationId"]),
+
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    direction: v.union(v.literal("inbound"), v.literal("outbound")),
+    content: v.string(),
+    type: v.union(v.literal("text"), v.literal("image"), v.literal("file"), v.literal("audio")),
+    integrationId: v.optional(v.id("integrations")),
+    channel: v.string(), // 'whatsapp', 'widget'
+    externalMessageId: v.optional(v.string()),
+    deliveryStatus: v.union(
+      v.literal("pending"),
+      v.literal("sent"),
+      v.literal("delivered"),
+      v.literal("read"),
+      v.literal("failed")
+    ),
+    createdAt: v.optional(v.number()),
+  })
+    .index("by_conversation_id", ["conversationId"])
+    .index("by_external_message_id", ["externalMessageId"]),
+
+  outboxMessages: defineTable({
+    messageId: v.id("messages"),
+    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("failed")),
+    retryCount: v.number(),
+    lastAttemptAt: v.optional(v.number()),
+    error: v.optional(v.string()),
+  }).index("by_status", ["status"]),
+
 });
