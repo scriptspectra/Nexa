@@ -14,3 +14,10 @@ export const getIntegrationStatus = query({
       .first();
   },
 });
+
+export const getById = internalQuery({
+  args: { integrationId: v.id("integrations") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.integrationId);
+  },
+});

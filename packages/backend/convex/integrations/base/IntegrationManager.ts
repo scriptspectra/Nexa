@@ -8,7 +8,7 @@ export class IntegrationManager {
    */
   static async syncIntegration(ctx: ActionCtx, integrationId: Id<"integrations">) {
     // 1. Fetch integration from DB
-    const integration = await ctx.runQuery(internal.private.integrations.getById, { integrationId });
+    const integration = await ctx.runQuery((internal as any).private.integrations.getById, { integrationId });
     if (!integration || !integration.accessToken) return;
 
     // 2. Get the specific provider implementation
