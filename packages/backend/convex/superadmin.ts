@@ -5,7 +5,7 @@ import { v } from "convex/values";
 import { requireSuperadmin } from "./lib/superadminAuth";
 
 /*** READ‑ONLY QUERIES ***/
-export const listOrganizations = query({
+export const listOrganizations: any = query({
   handler: async (ctx) => {
     await requireSuperadmin(ctx);
     const orgs = await ctx.db.query("organizations").order("desc").collect();
@@ -22,14 +22,14 @@ export const listOrganizations = query({
   },
 });
 
-export const listUsers = query({
+export const listUsers: any = query({
   handler: async (ctx) => {
     await requireSuperadmin(ctx);
     return await ctx.db.query("users").order("desc").collect();
   },
 });
 
-export const listUsage = query({
+export const listUsage: any = query({
   args: { months: v.optional(v.number()) },
   handler: async (ctx, { months }) => {
     await requireSuperadmin(ctx);
@@ -40,7 +40,7 @@ export const listUsage = query({
       .query("usageCounters")
       .filter((q) => q.gte("timestamp", start))
       .collect();
-    const agg = {};
+    const agg: Record<string, number> = {};
     for (const c of counters) {
       agg[c.organizationId] = (agg[c.organizationId] ?? 0) + c.aiResponsesCount;
     }
@@ -48,14 +48,14 @@ export const listUsage = query({
   },
 });
 
-export const systemHealth = query({
+export const systemHealth: any = query({
   handler: async (ctx) => {
     await requireSuperadmin(ctx);
     return { convex: "OK", openAI: "OK", webhookSuccessRate: "N/A" };
   },
 });
 
-export const listLogs = query({
+export const listLogs: any = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit }) => {
     await requireSuperadmin(ctx);
@@ -70,7 +70,7 @@ export const listLogs = query({
 });
 
 /*** MUTATIONS ***/
-export const suspendOrg = mutation({
+export const suspendOrg: any = mutation({
   args: { orgId: v.id("organizations") },
   handler: async (ctx, { orgId }) => {
     await requireSuperadmin(ctx);
@@ -78,7 +78,7 @@ export const suspendOrg = mutation({
   },
 });
 
-export const unsuspendOrg = mutation({
+export const unsuspendOrg: any = mutation({
   args: { orgId: v.id("organizations") },
   handler: async (ctx, { orgId }) => {
     await requireSuperadmin(ctx);
@@ -90,7 +90,7 @@ export const unsuspendOrg = mutation({
   },
 });
 
-export const resetOrgUsage = mutation({
+export const resetOrgUsage: any = mutation({
   args: { orgId: v.id("organizations") },
   handler: async (ctx, { orgId }) => {
     await requireSuperadmin(ctx);
@@ -103,7 +103,7 @@ export const resetOrgUsage = mutation({
   },
 });
 
-export const isSuperadmin = query({
+export const isSuperadmin: any = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return false;
