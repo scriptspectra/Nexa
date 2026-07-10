@@ -29,7 +29,7 @@ crons.interval(
 crons.interval(
   "sync-integrations",
   { hours: 1 },
-  internal.integrations.base.actions.syncAllIntegrations,
+  (internal as any).integrations.base.actions.syncAllIntegrations,
 );
 
 export default crons;
