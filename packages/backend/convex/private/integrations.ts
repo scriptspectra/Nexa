@@ -1,4 +1,4 @@
-import { internalAction, internalMutation, internalQuery, query } from "../_generated/server";
+import { query, internalQuery } from "../_generated/server";
 import { v } from "convex/values";
 
 export const getIntegrationStatus = query({
@@ -7,10 +7,12 @@ export const getIntegrationStatus = query({
     provider: v.string(),
   },
   handler: async (ctx, args) => {
+    if (!args.organizationId) return null;
     return await ctx.db
       .query("integrations")
-      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
-      .filter((q) => q.eq(q.field("provider"), args.provider))
+      .withIndex("by_organization_id_and_provider", (q) =>
+        q.eq("organizationId", args.organizationId).eq("provider", args.provider)
+      )
       .first();
   },
 });

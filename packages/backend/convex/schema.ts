@@ -316,7 +316,8 @@ export default defineSchema({
     lastSyncedAt: v.optional(v.number()),
     lastHealthyAt: v.optional(v.number()),
     errorState: v.optional(v.string()),
-  }).index("by_organization_id", ["organizationId"]),
+  }).index("by_organization_id", ["organizationId"])
+    .index("by_organization_id_and_provider", ["organizationId", "provider"]),
 
   integrationResources: defineTable({
     organizationId: v.string(),

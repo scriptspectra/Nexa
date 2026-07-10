@@ -1,4 +1,4 @@
-import { internalAction, internalMutation, internalQuery } from "../../_generated/server";
+import { internalAction, internalMutation, internalQuery, action } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { MetaOAuthProvider } from "./MetaOAuthProvider";
@@ -34,8 +34,9 @@ export const saveMetaIntegration = internalMutation({
     // Upsert the integration record
     const existing = await ctx.db
       .query("integrations")
-      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
-      .filter((q) => q.eq(q.field("provider"), "meta"))
+      .withIndex("by_organization_id_and_provider", (q) =>
+        q.eq("organizationId", args.organizationId).eq("provider", "meta")
+      )
       .first();
 
     if (existing) {
@@ -75,14 +76,33 @@ export const discoverMetaResources = internalAction({
     return resources;
   },
 });
+export const discoverMetaResourcesPublic = action({
+  args: { organizationId: v.string() },
+  handler: async (ctx, args) => {
+    const integration = await ctx.runQuery(
+      (internal as any).integrations.meta.actions.getMetaIntegration,
+      { organizationId: args.organizationId },
+    );
+
+    if (!integration || !integration.accessToken) {
+      throw new Error("Meta integration not connected");
+    }
+
+    const metaProvider = new MetaProvider();
+    const resources = await metaProvider.discoverResources(integration.accessToken);
+
+    return resources;
+  },
+});
 
 export const getMetaIntegration = internalQuery({
   args: { organizationId: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("integrations")
-      .withIndex("by_organization_id", (q) => q.eq("organizationId", args.organizationId))
-      .filter((q) => q.eq(q.field("provider"), "meta"))
+      .withIndex("by_organization_id_and_provider", (q) =>
+        q.eq("organizationId", args.organizationId).eq("provider", "meta")
+      )
       .first();
   },
 });

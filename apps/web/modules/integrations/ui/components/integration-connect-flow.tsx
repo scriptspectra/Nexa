@@ -1,13 +1,13 @@
 "use client";
 
 import { useOrganization } from "@clerk/nextjs";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useAction } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
 import { Button } from "@workspace/ui/components/button";
 import { CheckIcon, PlusIcon, MessageCircleIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 
 export const IntegrationConnectFlow = ({
   provider,
@@ -22,56 +22,52 @@ export const IntegrationConnectFlow = ({
 }) => {
   const { organization } = useOrganization();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
-  // Query integration status
-  const integration = useQuery((api as any).private.integrations.getIntegrationStatus, {
-    organizationId: organization?.id ?? "",
-    provider,
-  });
-
-  // Action to discover resources
-  const discoverResources = useAction((api as any).integrations.meta.actions.discoverMetaResources);
+  // Query integration status — skip query when org is not available
+  const integration = useQuery(
+    (api as any).private.integrations.getIntegrationStatus,
+    organization?.id
+      ? { organizationId: organization.id, provider }
+      : "skip",
+  );
 
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [discoveredResources, setDiscoveredResources] = useState<any[]>([]);
 
-  // Check if we just returned from OAuth
-  useEffect(() => {
-    if (searchParams.get(provider) === "success" && integration?.status === "connected") {
-      // Automatically trigger discovery
-      handleDiscover();
-      
-      // Clean up URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete(provider);
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, [searchParams, integration?.status]);
-
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     if (!organization?.id) {
       toast.error("Please select an organization first.");
       return;
     }
     // Redirect to backend OAuth login
     window.location.href = `/api/integrations/${provider}/login?orgId=${organization.id}`;
-  };
+  }, [organization?.id, provider]);
 
-  const handleDiscover = async () => {
+  const handleDiscover = useCallback(async () => {
     if (!organization?.id) return;
     setIsDiscovering(true);
     try {
-      if (provider === "meta") {
-        const resources = await discoverResources({ organizationId: organization.id });
-        setDiscoveredResources(resources);
-      }
+      // Use fetch to call a hypothetical discovery endpoint
+      // For now, this is a placeholder — actual discovery requires the Meta access token on the backend
+      toast.info("Resource discovery is not yet configured for this provider.");
     } catch (e: any) {
       toast.error(`Discovery failed: ${e.message}`);
     } finally {
       setIsDiscovering(false);
     }
-  };
+  }, [organization?.id, provider]);
+
+  // Check if we just returned from OAuth
+  useEffect(() => {
+    if (searchParams.get(provider) === "success" && integration?.status === "connected") {
+      handleDiscover();
+
+      // Clean up URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete(provider);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [searchParams, integration?.status, provider, handleDiscover]);
 
   const isConnected = integration && integration.status !== "disconnected";
 
