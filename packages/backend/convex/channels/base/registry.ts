@@ -1,4 +1,5 @@
 import { IChannelAdapter } from "./types";
+import { WidgetAdapter } from "../widget/WidgetAdapter";
 
 export interface RegisteredAdapter {
   id: string; // e.g., 'whatsapp', 'widget', 'messenger'
@@ -38,3 +39,9 @@ class Registry {
 }
 
 export const ChannelRegistry = new Registry();
+
+// Auto-register built-in adapters
+ChannelRegistry.register({
+  id: "widget",
+  adapter: new WidgetAdapter()
+});

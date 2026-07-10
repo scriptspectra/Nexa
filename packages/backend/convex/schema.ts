@@ -72,6 +72,7 @@ export default defineSchema({
     threadId: v.string(), // Kept for legacy agent compatibility if needed
     organizationId: v.string(),
     contactId: v.id("contacts"), // Replaces contactSessionId
+    contactSessionId: v.optional(v.id("contactSessions")), // Restored for UI compatibility
     status: v.union(
       v.literal("unresolved"),
       v.literal("escalated"),

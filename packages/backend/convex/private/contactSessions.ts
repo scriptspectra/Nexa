@@ -40,6 +40,10 @@ export const getOneByConversationId = query({
       });
     }
 
+    if (!conversation.contactSessionId) {
+      return null;
+    }
+
     const contactSession = await ctx.db.get(conversation.contactSessionId);
 
     return contactSession;

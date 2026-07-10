@@ -7,6 +7,8 @@ import { escalateConversation } from "../system/ai/tools/escalateConversation";
 import { resolveConversation } from "../system/ai/tools/resolveConversation";
 import { saveMessage } from "@convex-dev/agent";
 import { search } from "../system/ai/tools/search";
+import { ChannelRegistry } from "../channels/base/registry";
+import { EventBus } from "../events/bus";
 
 export const create = action({
   args: {
@@ -62,36 +64,28 @@ export const create = action({
       },
     );
 
-    let shouldTriggerAgent =
-      conversation.status === "unresolved" && subscription?.status === "active";
+    // Get the Widget Adapter
+    const adapter = ChannelRegistry.getAdapter("widget");
+    const unifiedMessages = await adapter.parseInbound(
+      { content: args.prompt, contactId: args.contactSessionId, messageId: `msg-${Date.now()}` },
+      "integration-widget",
+      conversation.organizationId
+    );
 
-    if (shouldTriggerAgent) {
-      const usageCheck = await ctx.runMutation(internal.private.usage.incrementAndCheckUsage, {
-        organizationId: conversation.organizationId,
+    for (const msg of unifiedMessages) {
+      // Save inbound message to the new schema
+      const messageId = await ctx.runMutation(internal.private.messages.saveInboundMessage, {
+        conversationId: conversation._id,
+        content: msg.content,
+        type: msg.type,
+        channel: msg.source.channel,
+        externalMessageId: msg.externalMessageId,
       });
-      if (!usageCheck.allowed) {
-        shouldTriggerAgent = false;
-        // Automatically save a system message about limit? For MVP we just don't trigger AI.
-      }
-    }
 
-    if (shouldTriggerAgent) {
-      await supportAgent.generateText(
-        ctx,
-        { threadId: args.threadId },
-        {
-          prompt: args.prompt,
-          tools: {
-            escalateConversationTool: escalateConversation,
-            resolveConversationTool: resolveConversation,
-            searchTool: search,
-          }
-        },
-      )
-    } else {
-      await saveMessage(ctx, components.agent, {
-        threadId: args.threadId,
-        prompt: args.prompt,
+      // Emit event
+      await EventBus.publish(ctx, {
+        type: "MessageReceived",
+        payload: { unifiedMessageId: messageId },
       });
     }
   },
@@ -113,7 +107,7 @@ export const getMany = query({
       });
     }
 
-    const paginated = await supportAgent.listMessages(ctx, {
+    const paginated = await ctx.runQuery(internal.private.messages.getMessagesForConversation, {
       threadId: args.threadId,
       paginationOpts: args.paginationOpts,
     });

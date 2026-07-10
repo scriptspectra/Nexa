@@ -264,3 +264,51 @@ export const getMany = query({
     return paginated;
   },
 });
+
+export const saveInboundMessage = mutation({
+  args: {
+    conversationId: v.id("conversations"),
+    content: v.string(),
+    type: v.string(),
+    channel: v.string(),
+    externalMessageId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const messageId = await ctx.db.insert("messages", {
+      conversationId: args.conversationId,
+      direction: "inbound",
+      content: args.content,
+      type: args.type as any,
+      channel: args.channel,
+      externalMessageId: args.externalMessageId,
+      deliveryStatus: "delivered",
+      createdAt: Date.now(),
+    });
+    return messageId;
+  },
+});
+
+export const getMessagesForConversation = query({
+  args: {
+    threadId: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const conversation = await ctx.db
+      .query("conversations")
+      .withIndex("by_thread_id", (q) => q.eq("threadId", args.threadId))
+      .unique();
+
+    if (!conversation) {
+      throw new ConvexError("Conversation not found");
+    }
+
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_conversation_id", (q) => q.eq("conversationId", conversation._id))
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    return messages;
+  },
+});
