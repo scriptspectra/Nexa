@@ -183,43 +183,62 @@ export const scrapeUrl = action({
       throw new ConvexError({ code: "UNAUTHORIZED", message: "Organization not found" });
     }
 
-    // Dynamic import to avoid breaking if not installed globally yet
-    const cheerio = await import("cheerio");
-
-    const response = await fetch(args.url);
+    const response = await fetch(args.url, {
+      headers: { "User-Agent": "Nexa-KnowledgeBot/1.0" },
+      signal: AbortSignal.timeout(15000),
+    });
     if (!response.ok) {
       throw new ConvexError({ code: "BAD_REQUEST", message: `Failed to fetch URL: ${response.statusText}` });
     }
 
-    const html = await response.text();
-    const $ = cheerio.load(html);
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("text/html")) {
+      throw new ConvexError({ code: "BAD_REQUEST", message: "URL does not point to an HTML page" });
+    }
 
-    // Remove script, style, nav, footer, etc to get clean text
-    $("script, style, nav, footer, header, noscript, iframe").remove();
-    
-    // Extract text and clean up whitespace
-    const text = $("body").text().replace(/\s+/g, " ").trim();
-    
+    const html = await response.text();
+
+    // Regex-based HTML extraction — works in Convex edge runtime (no Node.js deps)
+    const titleMatch = html.match(/<title[^>]*>([\/\s\S]*?)<\/title>/i);
+    const title = titleMatch?.[1]?.trim().replace(/\s+/g, " ") ?? args.url;
+
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+      .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+      .replace(/<header[\s\S]*?<\/header>/gi, "")
+      .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
+      .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+
     if (!text) {
       throw new ConvexError({ code: "BAD_REQUEST", message: "No text content found on this page" });
     }
 
-    const title = $("title").text().trim() || args.url;
-    // We create a dummy ArrayBuffer of the text to use for contentHash
+    // Create a dummy ArrayBuffer of the text to use for contentHash
     const bytes = new TextEncoder().encode(text).buffer;
 
     const { entryId } = await rag.add(ctx, {
       namespace: orgId,
       text,
       key: args.url,
-      title: title,
+      title,
       metadata: {
         uploadedBy: orgId,
-        filename: title, // use title as filename for display
+        filename: title,
         category: args.category ?? null,
-        url: args.url, // store original URL in metadata
+        url: args.url,
       } as any,
-      contentHash: await contentHashFromArrayBuffer(bytes)
+      contentHash: await contentHashFromArrayBuffer(bytes),
     });
 
     return { entryId, title };
