@@ -171,22 +171,7 @@ export const IntegrationsView = () => {
             </div>
           </div>
 
-          {/* ─── MESSAGING INTEGRATIONS ─────────────────────────────── */}
-          <div className="space-y-4">
-            <div className="flex items-end justify-between border-b border-white/5 pb-4">
-              <div>
-                <h3 className="text-2xl font-bold text-white tracking-tight">Messaging Channels</h3>
-                <p className="text-sm text-zinc-400 mt-1">Connect your social channels to funnel messages into the Zephyra inbox.</p>
-              </div>
-            </div>
 
-            <IntegrationConnectFlow 
-              provider="meta"
-              title="Meta (Facebook, Instagram, WhatsApp)"
-              description="Connect Facebook Pages, Instagram Accounts, and WhatsApp Business numbers to support customers on Meta platforms."
-              icon={MessageCircleIcon}
-            />
-          </div>
 
         {/* Organization ID Section */}
         <div className="bg-zinc-950/40 border border-white/5 rounded-2xl p-6">

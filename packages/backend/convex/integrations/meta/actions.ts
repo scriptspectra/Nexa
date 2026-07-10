@@ -106,3 +106,51 @@ export const getMetaIntegration = internalQuery({
       .first();
   },
 });
+
+export const getResourceById = internalQuery({
+  args: { resourceId: v.id("integrationResources") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.resourceId);
+  },
+});
+
+export const getIntegrationById = internalQuery({
+  args: { integrationId: v.id("integrations") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.integrationId);
+  },
+});
+
+export const subscribeResourceWebhooks = action({
+  args: {
+    resourceId: v.id("integrationResources"),
+  },
+  handler: async (ctx, args) => {
+    const resource = await ctx.runQuery((internal as any).integrations.meta.actions.getResourceById, {
+      resourceId: args.resourceId,
+    });
+
+    if (!resource || resource.status !== "active") {
+      throw new Error("Resource not found or not active");
+    }
+
+    const integration = await ctx.runQuery((internal as any).integrations.meta.actions.getIntegrationById, {
+      integrationId: resource.integrationId,
+    });
+
+    if (!integration || !integration.accessToken) {
+      throw new Error("Parent integration not found or disconnected");
+    }
+
+    const metaProvider = new MetaProvider();
+    const discovered = [{
+      externalResourceId: resource.externalResourceId,
+      name: resource.name,
+      resourceType: resource.resourceType,
+      capabilities: resource.capabilities,
+      raw: resource.raw,
+    }];
+
+    await metaProvider.registerWebhooks(discovered, integration.accessToken);
+  },
+});

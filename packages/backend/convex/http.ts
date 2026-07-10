@@ -452,14 +452,26 @@ http.route({
   path: "/api/integrations/meta/login",
   method: "GET",
   handler: httpAction(async (ctx, request) => {
-    // Usually you'd extract orgId and build a state token
     const url = new URL(request.url);
     const orgId = url.searchParams.get("orgId");
     if (!orgId) return new Response("Missing orgId", { status: 400 });
 
+    const clientOriginParam = url.searchParams.get("clientOrigin");
+    const referer = request.headers.get("referer");
+    let clientOrigin = "http://localhost:3000";
+    if (clientOriginParam) {
+      clientOrigin = clientOriginParam;
+    } else if (referer) {
+      try {
+        clientOrigin = new URL(referer).origin;
+      } catch (e) {
+        // ignore
+      }
+    }
+
     const META_APP_ID = process.env.META_APP_ID || "";
     const redirectUri = `${url.origin}/api/integrations/meta/callback`;
-    const state = Buffer.from(JSON.stringify({ orgId })).toString("base64");
+    const state = Buffer.from(JSON.stringify({ orgId, clientOrigin })).toString("base64");
 
     const scopes = [
       "pages_show_list",
@@ -498,9 +510,13 @@ http.route({
     }
 
     let orgId: string;
+    let clientOrigin = "http://localhost:3000";
     try {
       const parsedState = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
       orgId = parsedState.orgId;
+      if (parsedState.clientOrigin) {
+        clientOrigin = parsedState.clientOrigin;
+      }
     } catch {
       return new Response("Invalid state", { status: 400 });
     }
@@ -514,10 +530,8 @@ http.route({
       orgId,
     });
 
-    // Redirect user back to the dashboard integration config page
-    const dashboardUrl = url.hostname.includes("convex.cloud") || url.hostname.includes("localhost") 
-      ? "http://localhost:3000/integrations?meta=success" // fallback for local dev
-      : `https://${url.hostname}/integrations?meta=success`; // naive production fallback
+    // Redirect user back to the channels page
+    const dashboardUrl = `${clientOrigin}/channels?meta=success`;
 
     return new Response(null, {
       status: 302,

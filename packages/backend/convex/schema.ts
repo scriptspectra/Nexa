@@ -90,7 +90,15 @@ export default defineSchema({
     // Timing (Phase 1 & 3)
     firstResponseAt: v.optional(v.number()),
     // Channel (Phase 5 — email / voice)
-    channel: v.optional(v.union(v.literal("widget"), v.literal("email"), v.literal("voice"))),
+    channel: v.optional(v.union(
+      v.literal("widget"),
+      v.literal("email"),
+      v.literal("voice"),
+      v.literal("instagram"),
+      v.literal("messenger"),
+      v.literal("whatsapp"),
+      v.literal("slack")
+    )),
     externalId: v.optional(v.string()),
     // SLA Tracking (Phase 5)
     slaStatus: v.optional(v.union(v.literal("ok"), v.literal("warning"), v.literal("breached"))),
@@ -328,7 +336,9 @@ export default defineSchema({
     name: v.string(),
     capabilities: v.any(), // e.g., { messaging: true, media: true }
     status: v.union(v.literal("active"), v.literal("disconnected")),
-  }).index("by_external_resource_id", ["externalResourceId"]),
+    raw: v.optional(v.any()), // Provider-specific raw metadata (e.g. Page Access Token)
+  }).index("by_external_resource_id", ["externalResourceId"])
+    .index("by_organization_id", ["organizationId"]),
 
   messages: defineTable({
     conversationId: v.id("conversations"),

@@ -14,6 +14,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/conversations", label: "Conversations", icon: "chat_bubble" },
+  { href: "/channels", label: "Channels", icon: "hub" },
   { href: "/analytics", label: "Analytics", icon: "monitoring" },
   { href: "/files", label: "Files", icon: "folder" },
   { href: "/integrations", label: "Integrations", icon: "extension" },

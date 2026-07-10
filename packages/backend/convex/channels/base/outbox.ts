@@ -32,7 +32,7 @@ export const processOutbox = internalAction({
           throw new Error("Message details not found");
         }
 
-        const { message, conversation, contactIdentity, integration } = msgDetails;
+        const { message, conversation, contactIdentity, integration, integrationResource } = msgDetails;
 
         if (message.direction !== "outbound") {
           throw new Error("Cannot dispatch an inbound message");
@@ -55,7 +55,7 @@ export const processOutbox = internalAction({
 
         // Get Credentials (would normally decrypt here)
         const credentials = {
-          accessToken: integration?.accessToken,
+          accessToken: (integrationResource?.raw as any)?.pageAccessToken || integration?.accessToken,
           phoneNumberId: "MOCK_PHONE_ID", // In reality, fetch from integrationResources
         };
 
@@ -117,7 +117,17 @@ export const getMessageDetails = internalQuery({
       integration = await ctx.db.get(message.integrationId);
     }
 
-    return { message, conversation, contactIdentity, integration };
+    let integrationResource = null;
+    if (conversation.channel === "instagram" || conversation.channel === "messenger") {
+      const type = conversation.channel === "instagram" ? "instagram_account" : "facebook_page";
+      integrationResource = await ctx.db
+        .query("integrationResources")
+        .withIndex("by_organization_id", (q) => q.eq("organizationId", conversation.organizationId))
+        .filter((q) => q.eq(q.field("resourceType"), type) && q.eq(q.field("status"), "active"))
+        .first();
+    }
+
+    return { message, conversation, contactIdentity, integration, integrationResource };
   },
 });
 
