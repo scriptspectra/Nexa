@@ -266,8 +266,11 @@ export const FilesView = () => {
     }
   };
 
+  const filesResults = files.results || [];
+  const crawlJobsResults = crawlJobs.results || [];
+
   // Client side filtering for responsive search UX
-  const filteredResults = files.results.filter((file) => {
+  const filteredResults = filesResults.filter((file) => {
     const query = searchQuery.toLowerCase();
     return (
       file.name.toLowerCase().includes(query) ||
@@ -302,7 +305,7 @@ export const FilesView = () => {
     };
   };
 
-  const totalPagesCrawled = crawlJobs.results.reduce((s, j) => s + (j.pagesCrawled ?? 0), 0);
+  const totalPagesCrawled = crawlJobsResults.reduce((s, j) => s + (j.pagesCrawled ?? 0), 0);
 
   return (
     <>
@@ -357,7 +360,7 @@ export const FilesView = () => {
                 </div>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-white tracking-tight">{isLoadingFirstPage ? "..." : files.results.length}</span>
+                <span className="text-3xl font-bold text-white tracking-tight">{isLoadingFirstPage ? "..." : filesResults.length}</span>
                 <span className="text-xs text-zinc-500">files loaded</span>
               </div>
             </div>
@@ -370,7 +373,7 @@ export const FilesView = () => {
                 </div>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-violet-400 tracking-tight">{crawlJobs.results.length}</span>
+                <span className="text-3xl font-bold text-violet-400 tracking-tight">{crawlJobsResults.length}</span>
                 <span className="text-xs text-zinc-500">active</span>
               </div>
             </div>
@@ -428,7 +431,7 @@ export const FilesView = () => {
               <span className="flex items-center gap-2">
                 <NetworkIcon className="size-3.5" />
                 Web Crawls
-                {crawlJobs.results.some((j) => j.status === "running") && (
+                {crawlJobsResults.some((j) => j.status === "running") && (
                   <span className="size-1.5 rounded-full bg-blue-400 animate-pulse" />
                 )}
               </span>
@@ -619,7 +622,7 @@ export const FilesView = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {crawlJobs.results.length === 0 ? (
+                  {crawlJobsResults.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
                       <TableCell className="h-64 text-center border-none" colSpan={6}>
                         <div className="flex flex-col items-center justify-center py-6 max-w-sm mx-auto">
@@ -644,7 +647,7 @@ export const FilesView = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    crawlJobs.results.map((job) => (
+                    crawlJobsResults.map((job) => (
                       <CrawlJobRow
                         key={job._id}
                         job={job}

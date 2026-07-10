@@ -69,7 +69,7 @@ export const MacrosView = () => {
         {/* List */}
         {macros.status === "LoadingFirstPage" ? (
           <div className="text-on-surface-variant text-label-sm">Loading macros...</div>
-        ) : macros.results.length === 0 && !isCreating ? (
+        ) : (macros.results || []).length === 0 && !isCreating ? (
           <div className="bg-[#111] border border-outline-variant p-xl text-center">
             <span className="material-symbols-outlined text-[48px] text-on-surface-variant mb-4 block">quick_reference</span>
             <p className="text-body-md text-white font-bold mb-xs">No macros yet</p>
@@ -79,7 +79,7 @@ export const MacrosView = () => {
           </div>
         ) : (
           <div className="space-y-sm">
-            {macros.results.map((macro) =>
+            {(macros.results || []).map((macro) =>
               editingId === macro._id ? (
                 <MacroForm
                   key={macro._id}
