@@ -121,7 +121,7 @@ async function fetchSitemapUrls(sitemapUrl: string): Promise<string[]> {
 
   // Regular sitemap
   const locMatches = [...xml.matchAll(/<loc>([\s\S]*?)<\/loc>/gi)];
-  return locMatches.map((m) => m[1].trim()).filter(Boolean);
+  return locMatches.map((m) => m[1]?.trim()).filter(Boolean) as string[];
 }
 
 // ---------------------------------------------------------------------------
