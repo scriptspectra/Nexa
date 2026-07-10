@@ -2,32 +2,92 @@
 
 import { useOrganization } from "@clerk/nextjs";
 import { Button } from "@workspace/ui/components/button";
-import { 
-  MessageCircleIcon, 
-  SparklesIcon, 
-  TerminalIcon,
-  LinkedinIcon,
-  TwitterIcon,
-  SlackIcon,
-  PlusIcon,
-} from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
+/* ─── Icon components ──────────────────────────────────────── */
+const FacebookIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+  </svg>
+);
+
+const InstagramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+  </svg>
+);
+
+const WhatsAppIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+  </svg>
+);
+
+/* ─── Channel config ────────────────────────────────────────── */
+const CHANNELS = [
+  {
+    id: "facebook",
+    name: "Facebook",
+    tagline: "Pages & Messenger",
+    description:
+      "Connect your Facebook Page to receive and reply to all Page messages and Messenger conversations directly inside your inbox.",
+    tags: ["Facebook Pages", "Messenger", "Comments"],
+    icon: FacebookIcon,
+    gradient: "from-[#1877F2] to-[#0C5FCD]",
+    iconColor: "text-white",
+    iconBg: "bg-gradient-to-br from-[#1877F2] to-[#0C5FCD]",
+    borderHover: "hover:border-[#1877F2]/60",
+    glowColor: "shadow-[#1877F2]/10",
+    provider: "meta",
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    tagline: "Direct Messages",
+    description:
+      "Handle Instagram DMs from customers, influencers, and followers — all routed to your team without switching apps.",
+    tags: ["Direct Messages", "Story Replies", "Business API"],
+    icon: InstagramIcon,
+    gradient: "from-[#E1306C] via-[#833AB4] to-[#F77737]",
+    iconColor: "text-white",
+    iconBg: "bg-gradient-to-br from-[#E1306C] via-[#833AB4] to-[#F77737]",
+    borderHover: "hover:border-[#E1306C]/60",
+    glowColor: "shadow-[#833AB4]/10",
+    provider: "meta",
+  },
+  {
+    id: "whatsapp",
+    name: "WhatsApp Business",
+    tagline: "Enterprise API",
+    description:
+      "Connect WhatsApp Business API to reach customers where they are — support, proactive notifications, and broadcasts at scale.",
+    tags: ["Business API", "Broadcasts", "Templates"],
+    icon: WhatsAppIcon,
+    gradient: "from-[#25D366] to-[#128C4E]",
+    iconColor: "text-white",
+    iconBg: "bg-gradient-to-br from-[#25D366] to-[#128C4E]",
+    borderHover: "hover:border-[#25D366]/60",
+    glowColor: "shadow-[#25D366]/10",
+    provider: "meta",
+  },
+];
+
+/* ─── Main component ────────────────────────────────────────── */
 export const ChannelsView = () => {
   const { organization } = useOrganization();
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [connecting, setConnecting] = useState<string | null>(null);
 
-  const handleConnect = (provider: string) => {
-    if (provider !== "meta") {
-      toast.info(`${provider} integration is coming soon!`);
+  const handleConnect = (channel: (typeof CHANNELS)[number]) => {
+    if (channel.id === "whatsapp") {
+      toast.info("WhatsApp Business API integration is coming soon!");
       return;
     }
     if (!organization?.id) {
       toast.error("Please select an organization first.");
       return;
     }
-    setIsConnecting(true);
+    setConnecting(channel.id);
     const clientOrigin = window.location.origin;
     const convexUrl = (process.env.NEXT_PUBLIC_CONVEX_URL ?? "")
       .replace("wss://", "https://")
@@ -36,267 +96,144 @@ export const ChannelsView = () => {
   };
 
   return (
-    <div className="flex-1 bg-[#111317] text-[#e2e2e8] min-h-screen">
-      <div className="max-w-[1280px] mx-auto p-6 md:p-12 space-y-8">
+    <div className="flex flex-col min-h-screen w-full overflow-y-auto bg-[#0f1013] text-[#e2e2e8]">
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
 
-        {/* Header */}
-        <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#2d3139]">
-          <div className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-              Messaging Channels
-            </h1>
-            <p className="text-[#c3c6d7] text-sm md:text-base max-w-2xl">
-              Connect your social channels to funnel messages into the Zephyra inbox and manage all customer interactions in one unified workspace.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e2024] border border-[#434655]">
-              <div className="w-2 h-2 rounded-full bg-[#8d90a0]" />
-              <span className="text-sm font-bold text-[#c3c6d7]">5 Available</span>
+        {/* ── Header ── */}
+        <header className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#6b7280] mb-2">
+                Integrations
+              </p>
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Messaging Channels
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1e24] border border-[#2d3139] self-start sm:self-auto">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-sm font-semibold text-[#c3c6d7]">3 Available</span>
             </div>
           </div>
-        </section>
-
-        {/* Channel Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* Meta Card */}
-          <div className="bg-[#1e2024] border border-[#434655] rounded-xl p-6 hover:border-[#b4c5ff]/50 transition-all hover:-translate-y-1 duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="w-12 h-12 bg-blue-600/10 rounded-lg flex items-center justify-center border border-blue-600/20">
-                  <MessageCircleIcon className="text-blue-500 size-6" />
-                </div>
-                <Button
-                  onClick={() => handleConnect("meta")}
-                  disabled={isConnecting}
-                  className="bg-[#2563eb] hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg font-bold text-xs transition-all transform active:scale-95"
-                >
-                  <PlusIcon className="size-3.5 mr-1" />
-                  Connect
-                </Button>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white mb-1.5">Meta</h3>
-                <p className="text-[#c3c6d7] text-xs leading-relaxed mb-4">
-                  Consolidate Facebook Pages, Instagram DM, and Messenger conversations.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Facebook Pages", "Instagram DMs", "Messenger"].map((tag) => (
-                    <span key={tag} className="bg-[#0c0e12] border border-[#434655] px-2 py-0.5 rounded text-[10px] uppercase font-semibold text-[#c3c6d7]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* X / Twitter Card */}
-          <div className="bg-[#1e2024] border border-[#434655] rounded-xl p-6 hover:border-[#b4c5ff]/50 transition-all hover:-translate-y-1 duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
-                  <TwitterIcon className="text-white size-6" />
-                </div>
-                <Button
-                  onClick={() => handleConnect("twitter")}
-                  className="bg-[#333539] hover:bg-[#282a2e] text-[#c3c6d7] px-4 py-1.5 rounded-lg font-bold text-xs transition-all"
-                >
-                  Connect
-                </Button>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white mb-1.5">X / Twitter</h3>
-                <p className="text-[#c3c6d7] text-xs leading-relaxed mb-4">
-                  Monitor mentions and direct messages from your Twitter professional account.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Mentions", "Direct Messages"].map((tag) => (
-                    <span key={tag} className="bg-[#0c0e12] border border-[#434655] px-2 py-0.5 rounded text-[10px] uppercase font-semibold text-[#c3c6d7]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* LinkedIn Card */}
-          <div className="bg-[#1e2024] border border-[#434655] rounded-xl p-6 hover:border-[#b4c5ff]/50 transition-all hover:-translate-y-1 duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="w-12 h-12 bg-[#0077b5]/10 rounded-lg flex items-center justify-center border border-[#0077b5]/20">
-                  <LinkedinIcon className="text-[#0077b5] size-6" />
-                </div>
-                <Button
-                  onClick={() => handleConnect("linkedin")}
-                  className="bg-[#333539] hover:bg-[#282a2e] text-[#c3c6d7] px-4 py-1.5 rounded-lg font-bold text-xs transition-all"
-                >
-                  Connect
-                </Button>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white mb-1.5">LinkedIn</h3>
-                <p className="text-[#c3c6d7] text-xs leading-relaxed mb-4">
-                  Engage with prospects and respond to company page inquiries in real-time.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Company Page", "InMail"].map((tag) => (
-                    <span key={tag} className="bg-[#0c0e12] border border-[#434655] px-2 py-0.5 rounded text-[10px] uppercase font-semibold text-[#c3c6d7]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Automated Flows Featured Banner */}
-          <div className="lg:col-span-3 bg-[#1e2024] border border-[#434655] rounded-xl overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="p-8 lg:p-12 flex flex-col justify-center space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00a572]/10 border border-[#00a572]/20 text-[#4edea3] w-fit">
-                  <SparklesIcon className="size-3.5" />
-                  <span className="text-[10px] uppercase font-bold tracking-wider">Advanced Feature</span>
-                </div>
-                <h2 className="text-2xl font-bold text-white">Automated Flows</h2>
-                <p className="text-[#c3c6d7] text-sm leading-relaxed max-w-md">
-                  Design intelligent routing and auto-response sequences that trigger based on channel-specific metadata and keywords.
-                </p>
-                <button
-                  onClick={() => toast.info("Automations builder is coming soon!")}
-                  className="inline-flex items-center gap-2 text-[#b4c5ff] font-bold cursor-pointer hover:gap-4 transition-all text-sm"
-                >
-                  Explore Automations →
-                </button>
-              </div>
-              <div className="h-48 lg:h-auto bg-[#1a1c20] border-l border-[#434655] relative overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 grid grid-cols-3 gap-4 p-8 opacity-30">
-                  <div className="border border-[#434655] rounded-lg bg-[#282a2e] flex flex-col p-4 animate-pulse">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 mb-3" />
-                    <div className="h-2 w-full bg-[#434655] rounded mb-2" />
-                    <div className="h-2 w-2/3 bg-[#434655] rounded" />
-                  </div>
-                  <div className="border border-blue-500 rounded-lg bg-blue-500/5 flex flex-col p-4 mt-8">
-                    <div className="w-8 h-8 rounded-full bg-[#00a572] mb-3" />
-                    <div className="h-2 w-full bg-[#4edea3] rounded mb-2" />
-                    <div className="h-2 w-1/2 bg-[#4edea3]/50 rounded" />
-                  </div>
-                  <div className="border border-[#434655] rounded-lg bg-[#282a2e] flex flex-col p-4">
-                    <div className="w-8 h-8 rounded-full bg-orange-500/20 mb-3" />
-                    <div className="h-2 w-full bg-[#434655] rounded mb-2" />
-                    <div className="h-2 w-3/4 bg-[#434655] rounded" />
-                  </div>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1e2024] to-transparent" />
-              </div>
-            </div>
-          </div>
-
-          {/* WhatsApp Card */}
-          <div className="bg-[#1e2024] border border-[#434655] rounded-xl p-6 hover:border-[#b4c5ff]/50 transition-all hover:-translate-y-1 duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center border border-emerald-500/20">
-                  <MessageCircleIcon className="text-emerald-400 size-6" />
-                </div>
-                <Button
-                  onClick={() => handleConnect("whatsapp")}
-                  className="bg-[#333539] hover:bg-[#282a2e] text-[#c3c6d7] px-4 py-1.5 rounded-lg font-bold text-xs transition-all"
-                >
-                  Connect
-                </Button>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white mb-1.5">WhatsApp Business</h3>
-                <p className="text-[#c3c6d7] text-xs leading-relaxed mb-4">
-                  Enable global reach with official WhatsApp Business API integration.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Enterprise API", "Broadcasts"].map((tag) => (
-                    <span key={tag} className="bg-[#0c0e12] border border-[#434655] px-2 py-0.5 rounded text-[10px] uppercase font-semibold text-[#c3c6d7]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Custom Webhooks Card */}
-          <div className="bg-[#1e2024] border border-[#434655] rounded-xl p-6 hover:border-[#b4c5ff]/50 transition-all hover:-translate-y-1 duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="w-12 h-12 bg-zinc-500/10 rounded-lg flex items-center justify-center border border-[#434655]">
-                  <TerminalIcon className="text-[#c3c6d7] size-6" />
-                </div>
-                <Button
-                  onClick={() => toast.info("Webhook configurations are coming soon!")}
-                  className="bg-[#333539] hover:bg-[#282a2e] text-[#c3c6d7] px-4 py-1.5 rounded-lg font-bold text-xs transition-all"
-                >
-                  Configure
-                </Button>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white mb-1.5">Custom Webhooks</h3>
-                <p className="text-[#c3c6d7] text-xs leading-relaxed mb-4">
-                  Integrate proprietary systems or niche social apps via standard HTTP webhooks.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["JSON Payload", "Real-time"].map((tag) => (
-                    <span key={tag} className="bg-[#0c0e12] border border-[#434655] px-2 py-0.5 rounded text-[10px] uppercase font-semibold text-[#c3c6d7]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slack Card */}
-          <div className="bg-[#1e2024] border border-[#434655] rounded-xl p-6 hover:border-[#b4c5ff]/50 transition-all hover:-translate-y-1 duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="w-12 h-12 bg-[#ecb22e]/10 rounded-lg flex items-center justify-center border border-[#ecb22e]/20">
-                  <SlackIcon className="text-[#ecb22e] size-6" />
-                </div>
-                <Button
-                  onClick={() => handleConnect("slack")}
-                  className="bg-[#333539] hover:bg-[#282a2e] text-[#c3c6d7] px-4 py-1.5 rounded-lg font-bold text-xs transition-all"
-                >
-                  Connect
-                </Button>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white mb-1.5">Slack Workspace</h3>
-                <p className="text-[#c3c6d7] text-xs leading-relaxed mb-4">
-                  Sync internal discussions or external Slack Connect channels for support.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Channels", "Sync DMs"].map((tag) => (
-                    <span key={tag} className="bg-[#0c0e12] border border-[#434655] px-2 py-0.5 rounded text-[10px] uppercase font-semibold text-[#c3c6d7]">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Footer */}
-        <section className="pt-6 border-t border-[#2d3139] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <p className="text-[#c3c6d7] text-sm">
-            Configure your Meta App credentials in the Convex dashboard before connecting.
+          <p className="text-[#8d90a0] text-sm sm:text-base leading-relaxed max-w-2xl">
+            Connect your messaging platforms to consolidate all customer conversations into a single, unified inbox.
           </p>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e2024] border border-[#434655]">
-            <div className="w-2 h-2 rounded-full bg-[#8d90a0]" />
-            <span className="text-sm font-bold text-[#c3c6d7]">0 Connected</span>
-          </div>
+        </header>
+
+        {/* ── Divider ── */}
+        <div className="border-t border-[#23262d]" />
+
+        {/* ── Channel cards ── */}
+        <section className="grid grid-cols-1 gap-5">
+          {CHANNELS.map((channel) => {
+            const Icon = channel.icon;
+            const isLoading = connecting === channel.id;
+
+            return (
+              <div
+                key={channel.id}
+                className={`
+                  relative group bg-[#16181e] border border-[#2d3139] rounded-2xl
+                  overflow-hidden transition-all duration-300
+                  ${channel.borderHover}
+                  hover:shadow-xl hover:shadow-black/30
+                `}
+              >
+                {/* Subtle gradient top bar */}
+                <div className={`h-0.5 w-full bg-gradient-to-r ${channel.gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+
+                <div className="p-6 sm:p-8">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+
+                    {/* Icon */}
+                    <div className={`w-14 h-14 rounded-xl ${channel.iconBg} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                      <Icon className={`w-7 h-7 ${channel.iconColor}`} />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
+                        <div>
+                          <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
+                            {channel.name}
+                          </h2>
+                          <p className="text-xs font-semibold text-[#6b7280] uppercase tracking-wider mt-0.5">
+                            {channel.tagline}
+                          </p>
+                        </div>
+
+                        <Button
+                          onClick={() => handleConnect(channel)}
+                          disabled={isLoading}
+                          className={`
+                            inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
+                            bg-gradient-to-r ${channel.gradient} text-white border-0
+                            hover:opacity-90 active:scale-95 transition-all duration-200
+                            disabled:opacity-60 disabled:cursor-not-allowed
+                            shadow-md hover:shadow-lg
+                            self-start sm:self-auto flex-shrink-0
+                          `}
+                        >
+                          {isLoading ? (
+                            <>
+                              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                              </svg>
+                              Connecting…
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                              </svg>
+                              Connect
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      <p className="text-[#8d90a0] text-sm leading-relaxed mb-4">
+                        {channel.description}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2">
+                        {channel.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2.5 py-1 rounded-lg bg-[#1c1e24] border border-[#2d3139] text-[10px] uppercase font-bold tracking-wider text-[#6b7280]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </section>
+
+        {/* ── Info footer ── */}
+        <footer className="border-t border-[#23262d] pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <p className="text-[#6b7280] text-xs sm:text-sm leading-relaxed">
+              Facebook and Instagram use the same Meta OAuth flow.
+              <br className="hidden sm:block" />
+              Make sure <code className="bg-[#1c1e24] px-1.5 py-0.5 rounded text-[#b4c5ff] text-xs">META_APP_ID</code> and <code className="bg-[#1c1e24] px-1.5 py-0.5 rounded text-[#b4c5ff] text-xs">META_APP_SECRET</code> are set in your Convex dashboard.
+            </p>
+            <a
+              href="https://developers.facebook.com/apps"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-semibold text-[#b4c5ff] hover:text-white transition-colors flex items-center gap-1.5 self-start sm:self-auto flex-shrink-0"
+            >
+              Meta Developer Console →
+            </a>
+          </div>
+        </footer>
 
       </div>
     </div>
