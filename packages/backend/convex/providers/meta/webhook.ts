@@ -68,8 +68,9 @@ export const lookupAsset = internalQuery({
   args: { externalAssetId: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("channelAssets")
-      .withIndex("by_external_asset_id", (q) => q.eq("externalAssetId", args.externalAssetId))
-      .first();
+      .query("integrationResources")
+      .withIndex("by_external_resource_id", (q) =>
+        q.eq("externalResourceId", args.externalAssetId),
+      ).first();
   }
 });

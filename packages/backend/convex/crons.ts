@@ -25,5 +25,12 @@ crons.interval(
   internal.channels.base.outbox.processOutbox,
 );
 
+// Sync all integrations every hour
+crons.interval(
+  "sync-integrations",
+  { hours: 1 },
+  internal.integrations.base.actions.syncAllIntegrations,
+);
+
 export default crons;
 

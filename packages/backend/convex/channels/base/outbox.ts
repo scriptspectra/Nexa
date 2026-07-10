@@ -56,7 +56,7 @@ export const processOutbox = internalAction({
         // Get Credentials (would normally decrypt here)
         const credentials = {
           accessToken: integration?.accessToken,
-          phoneNumberId: "MOCK_PHONE_ID", // In reality, fetch from channelAssets
+          phoneNumberId: "MOCK_PHONE_ID", // In reality, fetch from integrationResources
         };
 
         // Send via Adapter

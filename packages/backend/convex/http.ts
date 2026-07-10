@@ -447,4 +447,83 @@ http.route({
   }),
 });
 
+// ─── Meta OAuth ────────────────────────────────────────────────────────
+http.route({
+  path: "/api/integrations/meta/login",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    // Usually you'd extract orgId and build a state token
+    const url = new URL(request.url);
+    const orgId = url.searchParams.get("orgId");
+    if (!orgId) return new Response("Missing orgId", { status: 400 });
+
+    const META_APP_ID = process.env.META_APP_ID || "";
+    const redirectUri = `${url.origin}/api/integrations/meta/callback`;
+    const state = Buffer.from(JSON.stringify({ orgId })).toString("base64");
+
+    const scopes = [
+      "pages_show_list",
+      "pages_messaging",
+      "pages_manage_metadata",
+      "instagram_manage_messages",
+      "whatsapp_business_messaging",
+    ].join(",");
+
+    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+
+    return new Response(null, {
+      status: 302,
+      headers: { Location: authUrl },
+    });
+  }),
+});
+
+http.route({
+  path: "/api/integrations/meta/callback",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const error = url.searchParams.get("error");
+
+    if (error) {
+      return new Response(`OAuth Error: ${error}`, { status: 400 });
+    }
+
+    if (!code || !state) {
+      return new Response("Missing code or state", { status: 400 });
+    }
+
+    let orgId: string;
+    try {
+      const parsedState = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+      orgId = parsedState.orgId;
+    } catch {
+      return new Response("Invalid state", { status: 400 });
+    }
+
+    const redirectUri = `${url.origin}/api/integrations/meta/callback`;
+    
+    // Hand off to internal action to exchange code and save DB
+    await ctx.scheduler.runAfter(0, internal.integrations.meta.actions.handleOAuthCallback, {
+      code,
+      redirectUri,
+      orgId,
+    });
+
+    // Redirect user back to the dashboard integration config page
+    const dashboardUrl = url.hostname.includes("convex.cloud") || url.hostname.includes("localhost") 
+      ? "http://localhost:3000/integrations?meta=success" // fallback for local dev
+      : `https://${url.hostname}/integrations?meta=success`; // naive production fallback
+
+    return new Response(null, {
+      status: 302,
+      headers: { Location: dashboardUrl },
+    });
+  }),
+});
+
 export default http;

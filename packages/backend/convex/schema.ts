@@ -301,21 +301,33 @@ export default defineSchema({
   integrations: defineTable({
     organizationId: v.string(),
     provider: v.string(), // 'meta', 'slack', etc.
-    status: v.string(), // 'active', 'paused'
+    status: v.union(
+      v.literal("created"),
+      v.literal("oauth_pending"),
+      v.literal("connected"),
+      v.literal("syncing"),
+      v.literal("healthy"),
+      v.literal("reconnect_required"),
+      v.literal("disconnected")
+    ),
     credentialsId: v.optional(v.string()), // Reference to secret or config
     accessToken: v.optional(v.string()), // Encrypted token
     refreshToken: v.optional(v.string()), // Encrypted token
+    lastSyncedAt: v.optional(v.number()),
+    lastHealthyAt: v.optional(v.number()),
+    errorState: v.optional(v.string()),
   }).index("by_organization_id", ["organizationId"]),
 
-  channelAssets: defineTable({
+  integrationResources: defineTable({
     organizationId: v.string(),
     integrationId: v.id("integrations"),
-    channel: v.string(), // "messenger", "instagram", "whatsapp"
-    externalAssetId: v.string(), // e.g., Facebook Page ID
+    provider: v.string(), // "meta", "slack"
+    resourceType: v.string(), // "facebook_page", "instagram_account", "slack_channel"
+    externalResourceId: v.string(), // e.g., Facebook Page ID
     name: v.string(),
-    capabilities: v.array(v.string()), // e.g., ["reactions", "attachments"]
-    status: v.string(), // "active", "disconnected"
-  }).index("by_external_asset_id", ["externalAssetId"]),
+    capabilities: v.any(), // e.g., { messaging: true, media: true }
+    status: v.union(v.literal("active"), v.literal("disconnected")),
+  }).index("by_external_resource_id", ["externalResourceId"]),
 
   messages: defineTable({
     conversationId: v.id("conversations"),

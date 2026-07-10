@@ -4,7 +4,8 @@ import { useOrganization } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
 import { Button } from "@workspace/ui/components/button";
-import { CopyIcon, HelpCircleIcon, ExternalLinkIcon, CheckIcon, TerminalIcon, ShoppingBagIcon, PlusIcon } from "lucide-react";
+import { CopyIcon, HelpCircleIcon, ExternalLinkIcon, CheckIcon, TerminalIcon, ShoppingBagIcon, PlusIcon, MessageCircleIcon } from "lucide-react";
+import { IntegrationConnectFlow } from "../components/integration-connect-flow";
 import { toast } from "sonner";
 import { IntegrationId, INTEGRATIONS } from "../../constants";
 import Image from "next/image";
@@ -168,6 +169,23 @@ export const IntegrationsView = () => {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* ─── MESSAGING INTEGRATIONS ─────────────────────────────── */}
+          <div className="space-y-4">
+            <div className="flex items-end justify-between border-b border-white/5 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-white tracking-tight">Messaging Channels</h3>
+                <p className="text-sm text-zinc-400 mt-1">Connect your social channels to funnel messages into the Zephyra inbox.</p>
+              </div>
+            </div>
+
+            <IntegrationConnectFlow 
+              provider="meta"
+              title="Meta (Facebook, Instagram, WhatsApp)"
+              description="Connect Facebook Pages, Instagram Accounts, and WhatsApp Business numbers to support customers on Meta platforms."
+              icon={MessageCircleIcon}
+            />
           </div>
 
         {/* Organization ID Section */}
