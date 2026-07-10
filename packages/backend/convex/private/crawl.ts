@@ -317,9 +317,11 @@ export const listCrawlJobs = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+    // Return empty results instead of throwing — usePaginatedQuery re-throws
+    // errors during React rendering, crashing the page without an Error Boundary.
+    if (!identity) return { page: [], isDone: true, continueCursor: "" };
     const orgId = (identity.orgId || (identity as any).org_id) as string;
-    if (!orgId) throw new ConvexError({ code: "UNAUTHORIZED", message: "Organization not found" });
+    if (!orgId) return { page: [], isDone: true, continueCursor: "" };
 
     return await ctx.db
       .query("crawlJobs")

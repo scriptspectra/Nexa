@@ -252,23 +252,17 @@ export const list = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
+    // Return empty results instead of throwing — usePaginatedQuery re-throws
+    // errors during React rendering, crashing the page without an Error Boundary.
     if (identity === null) {
-      throw new ConvexError({
-        code: "UNAUTHORIZED",
-        message: "Identity not found",
-      });
+      return { page: [], isDone: true, continueCursor: "" };
     }
 
     const orgId = (identity.orgId || (identity as any).org_id) as string;
-    console.log("FILES_LIST_DEBUG - orgId:", orgId);
-    console.log("FILES_LIST_DEBUG - full identity keys:", Object.keys(identity));
 
     if (!orgId) {
-      throw new ConvexError({
-        code: "UNAUTHORIZED",
-        message: "Organization not found",
-      });
+      return { page: [], isDone: true, continueCursor: "" };
     }
 
     const namespace = await rag.getNamespace(ctx, {
