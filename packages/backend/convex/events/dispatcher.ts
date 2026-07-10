@@ -52,9 +52,11 @@ export const triggerAIResponse = internalAction({
     conversationId: v.id("conversations"),
   },
   handler: async (ctx, args) => {
-    await supportAgent.generateResponse(ctx, {
+    const { thread } = await supportAgent.continueThread(ctx, {
       threadId: args.threadId,
-      promptContext: {},
+    });
+    await thread.generateText({
+      prompt: undefined, // Generate response to the last user message already in the thread
     });
   },
 });

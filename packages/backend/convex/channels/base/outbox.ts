@@ -5,7 +5,8 @@ import { ChannelRegistry } from "./registry";
 import { OutboundMessage } from "./types";
 
 export const processOutbox = internalAction({
-  handler: async (ctx) => {
+  args: {},
+  handler: async (ctx): Promise<void> => {
     // 1. Fetch pending outbox messages
     const pendingMessages = await ctx.runQuery(internal.channels.base.outbox.getPendingMessages);
     
@@ -83,6 +84,7 @@ export const processOutbox = internalAction({
 });
 
 export const getPendingMessages = internalQuery({
+  args: {},
   handler: async (ctx) => {
     return await ctx.db
       .query("outboxMessages")
@@ -124,7 +126,7 @@ export const updateStatus = internalMutation({
     outboxMessageId: v.id("outboxMessages"),
     status: v.union(v.literal("pending"), v.literal("processing"), v.literal("failed")),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<void> => {
     await ctx.db.patch(args.outboxMessageId, {
       status: args.status,
       lastAttemptAt: Date.now(),
@@ -138,7 +140,7 @@ export const markSuccess = internalMutation({
     messageId: v.id("messages"),
     externalMessageId: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<void> => {
     // Delete from outbox once sent successfully
     await ctx.db.delete(args.outboxMessageId);
     
@@ -155,7 +157,7 @@ export const markFailed = internalMutation({
     outboxMessageId: v.id("outboxMessages"),
     error: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<void> => {
     const outboxMsg = await ctx.db.get(args.outboxMessageId);
     if (!outboxMsg) return;
 
