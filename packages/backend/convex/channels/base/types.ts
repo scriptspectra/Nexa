@@ -23,11 +23,15 @@ export interface UnifiedMessage {
 
 export interface OutboundMessage {
   organizationId: string;
-  integrationId: string;
-  toExternalId: string;
+  integrationId?: string; // Optional if fallback to defaults
+  contactIdentity: {
+    provider: string;
+    externalId: string;
+  };
   content: string;
   type: "text" | "image" | "file" | "audio";
   replyToExternalMessageId?: string;
+  threadId?: string;
 }
 
 export interface DeliveryResult {

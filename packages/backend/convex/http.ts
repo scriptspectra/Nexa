@@ -413,4 +413,38 @@ http.route({
   }),
 });
 
+// ─── Meta Webhook ────────────────────────────────────────────────────────
+http.route({
+  path: "/api/webhooks/meta",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const rawBody = await request.text();
+    const signature = request.headers.get("x-hub-signature-256");
+    
+    // In production, you would fetch the app secret from Convex env
+    const APP_SECRET = process.env.META_APP_SECRET || "zephyra_meta_secret";
+    
+    // Note: To keep things simple we dynamically import WebhookVerifier because 
+    // it contains Node crypto, and we are in a Convex V8 environment.
+    // Actually, Convex provides WebCrypto API, but the WebhookVerifier we wrote uses 'crypto' (Node.js).
+    // Let's pass the raw string and let a Convex internal action handle verification and parsing
+    // to avoid import issues with Node built-ins inside HTTP actions if not enabled.
+
+    let payload;
+    try {
+      payload = JSON.parse(rawBody);
+    } catch {
+      return new Response("Invalid JSON", { status: 400 });
+    }
+
+    // Hand off to the internal action for async processing (returns 200 immediately to Meta)
+    await ctx.scheduler.runAfter(0, internal.providers.meta.webhook.processMetaWebhook, {
+      payload,
+      signature: signature || "",
+    });
+
+    return new Response("OK", { status: 200 });
+  }),
+});
+
 export default http;

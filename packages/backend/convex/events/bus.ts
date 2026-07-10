@@ -1,5 +1,5 @@
 export type SystemEvent =
-  | { type: "MessageReceived"; payload: { unifiedMessageId: string } }
+  | { type: "MessageReceived"; payload: { unifiedMessageId?: string, unifiedMessage?: any } }
   | { type: "ConversationCreated"; payload: { conversationId: string } }
   | { type: "AIResponseGenerated"; payload: { outboxMessageId: string } }
   | { type: "MessageSent"; payload: { messageId: string } }

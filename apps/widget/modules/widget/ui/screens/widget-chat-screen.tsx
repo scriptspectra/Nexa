@@ -4,7 +4,7 @@ import { AISuggestion, AISuggestions } from "@workspace/ui/components/ai/suggest
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { useThreadMessages, toUIMessages } from "@convex-dev/agent/react";
+import { usePaginatedQuery } from "convex/react";
 import { WidgetHeader } from "@/modules/widget/ui/components/widget-header";
 import { Button } from "@workspace/ui/components/button";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -77,12 +77,12 @@ export const WidgetChatScreen = () => {
       : "skip"
   );
 
-  const messages = useThreadMessages(
+  const messages = usePaginatedQuery(
     api.public.messages.getMany,
     conversation?.threadId && contactSessionId
       ? {
           threadId: conversation.threadId,
-          contactSessionId,
+          contactSessionId: contactSessionId as any,
         }
       : "skip",
     { initialNumItems: 10 },
@@ -144,16 +144,17 @@ export const WidgetChatScreen = () => {
             onLoadMore={handleLoadMore}
             ref={topElementRef}
           />
-          {toUIMessages(messages.results ?? [])?.map((message) => {
+          {messages.results?.map((message) => {
+            const role = message.direction === "inbound" ? "user" : "assistant";
             return (
               <AIMessage
-                from={message.role === "user" ? "user" : "assistant"}
-                key={message.id}
+                from={role}
+                key={message._id}
               >
                 <AIMessageContent>
                   <AIResponse>{message.content}</AIResponse>
                 </AIMessageContent>
-                {message.role === "assistant" && (
+                {role === "assistant" && (
                   <DicebearAvatar
                     imageUrl="/logo.svg"
                     seed="assistant"
@@ -165,7 +166,7 @@ export const WidgetChatScreen = () => {
           })}
         </AIConversationContent>
       </AIConversation>
-      {toUIMessages(messages.results ?? [])?.length === 1 && (
+      {(messages.results ?? []).length === 1 && (
         <AISuggestions className="flex w-full flex-col items-end p-2">
           {suggestions.map((suggestion) => {
             if (!suggestion) {

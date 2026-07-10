@@ -303,7 +303,19 @@ export default defineSchema({
     provider: v.string(), // 'meta', 'slack', etc.
     status: v.string(), // 'active', 'paused'
     credentialsId: v.optional(v.string()), // Reference to secret or config
+    accessToken: v.optional(v.string()), // Encrypted token
+    refreshToken: v.optional(v.string()), // Encrypted token
   }).index("by_organization_id", ["organizationId"]),
+
+  channelAssets: defineTable({
+    organizationId: v.string(),
+    integrationId: v.id("integrations"),
+    channel: v.string(), // "messenger", "instagram", "whatsapp"
+    externalAssetId: v.string(), // e.g., Facebook Page ID
+    name: v.string(),
+    capabilities: v.array(v.string()), // e.g., ["reactions", "attachments"]
+    status: v.string(), // "active", "disconnected"
+  }).index("by_external_asset_id", ["externalAssetId"]),
 
   messages: defineTable({
     conversationId: v.id("conversations"),

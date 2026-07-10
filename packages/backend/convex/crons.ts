@@ -18,5 +18,12 @@ crons.interval(
   {},
 );
 
+// Process Outbox every minute
+crons.interval(
+  "process-outbox",
+  { minutes: 1 },
+  internal.channels.base.outbox.processOutbox,
+);
+
 export default crons;
 

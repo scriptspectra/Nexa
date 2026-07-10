@@ -13,8 +13,11 @@ export const processEvent = internalAction({
     // Basic event routing
     switch (event.type) {
       case "MessageReceived":
-        // Route to Workflow Engine or AI
-        // await ctx.runAction(internal.core.workflows.evaluateMessage, { messageId: event.payload.unifiedMessageId });
+        if (event.payload.unifiedMessage) {
+          await ctx.runAction(internal.events.dispatcher.dispatchInboundMessage, { unifiedMessage: event.payload.unifiedMessage });
+        } else {
+          // Fallback for Phase 1 legacy logic
+        }
         break;
       
       case "AIResponseGenerated":

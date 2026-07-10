@@ -1,5 +1,8 @@
 import { IChannelAdapter } from "./types";
 import { WidgetAdapter } from "../widget/WidgetAdapter";
+import { MessengerAdapter } from "../messenger/MessengerAdapter";
+import { InstagramAdapter } from "../instagram/InstagramAdapter";
+import { WhatsAppAdapter } from "../whatsapp/WhatsAppAdapter";
 
 export interface RegisteredAdapter {
   id: string; // e.g., 'whatsapp', 'widget', 'messenger'
@@ -44,4 +47,19 @@ export const ChannelRegistry = new Registry();
 ChannelRegistry.register({
   id: "widget",
   adapter: new WidgetAdapter()
+});
+
+ChannelRegistry.register({
+  id: "messenger",
+  adapter: new MessengerAdapter()
+});
+
+ChannelRegistry.register({
+  id: "instagram",
+  adapter: new InstagramAdapter()
+});
+
+ChannelRegistry.register({
+  id: "whatsapp",
+  adapter: new WhatsAppAdapter()
 });
