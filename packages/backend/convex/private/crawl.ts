@@ -110,7 +110,7 @@ async function fetchSitemapUrls(sitemapUrl: string): Promise<string[]> {
     const nestedUrls: string[] = [];
     for (const m of sitemapIndexMatches.slice(0, 10)) { // limit nested sitemaps
       try {
-        const nested = await fetchSitemapUrls(m[1].trim());
+        const nested = await fetchSitemapUrls(m[1]?.trim() ?? "");
         nestedUrls.push(...nested);
       } catch {
         // skip broken nested sitemaps
