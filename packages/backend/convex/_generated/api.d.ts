@@ -8,9 +8,19 @@
  * @module
  */
 
+import type * as channels_base_outbox from "../channels/base/outbox.js";
+import type * as channels_base_registry from "../channels/base/registry.js";
+import type * as channels_base_types from "../channels/base/types.js";
+import type * as channels_instagram_InstagramAdapter from "../channels/instagram/InstagramAdapter.js";
+import type * as channels_messenger_MessengerAdapter from "../channels/messenger/MessengerAdapter.js";
+import type * as channels_whatsapp_WhatsAppAdapter from "../channels/whatsapp/WhatsAppAdapter.js";
+import type * as channels_widget_WidgetAdapter from "../channels/widget/WidgetAdapter.js";
 import type * as constants from "../constants.js";
 import type * as crons from "../crons.js";
 import type * as debug from "../debug.js";
+import type * as events_bus from "../events/bus.js";
+import type * as events_dispatcher from "../events/dispatcher.js";
+import type * as events_handlers from "../events/handlers.js";
 import type * as http from "../http.js";
 import type * as lib_email from "../lib/email.js";
 import type * as lib_extractTextContent from "../lib/extractTextContent.js";
@@ -42,6 +52,9 @@ import type * as private_usage from "../private/usage.js";
 import type * as private_vapi from "../private/vapi.js";
 import type * as private_webhooks from "../private/webhooks.js";
 import type * as private_widgetSettings from "../private/widgetSettings.js";
+import type * as providers_meta_WebhookVerifier from "../providers/meta/WebhookVerifier.js";
+import type * as providers_meta_types from "../providers/meta/types.js";
+import type * as providers_meta_webhook from "../providers/meta/webhook.js";
 import type * as public_contactSessions from "../public/contactSessions.js";
 import type * as public_conversations from "../public/conversations.js";
 import type * as public_csatRatings from "../public/csatRatings.js";
@@ -87,9 +100,19 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "channels/base/outbox": typeof channels_base_outbox;
+  "channels/base/registry": typeof channels_base_registry;
+  "channels/base/types": typeof channels_base_types;
+  "channels/instagram/InstagramAdapter": typeof channels_instagram_InstagramAdapter;
+  "channels/messenger/MessengerAdapter": typeof channels_messenger_MessengerAdapter;
+  "channels/whatsapp/WhatsAppAdapter": typeof channels_whatsapp_WhatsAppAdapter;
+  "channels/widget/WidgetAdapter": typeof channels_widget_WidgetAdapter;
   constants: typeof constants;
   crons: typeof crons;
   debug: typeof debug;
+  "events/bus": typeof events_bus;
+  "events/dispatcher": typeof events_dispatcher;
+  "events/handlers": typeof events_handlers;
   http: typeof http;
   "lib/email": typeof lib_email;
   "lib/extractTextContent": typeof lib_extractTextContent;
@@ -121,6 +144,9 @@ declare const fullApi: ApiFromModules<{
   "private/vapi": typeof private_vapi;
   "private/webhooks": typeof private_webhooks;
   "private/widgetSettings": typeof private_widgetSettings;
+  "providers/meta/WebhookVerifier": typeof providers_meta_WebhookVerifier;
+  "providers/meta/types": typeof providers_meta_types;
+  "providers/meta/webhook": typeof providers_meta_webhook;
   "public/contactSessions": typeof public_contactSessions;
   "public/conversations": typeof public_conversations;
   "public/csatRatings": typeof public_csatRatings;

@@ -1,7 +1,8 @@
 import { v } from "convex/values";
-import { internalAction, internalMutation } from "../_generated/server";
+import { internalAction, internalMutation, internalQuery } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { UnifiedMessage } from "../channels/base/types";
+import { supportAgent } from "../system/ai/agents/supportAgent";
 
 export const dispatchInboundMessage = internalAction({
   args: {
@@ -27,14 +28,34 @@ export const dispatchInboundMessage = internalAction({
       externalMessageId: msg.externalMessageId,
     });
 
-    // 3. Emit ConversationUpdated / Trigger AI
-    // For now, we will directly trigger the AI response logic (Phase 1 legacy wrapper)
+    // 3. Save message to agent thread & trigger AI response
     const conversation = await ctx.runQuery(internal.events.dispatcher.getConversationThreadId, { conversationId });
     if (conversation) {
-      await ctx.scheduler.runAfter(0, internal.system.ai.agents.supportAgent.generateResponse, {
-        conversationId: conversationId,
+      // Save user message to the agent's thread
+      await supportAgent.saveMessage(ctx, {
+        threadId: conversation.threadId,
+        message: { role: "user", content: msg.content },
+      });
+
+      // Schedule AI response via the dedicated action
+      await ctx.scheduler.runAfter(0, internal.events.dispatcher.triggerAIResponse, {
+        threadId: conversation.threadId,
+        conversationId,
       });
     }
+  },
+});
+
+export const triggerAIResponse = internalAction({
+  args: {
+    threadId: v.string(),
+    conversationId: v.id("conversations"),
+  },
+  handler: async (ctx, args) => {
+    await supportAgent.generateResponse(ctx, {
+      threadId: args.threadId,
+      promptContext: {},
+    });
   },
 });
 
