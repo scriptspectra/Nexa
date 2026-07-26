@@ -14,17 +14,42 @@ export class MetaOAuthProvider implements OAuthProvider {
     }
   }
 
-  async getAuthorizationUrl(state: string, redirectUri: string): Promise<string> {
-    const scopes = [
-      "pages_show_list",
-      "pages_messaging",
-      "pages_read_engagement",
-      "pages_manage_metadata",
-      "instagram_basic",
-      "instagram_manage_messages",
-      "whatsapp_business_messaging",
-      "whatsapp_business_management",
-    ].join(",");
+  async getAuthorizationUrl(state: string, redirectUri: string, channel: string = "all"): Promise<string> {
+    let scopesList: string[] = [];
+
+    if (channel === "instagram") {
+      scopesList = [
+        "pages_show_list",
+        "pages_read_engagement",
+        "pages_manage_metadata",
+        "instagram_basic",
+        "instagram_manage_messages",
+      ];
+    } else if (channel === "facebook" || channel === "messenger") {
+      scopesList = [
+        "pages_show_list",
+        "pages_messaging",
+        "pages_manage_metadata",
+      ];
+    } else if (channel === "whatsapp") {
+      scopesList = [
+        "whatsapp_business_messaging",
+        "whatsapp_business_management",
+      ];
+    } else {
+      scopesList = [
+        "pages_show_list",
+        "pages_messaging",
+        "pages_read_engagement",
+        "pages_manage_metadata",
+        "instagram_basic",
+        "instagram_manage_messages",
+        "whatsapp_business_messaging",
+        "whatsapp_business_management",
+      ];
+    }
+
+    const scopes = scopesList.join(",");
 
     return `https://www.facebook.com/${this.apiVersion}/dialog/oauth?client_id=${this.appId}&redirect_uri=${encodeURIComponent(
       redirectUri

@@ -93,7 +93,7 @@ export const ChannelsView = () => {
       .replace("wss://", "https://")
       .replace("ws://", "http://")
       .replace(".convex.cloud", ".convex.site");
-    window.location.href = `${convexUrl}/api/integrations/meta/login?orgId=${organization.id}&clientOrigin=${encodeURIComponent(clientOrigin)}`;
+    window.location.href = `${convexUrl}/api/integrations/meta/login?orgId=${organization.id}&clientOrigin=${encodeURIComponent(clientOrigin)}&channel=${channel.id}`;
   };
 
   return (

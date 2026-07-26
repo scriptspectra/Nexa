@@ -495,13 +495,40 @@ http.route({
     const redirectUri = `${url.origin}/api/integrations/meta/callback`;
     const state = btoa(JSON.stringify({ orgId, clientOrigin }));
 
-    const scopes = [
-      "pages_show_list",
-      "pages_messaging",
-      "pages_manage_metadata",
-      "instagram_manage_messages",
-      "whatsapp_business_messaging",
-    ].join(",");
+    const channel = url.searchParams.get("channel");
+    let scopesList: string[] = [];
+
+    if (channel === "instagram") {
+      scopesList = [
+        "pages_show_list",
+        "pages_read_engagement",
+        "pages_manage_metadata",
+        "instagram_basic",
+        "instagram_manage_messages",
+      ];
+    } else if (channel === "facebook" || channel === "messenger") {
+      scopesList = [
+        "pages_show_list",
+        "pages_messaging",
+        "pages_manage_metadata",
+      ];
+    } else if (channel === "whatsapp") {
+      scopesList = [
+        "whatsapp_business_messaging",
+        "whatsapp_business_management",
+      ];
+    } else {
+      // Default fallback - request all channels
+      scopesList = [
+        "pages_show_list",
+        "pages_messaging",
+        "pages_manage_metadata",
+        "instagram_manage_messages",
+        "whatsapp_business_messaging",
+      ];
+    }
+
+    const scopes = scopesList.join(",");
 
     const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${encodeURIComponent(
       redirectUri
