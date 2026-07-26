@@ -493,7 +493,7 @@ http.route({
 
     const META_APP_ID = process.env.META_APP_ID || "";
     const redirectUri = `${url.origin}/api/integrations/meta/callback`;
-    const state = Buffer.from(JSON.stringify({ orgId, clientOrigin })).toString("base64");
+    const state = btoa(JSON.stringify({ orgId, clientOrigin }));
 
     const scopes = [
       "pages_show_list",
@@ -534,7 +534,7 @@ http.route({
     let orgId: string;
     let clientOrigin = "http://localhost:3000";
     try {
-      const parsedState = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+      const parsedState = JSON.parse(atob(state));
       orgId = parsedState.orgId;
       if (parsedState.clientOrigin) {
         clientOrigin = parsedState.clientOrigin;
