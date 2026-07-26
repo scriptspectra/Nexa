@@ -3,7 +3,10 @@
 import { useOrganization } from "@clerk/nextjs";
 import { Button } from "@workspace/ui/components/button";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@workspace/backend/_generated/api";
+import { useSearchParams } from "next/navigation";
 
 /* ─── Icon components ──────────────────────────────────────── */
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -24,6 +27,12 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const CheckIcon = () => (
+  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 /* ─── Channel config ────────────────────────────────────────── */
 const CHANNELS = [
   {
@@ -38,6 +47,7 @@ const CHANNELS = [
     iconColor: "text-white",
     iconBg: "bg-gradient-to-br from-[#1877F2] to-[#0C5FCD]",
     borderHover: "hover:border-[#1877F2]/60",
+    connectedBorder: "border-[#1877F2]/40",
     glowColor: "shadow-[#1877F2]/10",
     provider: "meta",
   },
@@ -53,6 +63,7 @@ const CHANNELS = [
     iconColor: "text-white",
     iconBg: "bg-gradient-to-br from-[#E1306C] via-[#833AB4] to-[#F77737]",
     borderHover: "hover:border-[#E1306C]/60",
+    connectedBorder: "border-[#E1306C]/40",
     glowColor: "shadow-[#833AB4]/10",
     provider: "meta",
   },
@@ -68,6 +79,7 @@ const CHANNELS = [
     iconColor: "text-white",
     iconBg: "bg-gradient-to-br from-[#25D366] to-[#128C4E]",
     borderHover: "hover:border-[#25D366]/60",
+    connectedBorder: "border-[#25D366]/40",
     glowColor: "shadow-[#25D366]/10",
     provider: "meta",
   },
@@ -77,6 +89,28 @@ const CHANNELS = [
 export const ChannelsView = () => {
   const { organization } = useOrganization();
   const [connecting, setConnecting] = useState<string | null>(null);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  // Query the Meta integration status from the database
+  const metaIntegration = useQuery(
+    api.private.integrations.getIntegrationStatus,
+    organization?.id ? { organizationId: organization.id, provider: "meta" } : "skip"
+  );
+
+  const disconnectIntegration = useMutation(api.private.integrations.disconnectIntegration);
+
+  const isMetaConnected =
+    metaIntegration?.status === "connected" || metaIntegration?.status === "healthy";
+
+  // Show success toast when redirected back from Meta OAuth
+  useEffect(() => {
+    if (searchParams.get("meta") === "success") {
+      toast.success("Meta account connected successfully! Your channels are now active.", {
+        duration: 5000,
+      });
+    }
+  }, [searchParams]);
 
   const handleConnect = (channel: (typeof CHANNELS)[number]) => {
     if (channel.id === "whatsapp") {
@@ -96,6 +130,29 @@ export const ChannelsView = () => {
     window.location.href = `${convexUrl}/api/integrations/meta/login?orgId=${organization.id}&clientOrigin=${encodeURIComponent(clientOrigin)}&channel=${channel.id}`;
   };
 
+  const handleDisconnect = async (channel: (typeof CHANNELS)[number]) => {
+    if (!organization?.id) return;
+    if (channel.id === "whatsapp") return;
+    setDisconnecting(channel.id);
+    try {
+      await disconnectIntegration({
+        organizationId: organization.id,
+        provider: "meta",
+      });
+      toast.success(`${channel.name} disconnected.`);
+    } catch (e: any) {
+      toast.error("Failed to disconnect: " + e.message);
+    } finally {
+      setDisconnecting(null);
+    }
+  };
+
+  // Meta channels (facebook + instagram) share a single Meta integration
+  const isChannelConnected = (channelId: string) => {
+    if (channelId === "whatsapp") return false;
+    return isMetaConnected;
+  };
+
   return (
     <div className="flex flex-col min-h-screen w-full overflow-y-auto bg-[#0f1013] text-[#e2e2e8]">
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
@@ -113,7 +170,9 @@ export const ChannelsView = () => {
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1e24] border border-[#2d3139] self-start sm:self-auto">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-sm font-semibold text-[#c3c6d7]">3 Available</span>
+              <span className="text-sm font-semibold text-[#c3c6d7]">
+                {isMetaConnected ? "1 Connected" : "3 Available"}
+              </span>
             </div>
           </div>
           <p className="text-[#8d90a0] text-sm sm:text-base leading-relaxed max-w-2xl">
@@ -129,19 +188,23 @@ export const ChannelsView = () => {
           {CHANNELS.map((channel) => {
             const Icon = channel.icon;
             const isLoading = connecting === channel.id;
+            const isDisconnecting = disconnecting === channel.id;
+            const connected = isChannelConnected(channel.id);
 
             return (
               <div
                 key={channel.id}
                 className={`
-                  relative group bg-[#16181e] border border-[#2d3139] rounded-2xl
+                  relative group bg-[#16181e] border rounded-2xl
                   overflow-hidden transition-all duration-300
-                  ${channel.borderHover}
-                  hover:shadow-xl hover:shadow-black/30
+                  ${connected
+                    ? `${channel.connectedBorder} shadow-lg`
+                    : `border-[#2d3139] ${channel.borderHover} hover:shadow-xl hover:shadow-black/30`
+                  }
                 `}
               >
-                {/* Subtle gradient top bar */}
-                <div className={`h-0.5 w-full bg-gradient-to-r ${channel.gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                {/* Subtle gradient top bar — brighter when connected */}
+                <div className={`h-0.5 w-full bg-gradient-to-r ${channel.gradient} ${connected ? "opacity-100" : "opacity-60 group-hover:opacity-100"} transition-opacity`} />
 
                 <div className="p-6 sm:p-8">
                   <div className="flex flex-col sm:flex-row sm:items-start gap-5">
@@ -154,44 +217,64 @@ export const ChannelsView = () => {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
-                        <div>
-                          <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
-                            {channel.name}
-                          </h2>
-                          <p className="text-xs font-semibold text-[#6b7280] uppercase tracking-wider mt-0.5">
-                            {channel.tagline}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
+                              {channel.name}
+                            </h2>
+                            <p className="text-xs font-semibold text-[#6b7280] uppercase tracking-wider mt-0.5">
+                              {channel.tagline}
+                            </p>
+                          </div>
+                          {/* Connected badge */}
+                          {connected && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+                              <CheckIcon />
+                              Connected
+                            </span>
+                          )}
                         </div>
 
-                        <Button
-                          onClick={() => handleConnect(channel)}
-                          disabled={isLoading}
-                          className={`
-                            inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
-                            bg-gradient-to-r ${channel.gradient} text-white border-0
-                            hover:opacity-90 active:scale-95 transition-all duration-200
-                            disabled:opacity-60 disabled:cursor-not-allowed
-                            shadow-md hover:shadow-lg
-                            self-start sm:self-auto flex-shrink-0
-                          `}
-                        >
-                          {isLoading ? (
-                            <>
-                              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                              </svg>
-                              Connecting…
-                            </>
+                        <div className="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
+                          {connected ? (
+                            <Button
+                              onClick={() => handleDisconnect(channel)}
+                              disabled={isDisconnecting}
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-[#1c1e24] border border-[#2d3139] text-[#8d90a0] hover:border-red-500/50 hover:text-red-400 transition-all duration-200 disabled:opacity-60"
+                            >
+                              {isDisconnecting ? "Disconnecting…" : "Disconnect"}
+                            </Button>
                           ) : (
-                            <>
-                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-                              </svg>
-                              Connect
-                            </>
+                            <Button
+                              onClick={() => handleConnect(channel)}
+                              disabled={isLoading}
+                              className={`
+                                inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm
+                                bg-gradient-to-r ${channel.gradient} text-white border-0
+                                hover:opacity-90 active:scale-95 transition-all duration-200
+                                disabled:opacity-60 disabled:cursor-not-allowed
+                                shadow-md hover:shadow-lg
+                              `}
+                            >
+                              {isLoading ? (
+                                <>
+                                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                  </svg>
+                                  Connecting…
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                                  </svg>
+                                  Connect
+                                </>
+                              )}
+                            </Button>
                           )}
-                        </Button>
+                        </div>
                       </div>
 
                       <p className="text-[#8d90a0] text-sm leading-relaxed mb-4">

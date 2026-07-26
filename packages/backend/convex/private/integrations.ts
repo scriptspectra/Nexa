@@ -90,3 +90,39 @@ export const disableIntegrationResource = mutation({
     });
   },
 });
+
+export const disconnectIntegration = mutation({
+  args: {
+    organizationId: v.string(),
+    provider: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const integration = await ctx.db
+      .query("integrations")
+      .withIndex("by_organization_id_and_provider", (q) =>
+        q.eq("organizationId", args.organizationId).eq("provider", args.provider)
+      )
+      .first();
+
+    if (integration) {
+      await ctx.db.patch(integration._id, {
+        status: "disconnected",
+        accessToken: undefined,
+        refreshToken: undefined,
+      });
+
+      // Also disable all related resources
+      const resources = await ctx.db
+        .query("integrationResources")
+        .withIndex("by_organization_id", (q) =>
+          q.eq("organizationId", args.organizationId)
+        )
+        .filter((q) => q.eq(q.field("provider"), args.provider))
+        .collect();
+
+      for (const resource of resources) {
+        await ctx.db.patch(resource._id, { status: "disconnected" });
+      }
+    }
+  },
+});

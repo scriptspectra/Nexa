@@ -41,6 +41,8 @@ export const dispatchInboundMessage = internalAction({
       await ctx.scheduler.runAfter(0, internal.events.dispatcher.triggerAIResponse, {
         threadId: conversation.threadId,
         conversationId,
+        channel: msg.source.channel,
+        integrationId: msg.source.integrationId ?? null,
       });
     }
   },
@@ -50,14 +52,32 @@ export const triggerAIResponse = internalAction({
   args: {
     threadId: v.string(),
     conversationId: v.id("conversations"),
+    channel: v.string(),
+    integrationId: v.union(v.string(), v.null()),
   },
   handler: async (ctx, args) => {
     const { thread } = await supportAgent.continueThread(ctx, {
       threadId: args.threadId,
     });
-    await thread.generateText({
-      prompt: undefined, // Generate response to the last user message already in the thread
+
+    // Generate AI reply text
+    const result = await thread.generateText({
+      prompt: undefined,
     });
+
+    const aiText = result.text;
+    if (!aiText) return;
+
+    // Save the AI-generated reply as an outbound message and enqueue outbox
+    await ctx.runMutation(internal.private.messages.saveOutboundMessage, {
+      conversationId: args.conversationId,
+      content: aiText,
+      channel: args.channel,
+      integrationId: args.integrationId ? args.integrationId as any : undefined,
+    });
+
+    // Immediately process the outbox so the reply is sent without delay
+    await ctx.scheduler.runAfter(0, internal.channels.base.outbox.processOutbox, {});
   },
 });
 

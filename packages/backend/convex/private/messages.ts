@@ -312,3 +312,35 @@ export const getMessagesForConversation = query({
     return messages;
   },
 });
+
+export const saveOutboundMessage = internalMutation({
+  args: {
+    conversationId: v.id("conversations"),
+    content: v.string(),
+    channel: v.string(),
+    integrationId: v.optional(v.id("integrations")),
+  },
+  handler: async (ctx, args) => {
+    // 1. Insert the outbound message
+    const messageId = await ctx.db.insert("messages", {
+      conversationId: args.conversationId,
+      direction: "outbound",
+      content: args.content,
+      type: "text",
+      channel: args.channel,
+      integrationId: args.integrationId,
+      deliveryStatus: "pending",
+      createdAt: Date.now(),
+    });
+
+    // 2. Enqueue in outbox for the outbox processor to deliver
+    await ctx.db.insert("outboxMessages", {
+      messageId,
+      status: "pending",
+      retryCount: 0,
+    });
+
+    return messageId;
+  },
+});
+
