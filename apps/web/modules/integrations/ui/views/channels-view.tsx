@@ -91,7 +91,8 @@ export const ChannelsView = () => {
     const clientOrigin = window.location.origin;
     const convexUrl = (process.env.NEXT_PUBLIC_CONVEX_URL ?? "")
       .replace("wss://", "https://")
-      .replace("ws://", "http://");
+      .replace("ws://", "http://")
+      .replace(".convex.cloud", ".convex.site");
     window.location.href = `${convexUrl}/api/integrations/meta/login?orgId=${organization.id}&clientOrigin=${encodeURIComponent(clientOrigin)}`;
   };
 
