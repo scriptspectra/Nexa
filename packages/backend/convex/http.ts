@@ -416,6 +416,28 @@ http.route({
 // ─── Meta Webhook ────────────────────────────────────────────────────────
 http.route({
   path: "/api/webhooks/meta",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    const mode = url.searchParams.get("hub.mode");
+    const token = url.searchParams.get("hub.verify_token");
+    const challenge = url.searchParams.get("hub.challenge");
+
+    // Retrieve verify token from env, default to "zephyra_meta_secret"
+    const VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || "zephyra_meta_secret";
+
+    if (mode === "subscribe" && token === VERIFY_TOKEN) {
+      console.log("META_WEBHOOK_VERIFIED");
+      return new Response(challenge, { status: 200 });
+    }
+
+    console.warn("META_WEBHOOK_VERIFICATION_FAILED: tokens do not match");
+    return new Response("Forbidden", { status: 403 });
+  }),
+});
+
+http.route({
+  path: "/api/webhooks/meta",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const rawBody = await request.text();
