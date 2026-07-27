@@ -250,13 +250,31 @@ export const getMany = query({
       conversations.page.map(async (conversation: any) => {
         let lastMessage: MessageDoc | null = null;
 
-        if (!conversation.contactSessionId) {
-          return null;
-        }
+        let contactSession: any = null;
 
-        const contactSession = await ctx.db.get(conversation.contactSessionId);
+        if (conversation.contactSessionId) {
+          // Widget/email conversations — use real contactSession
+          contactSession = await ctx.db.get(conversation.contactSessionId);
+          if (!contactSession) return null;
+        } else if (conversation.contactId) {
+          // Social channel conversations (Instagram, Messenger, WhatsApp)
+          // Build a synthetic session from the contactIdentity
+          const identity = await ctx.db
+            .query("contactIdentities")
+            .withIndex("by_contact_id", (q: any) => q.eq("contactId", conversation.contactId))
+            .first();
 
-        if (!contactSession) {
+          contactSession = {
+            _id: conversation.contactId,
+            name: identity
+              ? `${identity.provider.charAt(0).toUpperCase() + identity.provider.slice(1)} User (${identity.externalId.slice(-6)})`
+              : "Social User",
+            email: "",
+            organizationId: conversation.organizationId,
+            expiresAt: 0,
+            metadata: {},
+          };
+        } else {
           return null;
         }
 
