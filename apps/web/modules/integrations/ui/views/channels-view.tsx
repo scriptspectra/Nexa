@@ -103,10 +103,15 @@ export const ChannelsView = () => {
   const isMetaConnected =
     metaIntegration?.status === "connected" || metaIntegration?.status === "healthy";
 
-  // Show success toast when redirected back from Meta OAuth
+  // Show toast when redirected back from Meta OAuth
   useEffect(() => {
-    if (searchParams.get("meta") === "success") {
+    const metaStatus = searchParams.get("meta");
+    if (metaStatus === "success") {
       toast.success("Meta account connected successfully! Your channels are now active.", {
+        duration: 5000,
+      });
+    } else if (metaStatus === "error") {
+      toast.error("Failed to connect Meta account. Please check your credentials and try again.", {
         duration: 5000,
       });
     }

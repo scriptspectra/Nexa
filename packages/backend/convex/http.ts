@@ -572,20 +572,27 @@ http.route({
 
     const redirectUri = `${url.origin}/api/integrations/meta/callback`;
     
-    // Hand off to internal action to exchange code and save DB
-    await ctx.scheduler.runAfter(0, (internal as any).integrations.meta.actions.handleOAuthCallback, {
-      code,
-      redirectUri,
-      orgId,
-    });
-
-    // Redirect user back to the channels page
-    const dashboardUrl = `${clientOrigin}/channels?meta=success`;
-
-    return new Response(null, {
-      status: 302,
-      headers: { Location: dashboardUrl },
-    });
+    try {
+      // Synchronously exchange code and save DB so the frontend state is updated before redirect
+      await ctx.runAction((internal as any).integrations.meta.actions.handleOAuthCallback, {
+        code,
+        redirectUri,
+        orgId,
+      });
+      
+      const dashboardUrl = `${clientOrigin}/channels?meta=success`;
+      return new Response(null, {
+        status: 302,
+        headers: { Location: dashboardUrl },
+      });
+    } catch (err) {
+      console.error("OAuth callback failed:", err);
+      const dashboardUrl = `${clientOrigin}/channels?meta=error`;
+      return new Response(null, {
+        status: 302,
+        headers: { Location: dashboardUrl },
+      });
+    }
   }),
 });
 
