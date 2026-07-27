@@ -197,7 +197,7 @@ export const ConversationsPanel = () => {
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1 bg-surface-container-high border-outline-variant text-on-surface" align="start">
               <div className="flex flex-col">
-                {["all", "widget", "email", "instagram", "messenger", "whatsapp", "slack"].map(c => (
+                {["all", "widget", "instagram", "messenger", "whatsapp"].map(c => (
                   <button 
                     key={c} 
                     className={cn(

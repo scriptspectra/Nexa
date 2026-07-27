@@ -16,10 +16,10 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     <AuthGuard>
       <OrganizationGuard>
         <Provider>
-        <div className="flex h-screen w-full bg-background overflow-hidden selection:bg-primary selection:text-on-primary relative">
+          <div className="flex h-screen w-full bg-background overflow-hidden selection:bg-primary selection:text-on-primary relative">
             {/* Sidebar backdrop for mobile */}
             {isSidebarOpen && (
-              <div 
+              <div
                 className="fixed inset-0 bg-black/60 z-40 md:hidden transition-opacity"
                 onClick={() => setIsSidebarOpen(false)}
               />
@@ -38,7 +38,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <header className="flex justify-between items-center px-gutter w-full sticky top-0 z-30 h-16 bg-background border-b border-outline-variant">
                 <div className="flex items-center gap-md md:gap-xl">
                   {/* Hamburger menu button */}
-                  <button 
+                  <button
                     onClick={() => setIsSidebarOpen(true)}
                     className="md:hidden p-1.5 -ml-1 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-md hover:bg-surface-container"
                   >
@@ -47,9 +47,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
                   <span className="text-label-md font-label-md font-bold text-primary uppercase tracking-widest">Zephyra</span>
                   <div className="hidden md:flex gap-md">
-                    <a className="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Queue</a>
-                    <a className="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">SLA Status</a>
-                    <a className="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">History</a>
+
                   </div>
                 </div>
                 <div className="flex items-center gap-md">

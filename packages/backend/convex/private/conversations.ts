@@ -218,20 +218,32 @@ export const getMany = query({
             )
             .eq("organizationId", orgId)
         )
-        .filter((q) => 
-          args.channel ? q.eq(q.field("channel"), args.channel) : q.neq(q.field("status"), "never-match-this-status")
-        )
+        .filter((q) => {
+          const statusCondition = args.status
+            ? q.eq(q.field("status"), args.status)
+            : q.neq(q.field("status"), "never-match-this-status");
+          if (args.channel) {
+            return q.and(statusCondition, q.eq(q.field("channel"), args.channel));
+          }
+          return statusCondition;
+        })
         .order("desc")
         .paginate(args.paginationOpts)
     } else {
-      conversations = await ctx.db
-        .query("conversations")
-        .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
-        .filter((q) => 
-          args.channel ? q.eq(q.field("channel"), args.channel) : q.neq(q.field("status"), "never-match-this-status")
-        )
-        .order("desc")
-        .paginate(args.paginationOpts)
+      if (args.channel) {
+        conversations = await ctx.db
+          .query("conversations")
+          .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
+          .filter((q) => q.eq(q.field("channel"), args.channel as string))
+          .order("desc")
+          .paginate(args.paginationOpts);
+      } else {
+        conversations = await ctx.db
+          .query("conversations")
+          .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
+          .order("desc")
+          .paginate(args.paginationOpts);
+      }
     }
 
     const conversationsWithAdditionalData = await Promise.all(
