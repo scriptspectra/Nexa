@@ -17,6 +17,26 @@ export const getIntegrationStatus = query({
   },
 });
 
+export const listConnected = query({
+  args: {
+    organizationId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!args.organizationId) return [];
+    const integrations = await ctx.db
+      .query("integrations")
+      .withIndex("by_organization_id", (q) =>
+        q.eq("organizationId", args.organizationId)
+      )
+      .collect();
+    // Return only connected/active integrations as provider strings
+    return integrations
+      .filter((i) => i.status === "connected" || i.status === "active")
+      .map((i) => i.provider);
+  },
+});
+
+
 export const getById = internalQuery({
   args: { integrationId: v.id("integrations") },
   handler: async (ctx, args) => {
