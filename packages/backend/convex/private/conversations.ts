@@ -162,6 +162,7 @@ export const getMany = query({
     ),
     assignedToUserId: v.optional(v.string()),
     tag: v.optional(v.string()),
+    channel: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -194,11 +195,16 @@ export const getMany = query({
         )
         // If status filter is also present, we must filter in-memory or by index scan
         // Convex indexes must be matched exactly from left to right.
-        .filter((q) =>
-          args.status
+        .filter((q) => {
+          const statusCondition = args.status
             ? q.eq(q.field("status"), args.status)
-            : q.neq(q.field("status"), "never-match-this-status") // dummy if no filter
-        )
+            : q.neq(q.field("status"), "never-match-this-status");
+          
+          if (args.channel) {
+            return q.and(statusCondition, q.eq(q.field("channel"), args.channel));
+          }
+          return statusCondition;
+        })
         .order("desc")
         .paginate(args.paginationOpts);
     } else if (args.status) {
@@ -212,12 +218,18 @@ export const getMany = query({
             )
             .eq("organizationId", orgId)
         )
+        .filter((q) => 
+          args.channel ? q.eq(q.field("channel"), args.channel) : q.neq(q.field("status"), "never-match-this-status")
+        )
         .order("desc")
         .paginate(args.paginationOpts)
     } else {
       conversations = await ctx.db
         .query("conversations")
         .withIndex("by_organization_id", (q) => q.eq("organizationId", orgId))
+        .filter((q) => 
+          args.channel ? q.eq(q.field("channel"), args.channel) : q.neq(q.field("status"), "never-match-this-status")
+        )
         .order("desc")
         .paginate(args.paginationOpts)
     }
