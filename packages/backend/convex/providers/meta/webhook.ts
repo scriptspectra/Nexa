@@ -67,10 +67,23 @@ export const processMetaWebhook = internalAction({
 export const lookupAsset = internalQuery({
   args: { externalAssetId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    // First try a direct lookup by externalResourceId (works for Facebook Pages and WhatsApp)
+    const direct = await ctx.db
       .query("integrationResources")
       .withIndex("by_external_resource_id", (q) =>
         q.eq("externalResourceId", args.externalAssetId),
       ).first();
+
+    if (direct) return direct;
+
+    // Fallback: for Instagram webhooks, entry.id is the Facebook Page ID,
+    // but we stored the IG account ID as externalResourceId with raw.pageId = Page ID.
+    // Scan instagram_account resources and match on raw.pageId.
+    const allResources = await ctx.db.query("integrationResources").collect();
+    const igResource = allResources.find(
+      (r) => r.resourceType === "instagram_account" && r.raw?.pageId === args.externalAssetId
+    );
+
+    return igResource ?? null;
   }
 });

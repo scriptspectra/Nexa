@@ -29,9 +29,9 @@ export const listConnected = query({
         q.eq("organizationId", args.organizationId)
       )
       .collect();
-    // Return only connected/active integrations as provider strings
+    // Return only healthy/syncing integrations as provider strings
     return integrations
-      .filter((i) => i.status === "connected" || i.status === "active")
+      .filter((i) => i.status === "healthy" || i.status === "syncing")
       .map((i) => i.provider);
   },
 });
