@@ -37,6 +37,7 @@ export const ConversationsPanel = () => {
   const setStatusFilter = useSetAtom(statusFilterAtom);
   const [queueFilter, setQueueFilter] = useState<"all" | "me">("all");
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [channelFilter, setChannelFilter] = useState<string>("all");
 
   const orgTags = useQuery(
     api.private.conversationTags.listTagsForOrg,
@@ -52,6 +53,7 @@ export const ConversationsPanel = () => {
           : statusFilter,
       assignedToUserId: queueFilter === "me" && user ? user.id : undefined,
       tag: tagFilter || undefined,
+      channel: channelFilter === "all" ? undefined : channelFilter,
     },
     {
       initialNumItems: 10,
@@ -179,6 +181,37 @@ export const ConversationsPanel = () => {
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Channel Chip */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className={cn(
+                "flex items-center gap-1 shrink-0 text-[11px] font-bold uppercase tracking-wider px-2 py-1 border rounded-full transition-colors",
+                channelFilter !== "all" 
+                  ? "border-primary bg-primary/10 text-primary" 
+                  : "border-outline-variant text-on-surface-variant hover:border-on-surface-variant"
+              )}>
+                Source: {channelFilter === "all" ? "All" : channelFilter.charAt(0).toUpperCase() + channelFilter.slice(1)}
+                <span className="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1 bg-surface-container-high border-outline-variant text-on-surface" align="start">
+              <div className="flex flex-col">
+                {["all", "widget", "email", "instagram", "messenger", "whatsapp", "slack"].map(c => (
+                  <button 
+                    key={c} 
+                    className={cn(
+                      "text-left px-2 py-1.5 text-label-sm hover:bg-surface-container-highest",
+                      channelFilter === c && "text-primary font-bold"
+                    )}
+                    onClick={() => setChannelFilter(c)}
+                  >
+                    {c === "all" ? "All Sources" : c.charAt(0).toUpperCase() + c.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
       {isLoadingFirstPage ? (
@@ -230,6 +263,11 @@ export const ConversationsPanel = () => {
                         {conversation.slaStatus === "breached" && (
                           <span className="text-[9px] font-bold tracking-wider uppercase bg-error/10 text-error px-1.5 py-0.5 rounded-sm">
                             SLA Breach
+                          </span>
+                        )}
+                        {conversation.channel && (
+                          <span className="text-[9px] font-bold tracking-wider uppercase border border-outline-variant text-on-surface-variant px-1.5 py-0.5 rounded-sm">
+                            {conversation.channel}
                           </span>
                         )}
                         <span className="text-label-sm font-label-sm text-on-surface-variant">
